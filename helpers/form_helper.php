@@ -27,9 +27,9 @@ function element_tag_build($element, $attrs, $content) {
 function add_error_classes($obj, $field) {
 	$classes = array();
 
-	// Handle EvanceTable
+	// Handle WoolTable
 	if ($obj instanceof StdClass) {
-		$validators = EvanceTable::validators($obj, $field);
+		$validators = WoolTable::validators($obj, $field);
 		if (isset($validators['required'])) {
 			$classes[] = 'required';
 		}
@@ -68,7 +68,7 @@ function class_array($classes, $preSpace=false) {
 function label($objName, $field, $attrs = array()) {
 	return element_tag_build('label', array_merge(array(
 			'for' => "{$objName}_{$field}"
-		), $attrs), EvanceTable::nameFor($objName, $field)
+		), $attrs), WoolTable::nameFor($objName, $field)
 	);
 }
 
@@ -364,7 +364,7 @@ function formatErrors($obj=null, $options=array()) {
 		'text' => 'Some values may have been entered incorrectly. Please correct the following:'
 	), $options);
 	
-	$errors = EvanceErrors::get($obj);
+	$errors = WoolErrors::get($obj);
 	if (!$errors) {
 		return;
 	}
@@ -395,7 +395,7 @@ HTML;
 }
 
 function formatError($obj, $field) {
-	$errors = EvanceErrors::get($obj, $field);
+	$errors = WoolErrors::get($obj, $field);
 	if (!$errors) {
 		return;
 	}

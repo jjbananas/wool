@@ -2,7 +2,7 @@
 
 require_once('Zend/Db.php');
 require_once('Zend/Db/Adapter/Pdo/Mysql.php');
-require_once('Shaded/Db/EvanceTable.php');
+require_once('Shaded/Db/WoolTable.php');
 require_once('Shaded/Db/SqlParser.php');
 require_once('Shaded/Db/Sql.php');
 require_once('Shaded/Db/SqlMeta.php');
@@ -17,7 +17,7 @@ if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php'
 
 require_once($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
 
-class EvanceDb {
+class WoolDb {
 	private static $db;
 	
 	public static function connect() {
@@ -67,7 +67,7 @@ class EvanceDb {
 		$args = func_get_args();
 		$row = call_user_func_array(array('self', 'fetchRowStrict'), $args);
 		if (!$row) {
-			return EvanceTable::blankFromSql($sql);
+			return WoolTable::blankFromSql($sql);
 		}
 		return $row;
 	}
@@ -78,7 +78,7 @@ class EvanceDb {
 		if (!$row) {
 			return false;
 		}
-		EvanceTable::setQueryMeta($row, new SqlMeta($sql));
+		WoolTable::setQueryMeta($row, new SqlMeta($sql));
 		return $row;
 	}
 	
@@ -88,7 +88,7 @@ class EvanceDb {
 			return call_user_func_array(array(self::$db, $name), $args);
 		}
 		
-		trigger_error("Call to undefined method EvanceDb::{$name}", E_USER_ERROR);
+		trigger_error("Call to undefined method WoolDb::{$name}", E_USER_ERROR);
 	}
 	
 	/*
@@ -154,7 +154,7 @@ class EvanceDb {
 
 }
 
-EvanceDb::connect();
+WoolDb::connect();
 
 
 
@@ -167,7 +167,7 @@ if (!function_exists('spl_object_hash')) {
 	}
 }
 
-class EvanceError extends Exception {
+class WoolError extends Exception {
 	// Message is required.
 	public function __construct($message, $code = 0) {
 		parent::__construct($message, $code);

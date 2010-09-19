@@ -44,7 +44,7 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 			$this->rows = $result['rows'];
 			$meta = new SqlMeta($result['source']);
 			foreach ($this->rows as $row) {
-				EvanceTable::setQueryMeta($row, $meta);
+				WoolTable::setQueryMeta($row, $meta);
 			}
 		} else {
 			$this->rows = $source;
@@ -52,8 +52,8 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 	}
 	
 	private function fetchAcross($source, $params) {
-		$query = EvanceDb::joinAcross($source, $params);
-		return array('source'=>$query['sql'], 'rows'=>EvanceDb::fetchAll($query['sql'], $query['params']));
+		$query = WoolDb::joinAcross($source, $params);
+		return array('source'=>$query['sql'], 'rows'=>WoolDb::fetchAll($query['sql'], $query['params']));
 	}
 	
 	public function rows() {
@@ -89,7 +89,7 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 	public function by($column, $value=null, $strict=false) {
 		if (!isset($this->indices[$column])) {
 			if ($strict) {
-				throw new EvanceError("Attempting to access non-indexed column");
+				throw new WoolError("Attempting to access non-indexed column");
 			}
 			$this->index($column);
 		}
@@ -107,7 +107,7 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 	public function byGroup($column, $value=null, $strict=false) {
 		if (!isset($this->groups[$column])) {
 			if ($strict) {
-				throw new EvanceError("Attempting to access non-indexed column");
+				throw new WoolError("Attempting to access non-indexed column");
 			}
 			$this->groupBy($column);
 		}

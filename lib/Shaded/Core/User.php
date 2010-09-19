@@ -1,6 +1,6 @@
 <?php
 
-class User extends EvanceTable {
+class User extends WoolTable {
 	private static $roleCache = array();
 	
 	public static function define() {
@@ -20,7 +20,7 @@ SQL
 			return self::$roleCache[$id];
 		}
 		
-		self::$roleCache[$id] = EvanceDb::fetchCol(<<<SQL
+		self::$roleCache[$id] = WoolDb::fetchCol(<<<SQL
 select *
 from access_roles_users
 where userId = ?
@@ -35,4 +35,4 @@ SQL
 	}
 }
 
-EvanceTable::registerTable("User", "users");
+WoolTable::registerTable("User", "users");

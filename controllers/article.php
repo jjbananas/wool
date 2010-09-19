@@ -9,7 +9,7 @@ class ArticleController extends AppController {
 	}
 	
 	function index() {
-		$this->location = str_replace($GLOBALS['BASE_URI'], '', Request::path());
+		$this->location = Request::path(true);
 		
 		if (id_param('revision')) {
 			$this->page = Article::revision($this->location, id_param('revision'))->fetchRow();
@@ -37,8 +37,18 @@ class ArticleController extends AppController {
 		}
 		
 		if (Request::isPost()) {
-			if (Article::createRevision(param("page"))) {
+			if (Article::createRevision($this->location, param("page"))) {
 				$this->redirectTo(baseUri($this->location));
+			}
+		}
+	}
+	
+	function delete() {
+		$this->page = Article::latest(param('location'))->fetchRow();
+		
+		if (Request::isPost()) {
+			if (Article::delete(param('location'))) {
+				$this->redirectTo(baseUri('/'));
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 <?php
 
 require_once('Shaded/App/Forum/Message.php');
-require_once('Shaded/Framework/EvanceGrid.php');
+require_once('Shaded/Framework/WoolGrid.php');
 
 class ForumController extends AppController {
 	function startUp() {
@@ -9,13 +9,13 @@ class ForumController extends AppController {
 	}
 	
 	function index() {
-		$this->threads = new EvanceGrid("forum", ForumMessage::threadsFor("forum", 1));
+		$this->threads = new WoolGrid("forum", ForumMessage::threadsFor("forum", 1));
 		$this->threads->setPerPage(25);
 		$this->replies = ForumMessage::messagesForThreads(pluck($this->threads, "id"))->rowSet();
 	}
 	
 	function create() {
-		$this->message = EvanceTable::fetch("forum_messages", null, "message");
+		$this->message = WoolTable::fetch("forum_messages", null, "message");
 		$this->message->userId = Session::user()->userId;
 		
 		if (Request::isPost()) {
@@ -30,10 +30,10 @@ class ForumController extends AppController {
 		$this->thread_num = 1;
 		$this->thread_total = 1;
 		
-		$this->message = EvanceTable::fetch("forum_messages", "id");
+		$this->message = WoolTable::fetch("forum_messages", "id");
 		
 		if (Request::isPost()) {
-			$this->reply = EvanceTable::fetch("forum_messages", null, "message");
+			$this->reply = WoolTable::fetch("forum_messages", null, "message");
 			$this->reply->userId = Session::user()->userId;
 			ForumMessage::replyTo($this->reply, $this->message);
 		}
@@ -46,7 +46,7 @@ class ForumController extends AppController {
 	}
 	
 	function delete() {
-		$this->message = EvanceTable::fetch("forum_messages", "id");
+		$this->message = WoolTable::fetch("forum_messages", "id");
 		
 		if (Request::isPost()) {
 			$GLOBALS['MessageNestedSet']->removeNode($this->message->id);

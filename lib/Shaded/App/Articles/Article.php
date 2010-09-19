@@ -2,7 +2,7 @@
 
 require_once('Shaded/App/Articles/Revision.php');
 
-class Article extends EvanceTable {
+class Article extends WoolTable {
 	public static function define() {
 		self::defaultValue("createdOn", now());
 	}
@@ -19,7 +19,7 @@ select a.location, r.*, u.*
 from articles a
 join article_revisions r on r.articleId = a.articleId
 join users u on u.userId = r.authorId
-where a.location = ?
+where a.location = ? and a.deleted = 'N'
 order by r.publishedOn desc
 limit 1
 SQL
@@ -52,17 +52,19 @@ SQL
 		, $location);
 	}
 	
-	public static function createRevision($post) {
-		$article = self::editable(param('location'))->fetchRow();
-		$revision = EvanceTable::blank("article_revisions");
+	public static function createRevision($location, $post) {
+		$article = self::editable($location)->fetchRow();
+		$revision = WoolTable::blank("article_revisions");
 		
-		EvanceTable::fromArray($article, $post);
-		EvanceTable::fromArray($revision, $post);
+		$article->location = $location;
+		$article->deleted = 'N';
 		
-		//debug($article,1);
+		WoolTable::fromArray($article, $post);
+		WoolTable::fromArray($revision, $post);
+		
 		$trans = new TransactionRaii;
 		if (!$article->articleId) {
-			if (!EvanceTable::save($article)) {
+			if (!WoolTable::save($article)) {
 				return false;
 			}
 		}
@@ -73,13 +75,21 @@ SQL
 		$revision->createdOn = now();
 		$revision->publishedOn = now();
 		
-		if (!EvanceTable::save($revision)) {
+		if (!WoolTable::save($revision)) {
 			return false;
 		}
 		
 		$trans->success();
 		return true;
 	}
+	
+	public static function delete($location) {
+		return self::createRevision($location, array(
+			"deleted" => 'Y',
+			"title" => "Deleted",
+			"content" => "Deleted"
+		));
+	}
 }
 
-EvanceTable::registerTable("Article", "articles");
+WoolTable::registerTable("Article", "articles");

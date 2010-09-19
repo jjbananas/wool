@@ -24,7 +24,7 @@ abstract class Validator {
 
 class UniqueValidator extends Validator {
 	public static function validate($value, $params=array()) {
-		return EvanceDb::fetchOne("select count(*) from {$params['table']} where {$params['column']}=?", $value) == 0;
+		return WoolDb::fetchOne("select count(*) from {$params['table']} where {$params['column']}=?", $value) == 0;
 	}
 	
 	public static function errorMessage($field, $pretty, $value, $valParams) {
@@ -86,8 +86,8 @@ class LengthValidator extends Validator {
 }
 
 
-EvanceValidation::registerValidator("unique", "UniqueValidator");
-EvanceValidation::registerValidator("required", "StrLenValidator");
-EvanceValidation::registerValidator("range", "RangeValidator");
-EvanceValidation::registerValidator("minlen", "StrLenValidator");
-EvanceValidation::registerValidator("length", "LengthValidator");
+WoolValidation::registerValidator("unique", "UniqueValidator");
+WoolValidation::registerValidator("required", "StrLenValidator");
+WoolValidation::registerValidator("range", "RangeValidator");
+WoolValidation::registerValidator("minlen", "StrLenValidator");
+WoolValidation::registerValidator("length", "LengthValidator");

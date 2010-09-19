@@ -18,11 +18,11 @@ class NestedSet {
 		$obj->$right = 2;
 		$obj->$root = 0;
 		
-		if (!EvanceTable::save($obj)) {
+		if (!WoolTable::save($obj)) {
 			return false;
 		}
 
-		EvanceDb::update($table, array($root=>$obj->$unique), "{$unique} = {$obj->$unique}");
+		WoolDb::update($table, array($root=>$obj->$unique), "{$unique} = {$obj->$unique}");
 
 		$trans->success();
 		return true;
@@ -43,7 +43,7 @@ class NestedSet {
 		$obj->$left = $node->$left;
 		$obj->$right = $node->$left + 1;
 		$obj->$root = $node->$root;
-		if (!EvanceTable::save($obj)) {
+		if (!WoolTable::save($obj)) {
 			return false;
 		}
 		$trans->success();
@@ -65,7 +65,7 @@ class NestedSet {
 		$obj->$left = $node->$right + 1;
 		$obj->$right = $node->$right + 2;
 		$obj->$root = $node->$root;
-		if (!EvanceTable::save($obj)) {
+		if (!WoolTable::save($obj)) {
 			return false;
 		}
 		$trans->success();
@@ -87,7 +87,7 @@ class NestedSet {
 		$child->$left = $parentNode->$left + 1;
 		$child->$right = $parentNode->$left + 2;
 		$child->$root = $parentNode->$root;
-		if (!EvanceTable::save($child)) {
+		if (!WoolTable::save($child)) {
 			return false;
 		}
 		
@@ -110,7 +110,7 @@ class NestedSet {
 		$child->$left = $parentNode->$right;
 		$child->$right = $parentNode->$right + 1;
 		$child->$root = $parentNode->$root;
-		if (!EvanceTable::save($child)) {
+		if (!WoolTable::save($child)) {
 			return false;
 		}
 		
@@ -180,7 +180,7 @@ class NestedSet {
 		$node = $this->nestedData($id);
 		if (!$node) { return; }
 		
-		EvanceDb::delete($table, "{$root} = {$node->$root} and {$left} >= {$node->$left} and {$right} <= {$node->$right}");
+		WoolDb::delete($table, "{$root} = {$node->$root} and {$left} >= {$node->$left} and {$right} <= {$node->$right}");
 		$this->shiftNodes($node->$left, $node->$left - $node->$right - 1, $node->$root);
 	}
 	
@@ -207,7 +207,7 @@ class NestedSet {
 		}
 
 		// Update parent relation.
-		EvanceDb::update($table, array($parent=>$parentId), "{$unique} = {$obj->$unique}");
+		WoolDb::update($table, array($parent=>$parentId), "{$unique} = {$obj->$unique}");
 		
 		$trans->success();
 		return true;
@@ -216,14 +216,14 @@ class NestedSet {
 	private function shiftNodes($lowest, $delta, $rootId) {
 		extract($this->config);
 
-		EvanceDb::query(<<<SQL
+		WoolDb::query(<<<SQL
 update {$table}
 set {$left} = {$left} + {$delta}
 where {$root} = ? and {$left} >= ?
 SQL
 		, array($rootId, $lowest));
 		
-		EvanceDb::query(<<<SQL
+		WoolDb::query(<<<SQL
 update {$table}
 set {$right} = {$right} + {$delta}
 where {$root} = ? and {$right} >= ?
@@ -234,14 +234,14 @@ SQL
 	private function shiftNodesRange($lowest, $highest, $delta, $rootId) {
 		extract($this->config);
 		
-		EvanceDb::query(<<<SQL
+		WoolDb::query(<<<SQL
 update {$table}
 set {$left} = {$left} + {$delta}
 where {$root} = ? and {$left} >= ? and {$left} <= ?
 SQL
 		, array($rootId, $lowest, $highest));
 		
-		EvanceDb::query(<<<SQL
+		WoolDb::query(<<<SQL
 update {$table}
 set {$right} = {$right} + {$delta}
 where {$root} = ? and {$right} >= ? and {$right} <= ?
@@ -256,7 +256,7 @@ SQL
 			return $id;
 		}
 		
-		return EvanceDb::fetchRow(<<<SQL
+		return WoolDb::fetchRow(<<<SQL
 select {$unique}, {$left}, {$right}, {$parent}, {$root}
 from {$table}
 where {$unique} = ?
@@ -274,13 +274,13 @@ SQL
 		
 		$rgt = $lft+1;
 		
-		$children = EvanceDb::fetchAll("select {$parent} FROM {$table} where {$parent}={$parentId}");
+		$children = WoolDb::fetchAll("select {$parent} FROM {$table} where {$parent}={$parentId}");
 		
 		foreach ($children as $child) {
 			$rgt = $this->rebuild($child->$parent, $rgt);
 		}
 
-		EvanceDb::update(
+		WoolDb::update(
 			$table,
 			array($left => $lft, $right => $rgt),
 			array("{$unique} = ?" => $parentId)

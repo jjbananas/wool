@@ -1,6 +1,6 @@
 <?php
 
-class EvanceTable {
+class WoolTable {
 	// The global database schema, created from the database.
 	// ONLY PUBLIC so that schema.php can access it. DO NOT USE externally.
 	public static $schema = array();
@@ -15,7 +15,7 @@ class EvanceTable {
 	private static $pealCache = array();
 		
 	public static function validation($column, $type, $params=array()) {
-		EvanceValidation::add(self::$registering, $column, $type, $params);
+		WoolValidation::add(self::$registering, $column, $type, $params);
 	}
 	
 	public static function name($column, $pretty) {
@@ -101,7 +101,7 @@ class EvanceTable {
 		$table = $meta->columnTable($col);
 		$source = $meta->columnSource($col);
 		
-		return EvanceValidation::getFor($table, $source);
+		return WoolValidation::getFor($table, $source);
 	}
 	
 	// Validate one or many rows. Identical to the validation preformed during
@@ -142,7 +142,7 @@ class EvanceTable {
 			// Test all attached validators.
 			$pretty = isset(self::$names[$table][$column]) ? self::$names[$table][$column] : $column;
 			
-			if (!EvanceValidation::validate($table, $column, $obj, $colVal, $pretty)) {
+			if (!WoolValidation::validate($table, $column, $obj, $colVal, $pretty)) {
 				$valid = false;
 			}
 		}
@@ -214,8 +214,8 @@ class EvanceTable {
 				$obj->$select['alias'] = self::$schema[$table][$select['source']]['default'];
 			}
 		}
-		EvanceTable::setQueryMeta($obj, $meta);
-		return EvanceTable::fromArray($obj, $merge, $mergeGrp);
+		WoolTable::setQueryMeta($obj, $meta);
+		return WoolTable::fromArray($obj, $merge, $mergeGrp);
 	}
 	
 	// Fetch is a simple way to get a single row from a single table.
@@ -225,15 +225,15 @@ class EvanceTable {
 		if ($id) {
 			$obj = new StdClass;
 			$where = self::primaryWhereClause($table, $id);
-			$obj = EvanceDb::fetchRow("select * from {$table} where {$where}");
+			$obj = WoolDb::fetchRow("select * from {$table} where {$where}");
 		} else {
 			$obj = new StdClass;
 			foreach (self::$schema[$table] as $col) {
 				$obj->$col['name'] = $col['default'];
 			}
-			EvanceTable::setQueryMeta($obj, new SqlMeta($table, true));
+			WoolTable::setQueryMeta($obj, new SqlMeta($table, true));
 		}
-		return EvanceTable::fromArray($obj, $merge, $mergeGrp);
+		return WoolTable::fromArray($obj, $merge, $mergeGrp);
 	}
 	
 	// Shortcut to get a row set of a single table.
@@ -389,12 +389,12 @@ class EvanceTable {
 				// Send off to Zend_Db to do the save.
 				if ($s['insert']) {
 					self::triggerEvent("preInsert", $s['obj'], $table);
-					EvanceDb::insert($srcTable, $s['values']);
-					$s['obj']->$s['auto_increment'] = EvanceDb::lastInsertId();
+					WoolDb::insert($srcTable, $s['values']);
+					$s['obj']->$s['auto_increment'] = WoolDb::lastInsertId();
 				}
 				else {
 					self::triggerEvent("preUpdate", $s['obj'], $table);
-					EvanceDb::update($srcTable, $s['values'], $s['primaries']);
+					WoolDb::update($srcTable, $s['values'], $s['primaries']);
 				}
 				
 				self::triggerEvent("postSave", $s['obj'], $table);
@@ -436,7 +436,7 @@ class EvanceTable {
 			$inserts[] = $col['name'];
 			
 			if (isset($changes[$col['name']])) {
-				$selects[] = EvanceDb::quote($changes[$col['name']]);
+				$selects[] = WoolDb::quote($changes[$col['name']]);
 			} else {
 				$selects[] = $col['name'];
 			}
@@ -445,8 +445,8 @@ class EvanceTable {
 		$inserts = join(", ", $inserts);
 		$selects = join(", ", $selects);
 		
-		EvanceDb::exec("insert into {$table} ({$inserts}) select {$selects} from {$table} where {$where}");
-		return EvanceDb::lastInsertId();
+		WoolDb::exec("insert into {$table} ({$inserts}) select {$selects} from {$table} where {$where}");
+		return WoolDb::lastInsertId();
 	}
 	
 	// Build a where cause uniquely identifying a row by all its primary keys.

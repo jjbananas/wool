@@ -3,7 +3,7 @@
 require_once('Shaded/Common/Cipher.php');
 require_once('Shaded/Core/User.php');
 
-class Session extends EvanceTable {
+class Session extends WoolTable {
 	private static $session;
 	private static $user;
 	
@@ -15,7 +15,7 @@ class Session extends EvanceTable {
 		session_start();
 		
 		self::sessionStart();
-		self::$user = EvanceTable::fetch("users", self::$session->userId);
+		self::$user = WoolTable::fetch("users", self::$session->userId);
 	}
 	
 	public static function loggedIn() {
@@ -31,7 +31,7 @@ class Session extends EvanceTable {
 			return false;
 		}
 		
-		$user = EvanceDb::fetchRow(<<<SQL
+		$user = WoolDb::fetchRow(<<<SQL
 select u.*
 from users u
 where u.email = ? and u.password = ?
@@ -49,7 +49,7 @@ SQL
 	
 	public static function loginUser($uid) {
 		$sid = self::$session->sessionId;
-		EvanceDb::update("sessions", array("userId"=>$uid), "sessionId = {$sid}");
+		WoolDb::update("sessions", array("userId"=>$uid), "sessionId = {$sid}");
 	}
 	
 	public static function logout() {
@@ -58,7 +58,7 @@ SQL
 		}
 		
 		$sid = self::$session->sessionId;
-		EvanceDb::update("sessions", array("userId"=>0), "sessionId = {$sid}");
+		WoolDb::update("sessions", array("userId"=>0), "sessionId = {$sid}");
 	}
 	
 	private static function sessionStart() {
@@ -75,8 +75,8 @@ SQL
 		self::$session->token = rand(0, 999999999);
 		self::$session->createdOn = now();
 		
-		EvanceTable::save(self::$session);
+		WoolTable::save(self::$session);
 	}
 }
 
-EvanceTable::registerTable("Session", "sessions");
+WoolTable::registerTable("Session", "sessions");

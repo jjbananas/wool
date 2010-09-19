@@ -5,7 +5,7 @@ require_once('Shaded/Framework/ValidatorsStd.php');
 require_once('Shaded/Framework/ValidatorsTypes.php');
 require_once('Shaded/Framework/ValidatorsCustom.php');
 
-class EvanceValidation {
+class WoolValidation {
 	private static $validators = array();
 	private static $regValidators = array();
 
@@ -34,13 +34,13 @@ class EvanceValidation {
 			if (!call_user_func(array($valCls, 'validate'), $value, $params)) {
 				if (isset($params['msg'])) {
 					// Custom message.
-					EvanceErrors::add($id, $field, call_user_func(
+					WoolErrors::add($id, $field, call_user_func(
 						array($valCls, 'formatErrorMessage'), $params['msg'], $field,
 						$pretty, $value
 					));
 				} else {
 					// Standard validator message.
-					EvanceErrors::add($id, $field, call_user_func(
+					WoolErrors::add($id, $field, call_user_func(
 						array($valCls, 'errorMessage'), $field, $pretty, $value, $params
 					));
 				}

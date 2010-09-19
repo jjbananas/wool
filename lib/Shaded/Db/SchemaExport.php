@@ -100,6 +100,6 @@ SQL
 		}
 	}
 	
-	file_put_contents_mkdir($file, "<?php\nEvanceTable::\$schema = " . var_export($schema, true) . ";\n");
+	file_put_contents_mkdir($file, "<?php\nWoolTable::\$schema = " . var_export($schema, true) . ";\n");
 	return true;
 }

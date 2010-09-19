@@ -1,8 +1,8 @@
 <?php
 
-class AccessRoleContact extends EvanceTable {
+class AccessRoleContact extends WoolTable {
 	public static function define() {
 	}
 }
 
-EvanceTable::registerTable("AccessRoleContact", "access_roles_contacts");
+WoolTable::registerTable("AccessRoleContact", "access_roles_contacts");

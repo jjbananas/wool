@@ -76,5 +76,5 @@ class NoHtmlValidator extends Validator {
 }
 
 
-EvanceValidation::registerValidator("email", "EmailValidator");
-EvanceValidation::registerValidator("nohtml", "NoHtmlValidator");
+WoolValidation::registerValidator("email", "EmailValidator");
+WoolValidation::registerValidator("nohtml", "NoHtmlValidator");

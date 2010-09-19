@@ -1,8 +1,8 @@
 <?php
 
-class AccessLocation extends EvanceTable {
+class AccessLocation extends WoolTable {
 	public static function define() {
 	}
 }
 
-EvanceTable::registerTable("AccessLocation", "access_locations");
+WoolTable::registerTable("AccessLocation", "access_locations");

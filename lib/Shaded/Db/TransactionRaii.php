@@ -10,7 +10,7 @@ class TransactionRaii {
 		$this->strict = $strict;
 		
 		if (self::$depth == 1 || $strict) {
-			EvanceDb::beginTransaction();
+			WoolDb::beginTransaction();
 		}
 	}
 	public function __destruct() {
@@ -21,9 +21,9 @@ class TransactionRaii {
 		}
 		
 		if ($this->success) {
-			EvanceDb::commit();
+			WoolDb::commit();
 		} else {
-			EvanceDb::rollback();
+			WoolDb::rollback();
 		}
 	}
 	public function success() {

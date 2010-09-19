@@ -16,10 +16,10 @@ class UserController extends AppController {
 			$this->redirectTo(array("action"=>"index"));
 		}
 		
-		$this->user = EvanceTable::fetch("users", null, "user");
+		$this->user = WoolTable::fetch("users", null, "user");
 		
 		if (Request::isPost()) {
-			if (EvanceTable::save($this->user)) {
+			if (WoolTable::save($this->user)) {
 				Session::loginUser($this->user->userId);
 				$this->redirectTo(array("action"=>"index"));
 			}

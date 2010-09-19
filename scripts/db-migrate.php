@@ -1,6 +1,7 @@
 <?php
-require_once('../evance/lib/common/config.php');
-require_once('Evance/Db/SchemaExport.php');
+
+require_once('../lib/Shaded/Boot.php');
+require_once('Wool/Db/SchemaExport.php');
 
 error_reporting(E_ALL);
 set_time_limit(120);

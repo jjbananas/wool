@@ -53,7 +53,7 @@ class Sql {
 			array_unshift($params, $this->params()); 
 		}
 		array_unshift($params, $this->toString()); 
-		return call_user_func_array(array('EvanceDb', $name), $params);
+		return call_user_func_array(array('WoolDb', $name), $params);
 	}
 	
 	public function select($column) {

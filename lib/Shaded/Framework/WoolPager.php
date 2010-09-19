@@ -1,6 +1,6 @@
 <?php
 
-class EvancePager {
+class WoolPager {
 	private $name;
 	private $count;
 	private $perPage;

@@ -1,6 +1,6 @@
 <?php
 
-class EvanceErrors {
+class WoolErrors {
 	private static $errors = array();
 	
 	public static function add($id, $field, $message) {

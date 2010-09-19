@@ -1,8 +1,8 @@
 <?php
-require_once('Shaded/Framework/EvancePager.php');
+require_once('Shaded/Framework/WoolPager.php');
 require_once('Shaded/Common/sql.php');
 
-class EvanceGrid implements IteratorAggregate, Countable, ArrayAccess {
+class WoolGrid implements IteratorAggregate, Countable, ArrayAccess {
 	private $name;
 	private $sql;
 	private $pager;
@@ -33,7 +33,7 @@ class EvanceGrid implements IteratorAggregate, Countable, ArrayAccess {
 	// Get total number of rows across all pages.
 	public function totalRows() {
 		if (!$this->count) {
-			$this->count = EvanceDb::fetchOne($this->countSql(), $this->sql->params());
+			$this->count = WoolDb::fetchOne($this->countSql(), $this->sql->params());
 		}
 		
 		return $this->count;
@@ -157,7 +157,7 @@ class EvanceGrid implements IteratorAggregate, Countable, ArrayAccess {
 	
 	private function pager() {
 		if (!$this->pager) {
-			$this->pager = new EvancePager($this->name, $this->totalRows(), $this->perPage);
+			$this->pager = new WoolPager($this->name, $this->totalRows(), $this->perPage);
 		}
 		return $this->pager;
 	}

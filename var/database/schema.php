@@ -1,5 +1,5 @@
 <?php
-EvanceTable::$schema = array (
+WoolTable::$schema = array (
   'access_locations' => 
   array (
     'accessLocationId' => 
@@ -215,7 +215,7 @@ EvanceTable::$schema = array (
     array (
       'name' => 'excerpt',
       'default' => NULL,
-      'nullable' => false,
+      'nullable' => true,
       'type' => 'text',
       'length' => '65535',
       'scale' => NULL,
@@ -331,6 +331,23 @@ EvanceTable::$schema = array (
       'primary' => false,
       'auto_increment' => false,
       'additional' => false,
+    ),
+    'deleted' => 
+    array (
+      'name' => 'deleted',
+      'default' => 'N',
+      'nullable' => false,
+      'type' => 'enum',
+      'length' => NULL,
+      'scale' => NULL,
+      'primary' => false,
+      'auto_increment' => false,
+      'additional' => false,
+      'options' => 
+      array (
+        0 => 'Y',
+        1 => 'N',
+      ),
     ),
   ),
   'forum_messages' => 

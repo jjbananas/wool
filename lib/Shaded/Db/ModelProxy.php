@@ -4,7 +4,7 @@ class ModelProxy {
 	private $table;
 	
 	function __construct($table, $id) {
-		$this->table = EvanceTable::fetch($table, $id);
+		$this->table = WoolTable::fetch($table, $id);
 	}
 	
 	public function __isset($field) {
@@ -28,7 +28,7 @@ class ModelProxy {
 	}
 	
 	public function save() {
-		return EvanceTable::save($this->table);
+		return WoolTable::save($this->table);
 	}
 }
 

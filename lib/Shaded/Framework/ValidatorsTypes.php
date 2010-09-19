@@ -51,8 +51,8 @@ class EnumValidator extends Validator {
 }
 
 
-EvanceValidation::registerValidator("int", "IntValidator");
-EvanceValidation::registerValidator("string", "StringValidator");
-EvanceValidation::registerValidator("date", "DateValidator");
-EvanceValidation::registerValidator("datetime", "DatetimeValidator");
-EvanceValidation::registerValidator("enum", "EnumValidator");
+WoolValidation::registerValidator("int", "IntValidator");
+WoolValidation::registerValidator("string", "StringValidator");
+WoolValidation::registerValidator("date", "DateValidator");
+WoolValidation::registerValidator("datetime", "DatetimeValidator");
+WoolValidation::registerValidator("enum", "EnumValidator");

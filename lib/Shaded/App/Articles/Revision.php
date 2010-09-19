@@ -1,10 +1,10 @@
 <?php
 
-class ArticleRevision extends EvanceTable {
+class ArticleRevision extends WoolTable {
 	public static function define() {
 		self::name("title", "Page Title");
 		self::name("content", "Article Content");
 	}
 }
 
-EvanceTable::registerTable("ArticleRevision", "article_revisions");
+WoolTable::registerTable("ArticleRevision", "article_revisions");
