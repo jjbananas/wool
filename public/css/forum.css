@@ -1,0 +1,117 @@
+.forumThreads {
+	margin: 20px 0;
+}
+ol.forumThreads li {
+	list-style-type: none;
+}
+.forumThreads .root {
+	border: 1px solid #eeeeea;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	margin-bottom: 20px;
+}
+.forumThreads .preview {
+	display: none;
+}
+.forumThreads .preview a.msg {
+	color: #616161;
+}
+.forumThreads .full {
+	background-color: #fafaf6;
+	padding: 5px;
+	border-bottom: 1px solid #eeeeea;
+}
+.forumThreads .full img {
+	display: block;
+	float: left;
+	margin-right: 5px;
+}
+.forumThreads .full .reply {
+	float: right;
+	display: none;
+	padding-top: 2px;
+}
+.forumThreads .full:hover .reply {
+	display: block;
+}
+
+.forumThreads .children {
+	margin: 0 6px 6px 11px;
+	padding-top: 6px;
+	background: url(../images/thread-vert.png) left repeat-y;
+}
+
+.forumThreads .children .children {
+	padding-top: 0;
+}
+
+.forumThreads .children .preview {
+	display: block;
+	padding-left: 4px;
+	margin-bottom: 2px;
+}
+.forumThreads .children .full {
+	display: none;
+	border: 1px solid #f1f1f1;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background-color: #fafbfc;
+}
+.forumThreads .children li {
+	padding-left: 11px;
+	background: url(../images/thread-hori.png) left 10px no-repeat;
+}
+.forumThreads .children li.last {
+	background: #ffffff url(../images/thread-last.png) left top no-repeat;
+}
+
+li.message div.full {
+	display: none;
+}
+
+.forumThreads .active .preview {
+	display: none;
+}
+
+.forumThreads .active .full {
+	display: block;
+}
+
+.forumThreads .active .children .preview {
+	display: block;
+}
+
+.forumThreads .active .children .full {
+	display: none;
+}
+
+
+/* Highlight latest
+*/
+
+.forumThreads .preview a.latest1 {
+	font-weight: bold;
+	color: #000000;
+}
+.forumThreads .preview a.latest2 {
+	font-weight: bold;
+}
+.forumThreads .preview a.latest3 {
+	color: #000000;
+}
+
+
+/* Reply box
+*/
+
+#replyBox {
+	border-top: 1px solid #eeeeea;
+	margin-top: 10px;
+	padding: 20px 10px 10px 10px;
+	clear: both;
+	display: none;
+}
+
+#replyBox form {
+	margin: 0;
+}

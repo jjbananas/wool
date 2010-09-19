@@ -1,0 +1,1 @@
+<h1>Public profile of <?php echo $user->name ?></h1>

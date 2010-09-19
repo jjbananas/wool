@@ -1,0 +1,430 @@
+/* Page header
+*/
+
+#header {
+	background-color: #282828;
+}
+
+#header .nav {
+	background-color: #780000;
+	border-bottom: 1px solid #600b0b;
+}
+
+#header .nav ul {
+	float: right;
+	margin: 0 2em;
+}
+
+#header .nav li {
+	display: block;
+	float: left;
+	padding-bottom: 2px;
+}
+
+#header .nav li a {
+	display: block;
+	color: #fafafa;
+	text-decoration: none;
+	padding: 14px 15px 4px 15px;
+}
+
+#header .nav li:hover {
+	border-bottom: 2px solid #2a2a2a;
+	background-color: #6c0000;
+	padding-bottom: 0;
+}
+#header .nav li.active {
+	border-bottom: 2px solid #000000;
+	background-color: #5b0000;
+	cursor: default;
+	padding-bottom: 0;
+}
+
+#headerLogoRow {
+	background: url(../images/header-bg.png) right no-repeat;
+}
+
+#mainLogo {
+	background: url(../images/logos/shaded-main.png) 20px center no-repeat;
+	text-indent: -999em;
+	height: 86px;
+}
+
+
+/* Page footer
+*/
+
+#footer {
+	background-color: #0c0c0c;
+	height: 386px;
+	clear: both;
+}
+
+#footer .header {
+	height: 30px;
+	background-color: #580000;
+	margin-bottom: 20px;
+	padding: 10px 0;
+}
+
+#footer .header .container {
+	position: relative;
+}
+
+#sign {
+	position: absolute;
+	right: -15px;
+	bottom: 0;
+	width: 80px;
+	height: 50px;
+	background: url(../images/sign.png) right bottom no-repeat;
+	color: #818181;
+	font-size: 9px;
+	padding: 16px 108px 277px 16px;
+	text-indent: 32px;
+}
+
+.sign-bump {
+	margin-bottom: 300px;
+}
+
+.replace-text {
+	background-image: url(../images/headings.png);
+	background-repeat: no-repeat;
+	font-size: 30px;
+	line-height: 30px;
+	text-indent: -999em;
+}
+
+#footer h2 {
+	margin: 0;
+	background-position: 0 0;
+}
+
+#footer .nav {
+	color: #e8e8e8;
+	font-size: 14px;
+	line-height: 1.2;
+}
+
+#footer .nav .line {
+	margin-bottom: 50px;
+}
+
+#footer .nav ul,
+#footer .nav li {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+#footer .nav ul {
+	margin-top: 5px;
+}
+
+#footer .nav a {
+	font-size: 13px;
+	color: #525252;
+	text-decoration: none;
+	padding: 0;
+}
+
+#footer .nav a:visited {
+	color: #424242;
+}
+
+#footer .nav a:hover,
+#footer .nav a:active {
+	color: #626262;
+}
+
+#footerCopyright {
+	background-color: #282828;
+	color: #e8e8e8;
+	text-align: right;
+	margin-top: 10px;
+}
+
+#footerCopyright .container {
+	font-size: 9px;
+	padding: 15px 5px;
+}
+
+
+/* Main page
+*/
+
+h1, .h1 {
+	font-size: 18px;
+	font-weight: normal;
+}
+
+h2, .h2 {
+	font-size: 14px;
+	font-weight: normal;
+	color: #000000;
+	margin-bottom: 0;
+}
+
+#body {
+	margin: 0 auto -386px auto;
+	min-height: 100%;
+	width: 981px;
+}
+
+.bodyMargin {
+	margin-top: 1em;
+}
+
+.toolbar {
+	background-color: #dbdbdb;
+	border-bottom: 1px solid #d5d5d5;
+	padding: 0 10px;
+	text-align: right;
+}
+
+.breadcrumbs {
+	background: #dbdbdb url(../images/icons/sign.png) 10px center no-repeat;
+	padding-left: 35px;
+	border-bottom: 1px solid #d5d5d5;
+	color: #464646;
+	font-size: 11px;
+	line-height: 28px;
+}
+
+.breadcrumbs a {
+	color: #464646;
+	padding-right: 16px;
+	background: url(../images/icons/arrows.png) right -93px no-repeat;
+}
+
+.breadcrumbs ol {
+	margin: 0;
+}
+.breadcrumbs li {
+	display: inline;
+	margin: 0;
+	vertical-align: middle;
+}
+
+.author {
+	font-size: 10px;
+	padding-left: 20px;
+	background: url(../images/icons/icons.png) 0 0 no-repeat;
+	margin: 0 0 5px 0;
+}
+
+.date {
+	float: right;
+	color: #a7a7a7;
+	background: url(../images/icons/calendar_1.png) left no-repeat;
+	padding-left: 16px;
+	font-size: 10px;
+}
+
+.section {
+	margin-bottom: 30px;
+}
+
+.section p {
+	margin-bottom: 10px;
+}
+
+
+/* News section
+*/
+
+.news h1 {
+	background-position: 0 -30px;
+}
+
+.news .item {
+	margin-bottom: 20px;
+}
+
+.news .item .ft {
+	clear: both;
+	padding: 18px 0 15px 0;
+	border-top: 1px dashed #e3e3e3;
+}
+
+.btnLink {
+	border: 1px solid #e3e3e3;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background: #f8f8f0 url(../images/icons/icons.png) 0 -23px no-repeat;
+	color: #000000;
+	text-decoration: none;
+	padding: 7px 8px 7px 28px;
+	margin: 0 1ex 0 0;
+	line-height: 52px;
+}
+
+a.btnLink {
+	color: #000000;
+}
+
+.btnLink:hover {
+	background-color: #f2f2f2;
+}
+
+.btnLinkMini {
+	line-height: 20px;
+	padding: 3px 4px 3px 28px;
+}
+
+.iconReply {
+	background-image: url(../images/icons/reply.png);
+	background-position: 5px center;
+	background-color: #ffffff;
+}
+.iconThreadDel {
+	background-image: url(../images/icons/thread-delete.png);
+	background-position: 5px center;
+	background-color: #ffffff;
+}
+
+
+/* About section
+*/
+
+.about h1 {
+	background-position: 0 -60px;
+}
+
+
+/* Store section
+*/
+
+.store h1 {
+	background-position: 0 -90px;
+}
+
+
+/* Sidebar
+*/
+
+#sidebar {
+	border: 1px solid #eeeeea;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background: #fafaf6;
+	margin-top: 10px;
+	padding: 5px 0;
+}
+
+#sidebar h1 {
+	background-position: right -120px;
+	margin: 0 0 5px 0;
+}
+
+#sidebar img {
+	display: block;
+}
+
+#sidebar table {
+	border: 1px solid #eeeeea;
+	border-left: 0;
+	border-right: 0;
+}
+
+#sidebar td {
+	border: 0;
+	vertical-align: middle;
+}
+
+#sidebar .even td {
+	background-color: #f3f3ef;
+}
+
+#sidebar .author {
+	float: right;
+	margin: 0;
+}
+
+
+/* Blog table
+*/
+
+.blogTbl {
+	background-color: #fafafa;
+	border: 1px solid #f2f2f2;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	margin: 0 2% 1.6em 2%;
+}
+
+.blogTbl table {
+	border: 0;
+	width: 100%;
+	margin: 0;
+}
+
+.blogTbl thead {
+	border-bottom: 1px solid #780000;
+}
+
+.blogTbl tbody tr:first-child td {
+	padding-top: 0.8em;
+}
+
+.blogTbl tbody tr:nth-child(even) td {
+	background-color: #fdfdfd;
+	border: 1px solid #f2f2f2;
+	border-left: 0;
+	border-right: 0;
+}
+
+.blogTbl td,
+.blogTbl th {
+	border: 0;
+	padding: 0.5em 0.8em;
+}
+
+
+/* Blog image
+*/
+
+.blogImg {
+	display: inline-block;
+	background-color: #f4f4f4;
+	margin: 0 auto;
+	border: 1px solid #e7e6e6;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	padding: 0 10px;
+	margin: 0 2% 1.6em 2%;
+}
+
+.blogImg p {
+	margin: 10px 4px;
+}
+
+.blogImg img {
+	display: block;
+	-moz-box-shadow: 0 0 15px #b47676;
+	margin: 10px 0;
+}
+
+
+/* Message boxes
+*/
+
+.msgBox {
+	padding: 8px 8px 0 8px;
+	margin-bottom: 1em;
+}
+
+.msgBox .intro {
+	font-weight: bold;
+}
+
+.msgError {
+	border: 1px solid #e7b4b4;
+	background-color: #fbeded;
+}
+
+.msgInfo {
+	border: 1px solid #cde2be;
+	background-color: #eef5e9;
+}

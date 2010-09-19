@@ -1,0 +1,1 @@
+<h1>Welcome <?php echo $user->name ?>. This is your personal profile</h1>
