@@ -5,7 +5,7 @@
 		<?php if (!count($history)) { ?>
 		<p>No history for the current page.</p>
 		<?php } else { ?>
-		<table class="blogTbl">
+		<table class="stdTbl">
 			<thead>
 				<th>Date</th>
 				<th>Author</th>

@@ -26,3 +26,8 @@ function blogMonthLink($blog) {
 		"month"=>date('m', $date)
 	));
 }
+
+function blogUri($blog) {
+	$date = strtotime($blog->createdOn);
+	return routeUri(array("controller"=>"blog", "action"=>"view", "year"=>date('Y',$date), "month"=>date('m',$date), "title"=>$blog->location));
+}

@@ -23,8 +23,17 @@
 	
 	<body>
 		<div id="header">
+			
 			<div class="nav">
 				<div class="container">
+					<div class="userStatus">
+						<?php if (Session::loggedIn()) { ?>
+						Welcome, <?php echo linkTo(Session::user()->name, array("controller"=>"user", "action"=>"index")) ?> | <?php echo linkTo('Logout', array("controller"=>"user", "action"=>"logout")) ?>
+						<?php } else { ?>
+						<?php echo linkTo('Login or Register', array("controller"=>"user", "action"=>"login")) ?>
+						<?php } ?>
+					</div>
+					
 					<ul>
 						<li <?php echo activeUri("/", true) ?>><?php echo linkTo('Home', baseUri('/')) ?></li>
 						<li <?php echo activeUri("/games") ?>><?php echo linkTo('Games', array("controller"=>"games", "action"=>"index"), activeRoute($self, "")) ?></li>
@@ -52,7 +61,7 @@
 				<div class="container">
 					<h2 class="replace-text">Site Map</h2>
 					
-					<div id="sign">The future so full of promise</div>
+					<div id="sign"><span></span></div>
 				</div>
 			</div>
 			

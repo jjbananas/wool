@@ -26,10 +26,10 @@ class SqlLexer {
 	private $lastTokenPos = 0;
 
 	
-	static $operators = array('.', ',', '!', '!=', '=', '<', '>', '<=', '>=', '*', '(', ')', '/', '-');
+	static $operators = array('.', ',', '!', '!=', '=', '<', '>', '<=', '>=', '*', '(', ')', '/', '-', 'like', 'rlike', 'not');
 	static $keywords = array(
 		'and', 'as', 'asc', 'between', 'by', 'count', 'desc', 'from', 'inner',
-		'group', 'in', 'is', 'join', 'left', 'limit', 'max', 'not', 'null',
+		'group', 'in', 'is', 'join', 'left', 'limit', 'max', 'null',
 		'offset', 'on', 'or', 'order', 'right', 'select', 'where'
 	);
 	
@@ -117,6 +117,9 @@ class SqlLexer {
 			if (in_array($lowName, self::$keywords)) {
 				$name = $lowName;
 				$this->type = SQL_KEYWORD;
+			} else if (in_array($lowName, self::$operators)) {
+				$name = $lowName;
+				$this->type = SQL_OPERATOR;
 			} else {
 				$this->type = SQL_IDENTIFIER;
 			}
@@ -543,26 +546,7 @@ class SqlParser {
 		}
 		else {
 			$this->conditionalExpr();
-			
-			if ($this->accept(SQL_OPERATOR)) {
-				$this->conditionalExpr();
-			}
-			else if ($this->accept(SQL_KEYWORD, 'is')) {
-				$this->accept(SQL_KEYWORD, 'not');
-				$this->expect(SQL_KEYWORD, 'null');
-				$this->nextToken();
-			}
-			else if ($this->accept(SQL_KEYWORD, 'between')) {
-				$this->conditionalExpr();
-				$this->expect(SQL_KEYWORD, 'and');
-				$this->nextToken();
-				$this->conditionalExpr();
-			}
-			else if ($this->accept(SQL_KEYWORD, 'in')) {
-				$this->expect(SQL_OPERATOR, '(');
-				$this->nextToken();
-				$this->skipBracketedExpression();
-			}
+			$this->predicate();
 		}
 		
 		if ($this->accept(SQL_KEYWORD, 'and')) {
@@ -573,8 +557,32 @@ class SqlParser {
 		}
 	}
 	
+	private function predicate() {
+		if ($this->accept(SQL_OPERATOR, 'not')) {
+			$this->predicate();
+		}
+		else if ($this->accept(SQL_OPERATOR)) {
+			$this->conditionalExpr();
+		}
+		else if ($this->accept(SQL_KEYWORD, 'is')) {
+			$this->accept(SQL_OPERATOR, 'not');
+			$this->expect(SQL_KEYWORD, 'null');
+			$this->nextToken();
+		}
+		else if ($this->accept(SQL_KEYWORD, 'between')) {
+			$this->conditionalExpr();
+			$this->expect(SQL_KEYWORD, 'and');
+			$this->nextToken();
+			$this->conditionalExpr();
+		}
+		else if ($this->accept(SQL_KEYWORD, 'in')) {
+			$this->expect(SQL_OPERATOR, '(');
+			$this->nextToken();
+			$this->skipBracketedExpression();
+		}
+	}
+	
 	private function inOperator() {
-		debug($this->token);
 		$this->conditionalExpr();
 		if ($this->accept(SQL_OPERATOR, ',')) {
 			$this->inOperator();

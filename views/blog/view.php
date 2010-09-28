@@ -8,6 +8,16 @@
 	</ol>
 </div>
 
+<?php if (User::hasRole(Session::user()->userId, AccessRole::ADMIN)) { ?>
+<div class="toolbar">
+	<div class="reply">
+		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"edit", "id"=>$article->articleId)) ?>" class="btnLink iconEdit">Edit</a>
+		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"history", "id"=>$article->articleId)) ?>" class="btnLink iconHistory">History</a>
+		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"delete", "id"=>$article->articleId)) ?>" class="btnLink iconThreadDel">Delete</a>
+	</div>
+</div>
+<?php } ?>
+
 <div class="container">
 	<div class="span-14">
 		<div class="span-12 last push-1">
@@ -36,7 +46,7 @@
 				<table>
 					<?php foreach ($forumLatest as $thread) { ?>
 					<tr class="even">
-						<td><img src="images/placeholders/<?php echo $thread->avatar ?>" alt="" /></td>
+						<td><img src="<?php echo baseUri('/images/placeholders/' . $thread->avatar) ?>" alt="" /></td>
 						<td>
 							<a href="<?php echo routeUri(array("controller"=>"forum", "action"=>"message", "id"=>$thread->id)) ?>"><?php echo $thread->message ?></a> : <?php echo message_user_link($thread->name) ?>
 						</td>

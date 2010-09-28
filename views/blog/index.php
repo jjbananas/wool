@@ -19,7 +19,7 @@
 					<?php echo $article->content ?>
 					
 					<div class="ft">
-						<a href="" class="btnLink">Discussion</a>
+						<?php echo linkTo('Read More', blogUri($article), 'class="btnLink"') ?></a>
 					</div>
 				</div>
 			</div>

@@ -4,6 +4,7 @@ require_once('Shaded/App/Articles/Revision.php');
 
 class Article extends WoolTable {
 	public static function define() {
+		self::name("location", "Location / URL");
 		self::defaultValue("createdOn", now());
 	}
 	
@@ -63,10 +64,8 @@ SQL
 		WoolTable::fromArray($revision, $post);
 		
 		$trans = new TransactionRaii;
-		if (!$article->articleId) {
-			if (!WoolTable::save($article)) {
-				return false;
-			}
+		if (!WoolTable::save($article)) {
+			return false;
 		}
 		
 		$revision->articleId = $article->articleId;

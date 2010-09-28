@@ -5,6 +5,22 @@
 	background-color: #282828;
 }
 
+#header .userStatus {
+	float: left;
+	background: #1d1313 url(../images/icons/user.png) 4px center no-repeat;
+	color: #d0cece;
+	padding: 3px 6px 3px 22px;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 5px;
+}
+#header .userStatus a {
+	color: #d0cece;
+}
+#header .userStatus a:hover {
+	color: #ffffff;
+	text-decoration: none;
+}
+
 #header .nav {
 	background-color: #780000;
 	border-bottom: 1px solid #600b0b;
@@ -75,13 +91,19 @@
 	position: absolute;
 	right: -15px;
 	bottom: 0;
-	width: 80px;
-	height: 50px;
+	width: 204px;
+	height: 343px;
 	background: url(../images/sign.png) right bottom no-repeat;
-	color: #818181;
-	font-size: 9px;
-	padding: 16px 108px 277px 16px;
-	text-indent: 32px;
+}
+
+#sign span {
+	position: absolute;
+	top: 4px;
+	left: 5px;
+	display: block;
+	background: url(../images/signs/future.png) no-repeat;
+	width: 104px;
+	height: 69px;
 }
 
 .sign-bump {
@@ -343,42 +365,46 @@ a.btnLink {
 }
 
 
-/* Blog table
+/* Standard table
 */
 
-.blogTbl {
+.stdTbl {
 	background-color: #fafafa;
 	border: 1px solid #f2f2f2;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
-	margin: 0 2% 1.6em 2%;
 }
 
-.blogTbl table {
+.stdTbl table {
 	border: 0;
 	width: 100%;
 	margin: 0;
 }
 
-.blogTbl thead {
+.stdTbl thead {
 	border-bottom: 1px solid #780000;
 }
 
-.blogTbl tbody tr:first-child td {
+.stdTbl tbody tr:first-child td {
 	padding-top: 0.8em;
 }
 
-.blogTbl tbody tr:nth-child(even) td {
+.stdTbl tbody tr:nth-child(even) td {
 	background-color: #fdfdfd;
 	border: 1px solid #f2f2f2;
 	border-left: 0;
 	border-right: 0;
 }
 
-.blogTbl td,
-.blogTbl th {
+.stdTbl td,
+.stdTbl th {
 	border: 0;
 	padding: 0.5em 0.8em;
+}
+
+
+.blogTbl {
+	margin: 0 2% 1.6em 2%;
 }
 
 

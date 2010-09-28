@@ -88,6 +88,7 @@ class Router {
 		foreach (Route::$routes as $route) {
 			$parts = trim($route['route'], '/');
 			$parts = explode('/', $parts);
+			$GLOBALS['ROUTE_PARAMS'] = array();
 			
 			$res = $this->pathMatch($path, $parts, $route['options']);
 			
@@ -134,7 +135,7 @@ class Router {
 				}
 			}
 			else if ($part[0] === ':') {
-				$_GET[substr($part, 1)] = $path;
+				$GLOBALS['ROUTE_PARAMS'][substr($part, 1)] = $path;
 			}
 			else {
 				if ($path !== $part) {
@@ -205,7 +206,7 @@ class Router {
 				$link = array();
 				$parts = trim($route['route'], '/');
 				$parts = explode('/', $parts);
-				$used = array();
+				$used = $route['options'];//array();
 				
 				foreach ($parts as $part) {
 					if ($part[0] === '@') {

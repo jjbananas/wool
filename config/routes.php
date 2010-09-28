@@ -8,6 +8,8 @@ Route::add("@portal/wiki/history", array("controller"=>"article", "action"=>"his
 Route::add("@portal/wiki/delete", array("controller"=>"article", "action"=>"delete"));
 
 // Blog
+Route::add("@portal/blog/history/:id", array("controller"=>"blog", "action"=>"history"));
+Route::add("@portal/blog/edit/:id", array("controller"=>"blog", "action"=>"edit"));
 Route::add("@portal/blog/:year/:month/:title", array("controller"=>"blog", "action"=>"view"));
 Route::add("@portal/blog/:year/:month", array("controller"=>"blog", "action"=>"month"));
 Route::add("@portal/blog/:year", array("controller"=>"blog", "action"=>"year"));

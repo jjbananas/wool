@@ -1,6 +1,11 @@
 <?php
 
 require_once('Markdown/markdown.php');
+require_once('Text/Diff.php');
+require_once('Text/Diff/Renderer.php');
+require_once('Text/Diff/Renderer/inline.php');
+require_once('Text/Diff/Renderer/context.php');
+require_once('Text/Diff/Renderer/unified.php');
 require_once('Shaded/App/Articles/Article.php');
 
 class ArticleController extends AppController {
@@ -20,6 +25,23 @@ class ArticleController extends AppController {
 		if (!$this->page->articleId) {
 			$this->render("404");
 		}
+	}
+	
+	public function diff() {
+		$one = explode("\n", WoolDb::fetchRow("select * from article_revisions where articleRevisionId = 8")->content);
+		$two = explode("\n", WoolDb::fetchRow("select * from article_revisions where articleRevisionId = 9")->content);
+		
+		$diff = new Text_Diff('auto', array($one, $two));
+
+		/* Output the diff in unified format. */
+		$renderer = new Text_Diff_Renderer_unified();
+		echo $renderer->render($diff);
+		$diff = new Text_Diff('auto', array($two, $one));
+
+		/* Output the diff in unified format. */
+		$renderer = new Text_Diff_Renderer_unified();
+		echo $renderer->render($diff);
+		exit;
 	}
 	
 	public function history() {

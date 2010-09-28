@@ -1,14 +1,17 @@
 <?php
 
 require_once('Shaded/Core/User.php');
+require_once('Shaded/App/Forum/Message.php');
 
 class UserController extends AppController {
 	function index() {
 		$this->user = Session::user();
+		$this->threads = ForumMessage::messagesForUser($this->user->userId)->limit(25)->rowSet();
 	}
 	
 	function view() {
 		$this->user = User::profileByName(param('name'))->fetchRow();
+		$this->threads = ForumMessage::messagesForUser($this->user->userId)->limit(25)->rowSet();
 	}
 	
 	function signup() {

@@ -14,7 +14,10 @@ function param($name, $default=null) {
 	
 	$param = $default;
 	$use = array();
-	if (isset($_POST[$name[0]])) {
+	if (isset($GLOBALS['ROUTE_PARAMS'][$name[0]])) {
+		$use = $GLOBALS['ROUTE_PARAMS'];
+	}
+	else if (isset($_POST[$name[0]])) {
 		$use = $_POST;
 	}
 	else if (isset($_GET[$name[0]])) {

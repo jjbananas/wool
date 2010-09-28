@@ -22,6 +22,7 @@ function message_cls($message, $num, $total) {
 function preview_cls($message, $messages) {
 	$cls = array('msg');
 	$num = 1;
+	$messages = $messages->byGroup("threadId", $message->threadId);
 	$count = count($messages);
 	for ($num=1; $num<10 && $num<$count; $num++) {
 		if ($message->id == $messages[$count-$num]->id) {
