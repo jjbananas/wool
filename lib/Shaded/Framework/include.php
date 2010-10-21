@@ -1,1 +1,0 @@
-<?phprequire_once('Shaded/Framework/functions.php');

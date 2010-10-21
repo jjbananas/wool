@@ -1,7 +1,7 @@
 <?php
 
 require_once('Burn/Expand.php');
-require_once('Shaded/Core/AccessRole.php');
+require_once('Wool/Core/AccessRole.php');
 
 class Controller {
 	private $hasRendered = false;

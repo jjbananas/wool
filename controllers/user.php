@@ -1,7 +1,7 @@
 <?php
 
-require_once('Shaded/Core/User.php');
-require_once('Shaded/App/Forum/Message.php');
+require_once('Wool/Core/User.php');
+require_once('Wool/App/Forum/Message.php');
 
 class UserController extends AppController {
 	function index() {

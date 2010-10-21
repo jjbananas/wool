@@ -1,6 +1,6 @@
 <?php
 
-require_once('Shaded/App/Articles/Article.php');
+require_once('Wool/App/Articles/Article.php');
 
 class Blog {
 	public static function single($start, $end, $title) {

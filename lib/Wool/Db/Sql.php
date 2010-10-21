@@ -137,7 +137,12 @@ class Sql {
 	public function orderBy($column, $dir=null) {
 		$this->split();
 		$dir = $dir ? ' ' . $dir : '';
-		$this->parts['order'] = "order by {$column} {$dir}";
+		
+		if($this->parts['order'] === false){
+			$this->parts['order'] = "order by {$column} {$dir}";
+		} else {
+			$this->parts['order'] .= ", {$column} {$dir}";
+		}
 		return $this;
 	}
 	

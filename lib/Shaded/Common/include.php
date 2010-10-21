@@ -1,1 +1,0 @@
-<?phprequire_once('Shaded/Common/defines.php');require_once('Shaded/Common/functions.php');require_once('Shaded/Common/dates.php');require_once('Shaded/Common/sql.php');

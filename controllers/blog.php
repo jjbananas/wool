@@ -1,7 +1,7 @@
 <?php
 
-require_once('Shaded/App/Articles/Blog.php');
-require_once('Shaded/App/Forum/Message.php');
+require_once('Wool/App/Articles/Blog.php');
+require_once('Wool/App/Forum/Message.php');
 
 class BlogController extends AppController {
 	function startUp() {

@@ -1,0 +1,1 @@
+<?phprequire_once('Wool/Framework/functions.php');

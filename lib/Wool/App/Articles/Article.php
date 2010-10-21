@@ -1,6 +1,6 @@
 <?php
 
-require_once('Shaded/App/Articles/Revision.php');
+require_once('Wool/App/Articles/Revision.php');
 
 class Article extends WoolTable {
 	public static function define() {

@@ -1,6 +1,6 @@
 <?php
-require_once('Shaded/Framework/WoolPager.php');
-require_once('Shaded/Common/sql.php');
+require_once('Wool/Framework/WoolPager.php');
+require_once('Wool/Common/sql.php');
 
 class WoolGrid implements IteratorAggregate, Countable, ArrayAccess {
 	private $name;

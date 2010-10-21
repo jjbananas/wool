@@ -1,7 +1,7 @@
 <?php
 
-require_once('Shaded/Core/AccessRoleContact.php');
-require_once('Shaded/Core/AccessLocation.php');
+require_once('Wool/Core/AccessRoleContact.php');
+require_once('Wool/Core/AccessLocation.php');
 
 class AccessRole extends WoolTable {
 	// Common role types

@@ -1,7 +1,7 @@
 <?php
 
-require_once('Shaded/Common/Cipher.php');
-require_once('Shaded/Core/User.php');
+require_once('Wool/Common/Cipher.php');
+require_once('Wool/Core/User.php');
 
 class Session extends WoolTable {
 	private static $session;

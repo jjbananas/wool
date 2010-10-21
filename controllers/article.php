@@ -6,7 +6,7 @@ require_once('Text/Diff/Renderer.php');
 require_once('Text/Diff/Renderer/inline.php');
 require_once('Text/Diff/Renderer/context.php');
 require_once('Text/Diff/Renderer/unified.php');
-require_once('Shaded/App/Articles/Article.php');
+require_once('Wool/App/Articles/Article.php');
 
 class ArticleController extends AppController {
 	function startUp() {

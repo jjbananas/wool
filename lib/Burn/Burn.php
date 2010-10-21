@@ -1,6 +1,6 @@
 <?php
 
-require_once('../Shaded/Boot.php');
+require_once('../Wool/Boot.php');
 require_once('Zend/Json.php');
 require_once('Burn/JSMin.php');
 require_once('Burn/CssCompressor.php');

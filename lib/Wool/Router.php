@@ -1,7 +1,7 @@
 <?php
 
-require_once('Shaded/Request.php');
-require_once('Shaded/Framework/Controller.php');
+require_once('Wool/Request.php');
+require_once('Wool/Framework/Controller.php');
 require_once('controllers/app.php');
 
 class Route {
@@ -206,7 +206,7 @@ class Router {
 				$link = array();
 				$parts = trim($route['route'], '/');
 				$parts = explode('/', $parts);
-				$used = $route['options'];//array();
+				$used = $route['options'];
 				
 				foreach ($parts as $part) {
 					if ($part[0] === '@') {

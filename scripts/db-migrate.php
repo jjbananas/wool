@@ -1,6 +1,6 @@
 <?php
 
-require_once('../lib/Shaded/Boot.php');
+require_once('../lib/Wool/Boot.php');
 require_once('Wool/Db/SchemaExport.php');
 
 error_reporting(E_ALL);

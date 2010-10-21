@@ -72,7 +72,6 @@
 
 #footer {
 	background-color: #0c0c0c;
-	height: 386px;
 	clear: both;
 }
 
@@ -189,8 +188,8 @@ h2, .h2 {
 }
 
 #body {
-	margin: 0 auto -386px auto;
-	min-height: 100%;
+	margin: 0 auto 0 auto;
+	height: 90%;
 	width: 981px;
 }
 
@@ -257,7 +256,7 @@ h2, .h2 {
 */
 
 .news h1 {
-	background-position: 0 -30px;
+	background-image: url(../heading.php?text=Latest%20News);
 }
 
 .news .item {
@@ -286,6 +285,10 @@ a.btnLink {
 	color: #000000;
 }
 
+input.btnLink {
+	line-height: 1.2;
+}
+
 .btnLink:hover {
 	background-color: #f2f2f2;
 }
@@ -311,7 +314,7 @@ a.btnLink {
 */
 
 .about h1 {
-	background-position: 0 -60px;
+	background-image: url(../heading.php?text=About%20Us);
 }
 
 
@@ -319,7 +322,7 @@ a.btnLink {
 */
 
 .store h1 {
-	background-position: 0 -90px;
+	background-image: url(../heading.php?text=Shaded%20Store);
 }
 
 

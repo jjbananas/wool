@@ -1,9 +1,9 @@
 <?php
 
-require_once('Shaded/Framework/Error.php');
-require_once('Shaded/Framework/ValidatorsStd.php');
-require_once('Shaded/Framework/ValidatorsTypes.php');
-require_once('Shaded/Framework/ValidatorsCustom.php');
+require_once('Wool/Framework/Error.php');
+require_once('Wool/Framework/ValidatorsStd.php');
+require_once('Wool/Framework/ValidatorsTypes.php');
+require_once('Wool/Framework/ValidatorsCustom.php');
 
 class WoolValidation {
 	private static $validators = array();

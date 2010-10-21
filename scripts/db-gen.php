@@ -1,7 +1,7 @@
 <?php
 
-require_once('../lib/Shaded/Boot.php');
-require_once('Shaded/Db/SchemaExport.php');
+require_once('../lib/Wool/Boot.php');
+require_once('Wool/Db/SchemaExport.php');
 
 if (exportSchema($GLOBALS['BASE_PATH']  . "/var/database/schema.php")) {
 	echo "Success!";

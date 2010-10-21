@@ -2,16 +2,16 @@
 
 require_once('Zend/Db.php');
 require_once('Zend/Db/Adapter/Pdo/Mysql.php');
-require_once('Shaded/Db/WoolTable.php');
-require_once('Shaded/Db/SqlParser.php');
-require_once('Shaded/Db/Sql.php');
-require_once('Shaded/Db/SqlMeta.php');
-require_once('Shaded/Db/TransactionRaii.php');
-require_once('Shaded/Db/RowSet.php');
-require_once('Shaded/Framework/validation.php');
+require_once('Wool/Db/WoolTable.php');
+require_once('Wool/Db/SqlParser.php');
+require_once('Wool/Db/Sql.php');
+require_once('Wool/Db/SqlMeta.php');
+require_once('Wool/Db/TransactionRaii.php');
+require_once('Wool/Db/RowSet.php');
+require_once('Wool/Framework/validation.php');
 
 if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php')) {
-	require_once('Shaded/Db/SchemaExport.php');
+	require_once('Wool/Db/SchemaExport.php');
 	exportSchema($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
 }
 

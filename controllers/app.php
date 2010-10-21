@@ -1,6 +1,6 @@
 <?php
 
-require_once('Shaded/Core/Session.php');
+require_once('Wool/Core/Session.php');
 
 class AppController extends Controller {
 	function startUp() {

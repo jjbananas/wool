@@ -1,7 +1,7 @@
 <?php
 
-require_once('Shaded/App/Forum/Message.php');
-require_once('Shaded/Framework/WoolGrid.php');
+require_once('Wool/App/Forum/Message.php');
+require_once('Wool/Framework/WoolGrid.php');
 
 class ForumController extends AppController {
 	function startUp() {
