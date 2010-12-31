@@ -576,9 +576,7 @@ class SqlParser {
 			$this->conditionalExpr();
 		}
 		else if ($this->accept(SQL_KEYWORD, 'in')) {
-			$this->expect(SQL_OPERATOR, '(');
-			$this->nextToken();
-			$this->skipBracketedExpression();
+			$this->conditionalExpr();
 		}
 	}
 	

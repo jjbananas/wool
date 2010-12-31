@@ -1,5 +1,4 @@
 <?php
-	
 
 function routeUri($subject){
 	global $router;

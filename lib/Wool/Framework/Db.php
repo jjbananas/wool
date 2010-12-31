@@ -2,12 +2,12 @@
 
 require_once('Zend/Db.php');
 require_once('Zend/Db/Adapter/Pdo/Mysql.php');
-require_once('Wool/Db/WoolTable.php');
-require_once('Wool/Db/SqlParser.php');
-require_once('Wool/Db/Sql.php');
-require_once('Wool/Db/SqlMeta.php');
-require_once('Wool/Db/TransactionRaii.php');
-require_once('Wool/Db/RowSet.php');
+require_once('Wool/Framework/Db/WoolTable.php');
+require_once('Wool/Framework/Db/SqlParser.php');
+require_once('Wool/Framework/Db/Sql.php');
+require_once('Wool/Framework/Db/SqlMeta.php');
+require_once('Wool/Framework/Db/TransactionRaii.php');
+require_once('Wool/Framework/Db/RowSet.php');
 require_once('Wool/Framework/validation.php');
 
 if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php')) {
@@ -155,21 +155,3 @@ class WoolDb {
 }
 
 WoolDb::connect();
-
-
-
-if (!function_exists('spl_object_hash')) {
-	function spl_object_hash($object) {
-		if (!isset($object->__oid__)) {
-			$object->__oid__ = uniqid();
-		}
-		return $object->__oid__;
-	}
-}
-
-class WoolError extends Exception {
-	// Message is required.
-	public function __construct($message, $code = 0) {
-		parent::__construct($message, $code);
-	}
-}

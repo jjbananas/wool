@@ -52,7 +52,7 @@ function file_put_contents_mkdir($file, $contents){
 	if(!is_dir($dir)) {
 		mkdir_recursive($dir, 0777);
 	}
-	file_put_contents($file, $contents);
+	return file_put_contents($file, $contents);
 }
 
 
@@ -100,6 +100,23 @@ SQL
 		}
 	}
 	
-	file_put_contents_mkdir($file, "<?php\nWoolTable::\$schema = " . var_export($schema, true) . ";\n");
-	return true;
+	
+	// Next export relations
+	$keyColumns = $db->fetchAll(<<<SQL
+select TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
+from KEY_COLUMN_USAGE
+where `TABLE_SCHEMA` = ?
+	and REFERENCED_TABLE_NAME is not null
+	and REFERENCED_COLUMN_NAME is not null
+SQL
+	, $GLOBALS['DB_NAME']);
+
+	$relations = array();
+
+	foreach ($keyColumns as $column) {
+		$schema[$column->TABLE_NAME][$column->COLUMN_NAME]['nullable'] = true;
+		$relations[$column->TABLE_NAME][$column->COLUMN_NAME][$column->REFERENCED_TABLE_NAME][$column->REFERENCED_COLUMN_NAME] = true;
+	}
+	
+	return file_put_contents_mkdir($file, "<?php\nWoolTable::\$schema = " . var_export($schema, true) . ";\n\nEvanceTable::\$relations = " . var_export($relations, true) . ";\n");
 }

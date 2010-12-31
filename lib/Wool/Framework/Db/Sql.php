@@ -69,6 +69,7 @@ class Sql {
 	
 	public function join($join, $params=null) {
 		$this->innerJoin($join, $params);
+		return $this;
 	}
 	
 	public function innerJoin($join, $params=null) {

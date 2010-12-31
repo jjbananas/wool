@@ -1,6 +1,6 @@
 <?php
 
-require_once('Burn/Expand.php');
+require_once('Burn/Burn.php');
 require_once('Wool/Core/AccessRole.php');
 
 class Controller {
@@ -8,7 +8,6 @@ class Controller {
 	private $layout = "app";
 	private $viewVars = array();
 	
-	protected $action = null;
 	protected $portal = null;
 	
 	/*
@@ -16,16 +15,18 @@ class Controller {
 	*/
 	public function dispatch($portal, $controller, $action, $test=false) {
 		$this->controller = $controller;
+		$this->action = $action;
+		$this->portalName = $portal;
 		
 		$view = ($portal == "default" ? $action : $portal . '_' . $action);
-		$action = ($portal == "default" ? $action : $portal . ucwords($action));
+		$actionFunc = ($portal == "default" ? $action : $portal . ucwords($action));
 		
 		$portalCls = ucwords($portal) . "Portal";
 		if (!class_exists($portalCls)) {
 			return false;
 		}
 		
-		if (!is_callable(array($this, $action))) {
+		if (!is_callable(array($this, $actionFunc))) {
 			return false;
 		}
 		
@@ -33,10 +34,9 @@ class Controller {
 			return true;
 		}
 		
-		$this->action = $action;
-		$this->portal = new $portalCls($this);
-		
 		$this->checkPermissions($portal, $controller, $action);
+		
+		$this->portal = new $portalCls($this);
 		
 		// Add default helpers.
 		$this->addHelper("app");
@@ -46,7 +46,7 @@ class Controller {
 		
 		// Do the dispatch.
 		$this->startUp();
-		$this->$action();
+		$this->$actionFunc();
 		$this->render($view);
 		$this->shutDown();
 		
@@ -129,13 +129,13 @@ SQL
 	private $meta = array();
 	
 	public function css($path, $type=self::MEDIA_NORMAL) {
-		$files = expandBurnConfigFiles($path);
+		$files = Burn::expandDebugFileList($path);
 		foreach ($files as $file) {
 			$this->css[$type][] = sprintf('<link rel="stylesheet" type="text/css" href="%s" />', baseUri($file));
 		}
 	}
 	public function js($path, $type=self::MEDIA_NORMAL) {
-		$files = expandBurnConfigFiles($path);
+		$files = Burn::expandDebugFileList($path);
 		foreach ($files as $file) {
 			$this->js[$type][] = sprintf('<script src="%s"></script>', baseUri($file));
 		}
@@ -154,6 +154,29 @@ SQL
 	public function footerContent() {
 		echo join("\n", coal($this->js[self::MEDIA_TOP], array()));
 		echo join("\n", coal($this->js[self::MEDIA_NORMAL], array()));
+	}
+	
+	public function addStandardMedia($renderedView) {
+		$this->addAvailableMedia("app");
+		$this->addAvailableMedia($this->portalName);
+		$this->addAvailableMedia($this->controller . '/common');
+		$this->addAvailableMedia($this->controller . '/' . $this->portalName);
+		$this->addAvailableMedia($this->controller . '/common_' . $this->action);
+		$this->addAvailableMedia($renderedView);
+	}
+	
+	private function addAvailableMedia($path) {
+		if (file_exists(basePath("/css/" . $path . ".css"))
+			|| file_exists(basePath("/css/" . $path . ".conf"))) 
+		{
+			$this->css("/css/" . $path . ".css", MEDIA_TOP);
+		}
+		
+		if (file_exists(basePath("/js/" . $path . ".js"))
+			|| file_exists(basePath("/js/" . $path . ".conf")))
+		{
+			$this->js("/js/" . $path . ".js", MEDIA_TOP);
+		}
 	}
 
 	// Render a specific view. If no view is rendered the view matching the
@@ -183,6 +206,7 @@ SQL
 		$body_content = ob_get_clean();
 		
 		if ($layout) {
+			$this->addStandardMedia($renderedView);
 			ob_start();
 			require("views/layouts/{$layout}.php");
 			$body_content = ob_get_clean();
@@ -225,16 +249,17 @@ SQL
 	}
 	
 	// Redirect using either a url or a controller + action.
-	function redirectTo($to) {
+	function redirectTo($to, $allowDirect=true) {
+		if (param('direct') && $allowDirect) {
+			$direct = base64_decode(param('direct'));
+			redirectTo(($direct ? $direct : param('direct')));
+		}
+
 		if (is_array($to)) {
 			$to = routeUri($to);
 		}
+		
 		redirectTo($to);
-	}
-	
-	// Secure the customer session.
-	function secure() {
-		$this->portal->secure();
 	}
 	
 	

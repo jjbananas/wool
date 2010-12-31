@@ -123,6 +123,7 @@ function toQueryString($a) {
 	return http_build_query($a);
 }
 
+// Output an array (eg. of query string parameters) into hidden form fields.
 function toHiddenForm($a) {
 	$html = '';
 	foreach ($a as $key=>$value) {
@@ -144,5 +145,3 @@ function matchItem($item, $options, $default=null) {
 function matchIndex($index, $options, $default=null) {
 	return isset($options[$index]) ? $index : coal($default, array_shift(array_keys($options)));
 }
-
-

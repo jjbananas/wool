@@ -89,7 +89,7 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 	public function by($column, $value=null, $strict=false) {
 		if (!isset($this->indices[$column])) {
 			if ($strict) {
-				throw new WoolError("Attempting to access non-indexed column");
+				trigger_error("Attempting to access non-indexed column", E_USER_ERROR);
 			}
 			$this->index($column);
 		}
@@ -107,7 +107,7 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 	public function byGroup($column, $value=null, $strict=false) {
 		if (!isset($this->groups[$column])) {
 			if ($strict) {
-				throw new WoolError("Attempting to access non-indexed column");
+				trigger_error("Attempting to access non-indexed column", E_USER_ERROR);
 			}
 			$this->groupBy($column);
 		}

@@ -1,7 +1,7 @@
 <?php
 
 require_once('../lib/Wool/Boot.php');
-require_once('Wool/Db/SchemaExport.php');
+require_once('Wool/Framework/Db/SchemaExport.php');
 
 error_reporting(E_ALL);
 set_time_limit(120);
@@ -445,6 +445,7 @@ function run() {
 				cursor: hand;
 				cursor: pointer;
 				padding: 5px;
+				list-style: none;
 			}
 
 			.dbmsg {
@@ -513,21 +514,21 @@ function run() {
 				list.onclick = function(e) {
 					var e = window.event || e;
 					var i = 0;
-					var marking = true;
+					var marking = false;
 
 					for (i=0; i<items.length; i++) {
 						var item = items[i];
+						
+						target = e.srcElement || e.target;
+						if (item === target) {
+							limitField.value = items.length-i;
+							marking = true;
+						}
 
 						if (marking) {
 							item.className = markingTbl[item.className];
 						} else {
 							item.className = unmarkingTbl[item.className];
-						}
-						
-						target = e.srcElement || e.target;
-						if (item === target) {
-							limitField.value = i+1;
-							marking = false;
 						}
 					}
 				};
@@ -552,25 +553,7 @@ function run() {
 				<input type="text" name="mig" value="<?php echo param('mig', 'db'); ?>" />
 			</div>
 
-			<div id="keys">
-				<div class="key applied">Applied</div>
-				<div class="key missing">Not Applied</div>
-				<div class="key addition">Addition</div>
-				<div class="key deletion">Deletion</div>
-			</div>
-
-			<br style="clear: left;" />
-
-			<?php if ($user) { ?>
-			<input type="hidden" name="strat" value="apply" />
-			<ol>
-				<?php foreach ($migrations as $date=>$migration) { ?>
-				<li class="<?php echo isset($versions[$date]) ? 'applied' : 'missing'; ?>" data-date="<?php echo date('Y-m-d H:i', $date); ?>"><?php echo date('Y-m-d H:i', $date); ?> &mdash; <?php echo $migration['desc']; ?></li>
-				<?php } ?>
-			</ol>
-			<?php } ?>
-
-			<div class="padv">
+			<div class="padv" style="clear: left;">
 				<label for="limit">Apply to:</label> <input type="text" name="limit" value="" />
 				<label for="fake">Fake:</label> <input type="checkbox" name="fake" id="fake" <?php echo param('fake') ? 'checked' : '' ?> />
 				<label for="gen">Generate:</label> <input type="checkbox" name="gen" id="gen" value="1" <?php echo param('gen', param('strat') ? false : true) ? 'checked' : '' ?> />
@@ -578,6 +561,27 @@ function run() {
 
 				<input type="submit" value="Apply" />
 			</div>
+			
+			<div id="keys">
+				<div class="key applied">Applied</div>
+				<div class="key missing">Not Applied</div>
+				<div class="key addition">Addition</div>
+				<div class="key deletion">Deletion</div>
+			</div>
+
+			<?php if ($user) { ?>
+			<input type="hidden" name="strat" value="apply" />
+			<ol>
+				<?php 
+				$i = count($migrations);
+				foreach (array_reverse($migrations, true) as $date=>$migration) {
+				?>
+				<li class="<?php echo isset($versions[$date]) ? 'applied' : 'missing'; ?>" data-date="<?php echo date('Y-m-d H:i', $date); ?>"><?php echo $i . '. ' . date('Y-m-d H:i', $date); ?> &mdash; <?php echo $migration['desc']; ?></li>
+				<?php
+					$i--;
+				} ?>
+			</ol>
+			<?php } ?>
 		</form>
 	</body>
 </html>

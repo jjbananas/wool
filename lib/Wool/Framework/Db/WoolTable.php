@@ -4,6 +4,7 @@ class WoolTable {
 	// The global database schema, created from the database.
 	// ONLY PUBLIC so that schema.php can access it. DO NOT USE externally.
 	public static $schema = array();
+	public static $relations = array();
 	
 	private static $additionalColumns = array();
 	private static $registering = null;
@@ -13,7 +14,10 @@ class WoolTable {
 	
 	private static $queryMeta = array();
 	private static $pealCache = array();
-		
+	
+	public static function define() {
+	}
+	
 	public static function validation($column, $type, $params=array()) {
 		WoolValidation::add(self::$registering, $column, $type, $params);
 	}
@@ -69,6 +73,11 @@ class WoolTable {
 	public static function setQueryMeta($obj, $meta) {
 		$id = spl_object_hash($obj);
 		self::$queryMeta[$id] = $meta;
+	}
+	
+	public static function getQueryMeta($obj) {
+		$id = spl_object_hash($obj);
+		return self::$queryMeta[$id];
 	}
 	
 	/*
@@ -135,7 +144,7 @@ class WoolTable {
 			// Empty fields which are nullable don't need to pass any other
 			// validation. Non-empty fields always do even if they are potentially
 			// nullable.
-			if (is_null($colVal) && ($col['nullable'] || ($col['primary'] && $col['auto_increment']))) {
+			if (is_null($colVal) && ($col['nullable'] || $col['auto_increment'])) {
 				continue;
 			}
 			
@@ -292,8 +301,10 @@ class WoolTable {
 			$meta = self::$queryMeta[$id];
 			
 			$store = array();
+			$srcTables = array();
 			
 			foreach ($meta->sourceTables() as $table=>$srcTable) {
+				$srcTables[$srcTable] = $table;
 				$store[$table] = array();
 				$store[$table]['obj'] = $obj;
 				$store[$table]['insert'] = false;
@@ -362,7 +373,7 @@ class WoolTable {
 				}
 			}
 			
-			$stores[] = $store;
+			$stores[] = array('store'=>$store, 'srcTables'=>$srcTables);
 		}
 		
 		if (!$allValid || $onlyValidate) {
@@ -376,7 +387,7 @@ class WoolTable {
 		// Finally, take all the batched store requests and insert/update the
 		// database.
 		foreach ($stores as $store) {
-			foreach ($store as $table=>$s) {
+			foreach ($store['store'] as $table=>$s) {
 				$srcTable = $meta->realTable($table);
 				
 				self::triggerEvent("preSave", $s['obj'], $table);
@@ -384,6 +395,29 @@ class WoolTable {
 				if (count($s['primaries']) < $s['reqPrimaries']) {
 					trigger_error("Missing primary keys trying to save '{$srcTable}'.", E_USER_ERROR);
 					continue;
+				}
+				
+				// Copy across any referential keys from saved objects, where possible.
+				if (isset(self::$relations[$srcTable])) {
+					foreach (self::$relations[$srcTable] as $relSrc=>$refRel) {
+						$relAlias = $meta->columnAlias($table, $relSrc);
+						if (!property_exists($s['obj'], $relAlias)) {
+							continue;
+						}
+						
+						foreach ($refRel as $srcTbl=>$refTbl) {
+							if (isset($store['srcTables'][$srcTbl])) {
+								$obj = $store['store'][$store['srcTables'][$srcTbl]]['obj'];
+								foreach ($refTbl as $colSrc=>$refCol) {
+									$colAlias = $meta->columnAlias($store['srcTables'][$srcTbl], $colSrc);
+									if (property_exists($obj, $colAlias)) {
+										$s['obj']->$relAlias = $obj->$colAlias;
+										$s['values'][$relSrc] = $obj->$colAlias;
+									}
+								}
+							}
+						}
+					}
 				}
 				
 				// Send off to Zend_Db to do the save.
@@ -423,8 +457,8 @@ class WoolTable {
 	// Make a copy of a row entirely on the database, incorporating any required
 	// changes at the same time. Validation is skipped so changes requiring
 	// validation should use the more standard fetch and save.
-	public static function remoteCopy($table, $id, $changes=array()) {
-		$where = self::primaryWhereClause($table, $id);
+	public static function remoteCopy($table, $id, $changes=array(), $where=null) {
+		$where = $where ? $where : self::primaryWhereClause($table, $id);
 		$inserts = array();
 		$selects = array();
 		

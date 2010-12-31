@@ -11,8 +11,6 @@ class Request {
 	public static function startUp () {
 		self::methods();
 		self::$path = self::getHandler();
-
-		self::checkSuspiciousRequests();
 	}
 
 	// Full URI of the current page. Pass in an array of query string parameters
@@ -25,6 +23,10 @@ class Request {
 		$qs = http_build_query(array_merge($_GET, $arr));
 		$qs = guard($qs, '?' . $qs);
 		return self::$path . $qs;
+	}
+	
+	public static function uriForDirect($arr = array()) {
+		return base64_encode(self::uri($arr));
 	}
 	
 	// Path is simply the URI without query string.
@@ -45,7 +47,7 @@ class Request {
 	}
 
 	public static function userAgent() {
-		return coal($_SERVER['HTTP_USER_AGENT'], '');
+		return coal($_SERVER['HTTP_USER_AGENT'], 'No user agent supplied');
 	}
 
 	public static function ipAddress() {
@@ -88,18 +90,6 @@ class Request {
 	private static function getHandler() {
 		$uri = explode('?', $_SERVER['REQUEST_URI']);
 		return html($uri[0]);
-	}
-
-	private static function checkSuspiciousRequests() {
-		global $errorLog;
-		$uri = self::uri();
-		if (
-				(strpos($uri, "'") !== false)
-				|| (strpos($uri, ';') !== false)
-				|| (strpos($uri, '--') !== false)
-			 ){
-			$errorLog->warn("Potential SQL injection attack: $uri");
-		}
 	}
 }
 

@@ -17,7 +17,7 @@ class SqlMeta {
 		}
 		
 		foreach ($tables as $table) {
-			$alias = isset($table['alias']) ? $table['alias'] : $table['source'];
+			$alias = $table['alias'] ? $table['alias'] : $table['source'];
 			$this->tables[$alias] = $table['source'];
 		}
 

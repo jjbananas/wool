@@ -1,5 +1,8 @@
 <?php
 
+// Centralized error handling for display back to the user. Anything registered
+// here will show up in the error notice on the page so that the user can take
+// further action.
 class WoolErrors {
 	private static $errors = array();
 	
