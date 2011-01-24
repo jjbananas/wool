@@ -166,16 +166,16 @@ SQL
 	}
 	
 	private function addAvailableMedia($path) {
-		if (file_exists(basePath("/css/" . $path . ".css"))
-			|| file_exists(basePath("/css/" . $path . ".conf"))) 
+		if (file_exists(publicPath("/css/" . $path . ".css"))
+			|| file_exists(publicPath("/css/" . $path . ".conf"))) 
 		{
-			$this->css("/css/" . $path . ".css", MEDIA_TOP);
+			$this->css("/css/" . $path . ".css", self::MEDIA_TOP);
 		}
 		
-		if (file_exists(basePath("/js/" . $path . ".js"))
-			|| file_exists(basePath("/js/" . $path . ".conf")))
+		if (file_exists(publicPath("/js/" . $path . ".js"))
+			|| file_exists(publicPath("/js/" . $path . ".conf")))
 		{
-			$this->js("/js/" . $path . ".js", MEDIA_TOP);
+			$this->js("/js/" . $path . ".js", self::MEDIA_TOP);
 		}
 	}
 

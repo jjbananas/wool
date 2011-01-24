@@ -1,0 +1,82 @@
+# Columns
+column money:
+    type: decimal(10,2)
+    default: 0.00
+
+column identity:
+    type: int(10)
+    increment: true
+    unsigned: true
+		
+column primary:
+    type: int(10)
+    increment: true
+    unsigned: true
+    primary: true
+
+column email:
+    type: varchar(50)
+    
+    
+cart:
+    columns:
+        cartId:
+            type: primary
+    
+    derived:
+        price:
+            sum: cart_line.price
+            
+        tax:
+            sum: cart_line.tax
+				
+        total:
+            count: cart_line.cartLineId
+            
+            
+cart_line:
+    columns:
+        cartLineId:
+            type: primary
+            
+        cart:
+            type: key
+            update: cascade
+            delete: cascade
+						
+        product:
+            type: key
+            update: cascade
+            delete: cascade
+            
+    derived:
+        price:
+            fetch: product.price
+        
+        tax:
+            fetch: price * product.tax.rate
+            
+            
+product:
+    columns:
+        productId:
+            type: primary
+            
+        price:
+            type: money
+            
+        tax:
+            type: key
+            update: cascade
+            delete: cascade
+            
+    index:
+        unique productId_price: [productId, price]
+    
+tax:
+    columns:
+        taxId:
+            type: primary
+            
+        rate:
+            type: float

@@ -18,6 +18,12 @@ class WoolTable {
 	public static function define() {
 	}
 	
+	public static function exportYaml($dir) {
+		foreach (self::$schema as $name=>$table) {
+			file_put_contents_mkdir($dir . $name . '.yaml', Spyc::YAMLDump($table));
+		}
+	}
+	
 	public static function validation($column, $type, $params=array()) {
 		WoolValidation::add(self::$registering, $column, $type, $params);
 	}
@@ -149,11 +155,7 @@ class WoolTable {
 			}
 			
 			// Test all attached validators.
-			$pretty = isset(self::$names[$table][$column]) ? self::$names[$table][$column] : $column;
-			
-			if (!WoolValidation::validate($table, $column, $obj, $colVal, $pretty)) {
-				$valid = false;
-			}
+			$valid = self::validateColumn($table, $column, $colVal, $obj);
 		}
 		
 		// Whole object validation
@@ -165,6 +167,12 @@ class WoolTable {
 		}
 		
 		return $valid;
+	}
+	
+	public static function validateColumn($table, $column, $value, $obj) {
+		$pretty = isset(self::$names[$table][$column]) ? self::$names[$table][$column] : $column;
+		
+		return WoolValidation::validate($table, $column, $obj, $value, $pretty);
 	}
 	
 	public static function registerTable($cls, $name) {

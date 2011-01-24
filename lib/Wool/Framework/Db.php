@@ -1,5 +1,6 @@
 <?php
 
+require_once('spyc/spyc.php');
 require_once('Zend/Db.php');
 require_once('Zend/Db/Adapter/Pdo/Mysql.php');
 require_once('Wool/Framework/Db/WoolTable.php');

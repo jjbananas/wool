@@ -1,0 +1,325 @@
+html,
+body {
+	font-family: verdana, arial, sans-serif;
+	font-size: 13px;
+	background: #fafaf8 url(../images/main-bg.png) center repeat-y;
+	color: #282828;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+	font-family: arial, sans-serif;
+	color: #303c4c;
+	margin: 0.2em 0 0.4em 0;
+}
+
+h1, .h1 {
+	font-size: 18px;
+}
+
+h2, .h2 {
+	font-size: 16px;
+}
+
+p {
+	margin-bottom: 1em;
+	line-height: 1.4;
+}
+
+a {
+	color: #406090;
+	text-decoration: none;
+}
+
+a:hover,
+a:focus {
+	text-decoration: underline;
+}
+
+:focus {
+	outline: 1px dotted #d4d3d2;
+}
+
+img {
+	display: block;
+}
+
+#pageCanvas {
+	width: 960px;
+	margin: 0 auto 20px auto;
+}
+
+#pageHeader {
+	border-top: 4px solid #575757;
+	height: 59px;
+	background: #292b2c url(../images/header-bg.png) center repeat-x;
+}
+
+.pad {
+	padding: 10px;
+}
+
+
+/* Pod
+*/
+
+.pod {
+	background-color: #faf9f7;
+	border: 1px solid #eeeeee;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.pod .head {
+	color: #000000;
+	border-bottom: 1px solid #d4d3d2;
+	padding: 4px 4px 8px 4px;
+	margin: 4px 
+}
+
+.pod .head h2 {
+	font-size: 13px;
+	color: #000000;
+	font-family: verdana, sans-serif;
+	margin: 0;
+}
+
+.pod .body {
+	clear: both;
+	margin: 4px;
+}
+
+.pod .foot {
+	clear: both;
+	background-color: #ece8df;
+	border-top: 1px solid #d4d3d2;
+	padding: 4px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+
+.podNested {
+	border-color: #eeedeb;
+	background-color: #ffffff;
+}
+
+/* Darker bordered overlay box
+*/
+
+.podOverlay {
+	border-color: #a8a8a8;
+}
+
+
+/* Data grid
+*/
+
+.dataGrid {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.dataGrid th,
+.dataGrid td {
+}
+
+.dataGrid th {
+	text-align: left;
+	border-bottom: 1px solid #d4d3d2;
+	color: #000000;
+	padding: 7px 2px;
+}
+
+.dataGrid tr td {
+	background-color: #ffffff;
+}
+
+.dataGrid tr:nth-child(2n) td {
+	background-color: #fcfcfc;
+}
+
+.dataGrid td {
+	padding: 4px;
+	border-bottom: 1px solid #eaeaea;
+	border-right: 1px solid #f7f7f7;
+}
+
+.dataGrid th.dragable {
+	cursor: move;
+}
+
+.dataGrid td.rowSelect {
+	width: 2ex;
+}
+
+.dataGrid tr.hover td {
+	background-color: #f2f2f2;
+	cursor: pointer;
+}
+
+.dataGrid td.hover,
+.dataGrid tr:nth-child(2n) td.hover {
+	background-color: #f2f2f2;
+}
+
+.dataGrid tr.selected td {
+	background-color: #f2f7fc;
+}
+
+.dataGridMover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: auto;
+	display: none;
+}
+
+/* Button links
+*/
+
+.btnLink {
+	border: 1px solid #e3e3e3;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background: #f8f8f0 url(../images/icons/icons.png) 0 -23px no-repeat;
+	color: #000000;
+	text-decoration: none;
+	padding: 7px 8px 7px 28px;
+	margin: 0 1ex 0 0;
+	line-height: 34px;
+}
+
+a.btnLink {
+	color: #000000;
+}
+
+input.btnLink {
+	line-height: 1.2;
+}
+
+.btnLink:hover {
+	background-color: #f2f2f2;
+}
+
+.btnLinkMini {
+	line-height: 20px;
+	padding: 3px 4px 3px 28px;
+}
+
+.icon {
+	background-repeat: no-repeat;
+	padding-left: 28px;
+	line-height: 20px;
+}
+
+.iconReply {
+	background-image: url(../images/icons/reply.png);
+	background-position: 5px center;
+	background-color: #ffffff;
+}
+.iconThreadDel {
+	background-image: url(../images/icons/thread-delete.png);
+	background-position: 5px center;
+	background-color: #ffffff;
+}
+.iconEdit {
+	background-image: url(../images/icons/page_white_edit.png);
+	background-position: 5px center;
+}
+.iconAddItem {
+	background-image: url(../images/icons/page_add.png);
+	background-position: 5px center;
+}
+
+
+/* Edit Panel
+*/
+
+.editPanel {
+	padding: 8px;
+	float: left;
+	width: 50%;
+}
+
+.editPanel .input {
+	margin-bottom: 1ex;
+}
+
+.editPanel label {
+	display: block;
+	padding: 2px 1px 6px 1px;
+}
+
+.editPanel .foreign {
+	border: 1px solid #eeedeb;
+	border-right: 0;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background: #fefefe url(../images/forms/foreign-bg.png) right no-repeat;
+	padding: 4px 50px 4px 4px;
+	cursor: pointer;
+	display: inline-block;
+}
+
+.editPanel .foreign label {
+	cursor: pointer;
+}
+
+.editPanel .foreign .choice {
+	color: #a21e1e;
+}
+
+
+/* Selection grid
+*/
+
+.selectionGrid {
+	display: none;
+}
+
+.selectionGrid table {
+	width: 100%;
+}
+
+.selectionGrid .select {
+	width: 26px;
+	text-align: center;
+}
+
+.selectionGrid td {
+	border-bottom: 1px solid #d4d3d2;
+	vertical-align: middle;
+	padding: 2px 0;
+}
+
+.selectionGrid .results {
+	overflow: auto;
+}
+
+
+/* Ajax throbber
+*/
+
+#ajaxThrobber {
+	position: absolute;
+	top: 0;
+	width: 100%;
+}
+
+#ajaxThrobber .content {
+	display: none;
+	margin: 0 auto;
+	width: 300px;
+	border: 1px solid red;
+	border-top: 0;
+	background-color: #000000;
+	color: #e8e8e8;
+	padding: 4px 4px 0 4px;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
+}
+
+#ajaxThrobber .content li {
+	margin-bottom: 4px;
+}

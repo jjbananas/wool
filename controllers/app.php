@@ -14,5 +14,6 @@ class DefaultPortal extends PortalController {
 
 class AdminPortal extends PortalController {
 	public function __construct($con) {
+		$con->setLayout("admin");
 	}
 }
