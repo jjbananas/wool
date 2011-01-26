@@ -44,6 +44,16 @@ img {
 	display: block;
 }
 
+input {
+	padding: 4px;
+	border: 1px solid #808080;
+}
+
+input:focus {
+	outline: 0;
+	border: 1px solid #d8d828;
+}
+
 #pageCanvas {
 	width: 960px;
 	margin: 0 auto 20px auto;
@@ -57,6 +67,10 @@ img {
 
 .pad {
 	padding: 10px;
+}
+
+.clear {
+	clear: both;
 }
 
 
@@ -94,8 +108,8 @@ img {
 	background-color: #ece8df;
 	border-top: 1px solid #d4d3d2;
 	padding: 4px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
 }
 
 
@@ -109,6 +123,7 @@ img {
 
 .podOverlay {
 	border-color: #a8a8a8;
+	display: none;
 }
 
 
@@ -175,6 +190,41 @@ img {
 	display: none;
 }
 
+
+/* Data grid navigation
+*/
+
+.dataGridNav input {
+	text-align: center;
+	width: 4ex;
+	padding: 2px;
+}
+
+.dataGridNav > div,
+.dataGridNav > ul {
+	float: left;
+	width: 50%;
+	line-height: 34px;
+}
+
+.dataGridNav li {
+	display: inline-block;
+}
+
+
+/* Column select
+*/
+
+.columnSelect input {
+	display: block;
+}
+
+.columnSelect td {
+	vertical-align: middle;
+	padding: 2px 4px;
+}
+
+
 /* Button links
 */
 
@@ -182,10 +232,10 @@ img {
 	border: 1px solid #e3e3e3;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
-	background: #f8f8f0 url(../images/icons/icons.png) 0 -23px no-repeat;
+	background-color: #f8f8f0;// url(../images/icons/icons.png) 0 -21px no-repeat;
 	color: #000000;
 	text-decoration: none;
-	padding: 7px 8px 7px 28px;
+	padding: 7px 8px 7px 8px;
 	margin: 0 1ex 0 0;
 	line-height: 34px;
 }
@@ -210,7 +260,6 @@ input.btnLink {
 .icon {
 	background-repeat: no-repeat;
 	padding-left: 28px;
-	line-height: 20px;
 }
 
 .iconReply {
@@ -229,6 +278,22 @@ input.btnLink {
 }
 .iconAddItem {
 	background-image: url(../images/icons/page_add.png);
+	background-position: 5px center;
+}
+.iconFirst {
+	background-image: url(../images/icons/resultset_first.png);
+	background-position: 5px center;
+}
+.iconPrev {
+	background-image: url(../images/icons/resultset_previous.png);
+	background-position: 5px center;
+}
+.iconNext {
+	background-image: url(../images/icons/resultset_next.png);
+	background-position: 5px center;
+}
+.iconLast {
+	background-image: url(../images/icons/resultset_last.png);
 	background-position: 5px center;
 }
 

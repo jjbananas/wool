@@ -2,10 +2,30 @@
 	<h1>Access Roles</h1>
 	<p>Access roles allow you to control access to each page of your site.</p>
 	
-	<p><?php echo linkTo("New Role", array("action"=>"edit"), 'class="btnLink"') ?></p>
+	<p><?php echo linkTo("New Role", array("action"=>"edit"), 'class="btnLink icon iconReply"') ?></p>
 </div>
 
 <div class="pad">
+	<div class="s1of2 pad">
+		<div class="pod columnSelect">
+			<div class="head">
+				<h2>Columns</h2>
+			</div>
+			
+			<form class="pad">
+				<input type="hidden" name="direct" value="<?php echo Request::uriForDirect() ?>" />
+				<table>
+					<?php foreach ($allColumns as $column) { ?>
+					<tr>
+						<td><input type="checkbox" name="" <?php echo in_array($column, $columns) ? 'checked="checked"' : '' ?> /></td>
+						<td><?php echo $column ?></td>
+					</tr>
+					<?php } ?>
+				</table>
+			</form>
+		</div>
+	</div>
+	
 	<div class="pod">
 		<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-dragRows="true">
 			<thead>
@@ -25,7 +45,7 @@
 					<?php foreach ($columns as $column) { ?>
 					<td><?php echo $item->$column ?></td>
 					<?php } ?>
-					<td><?php echo linkTo("Edit", array("action"=>"edit", "id"=>$item->userId), 'class="btnLink"') ?></td>
+					<td><?php echo linkTo("Edit", array("action"=>"edit", "id"=>$item->userId), 'class="btnLink icon iconEdit"') ?></td>
 				</tr>
 				<?php } ?>
 			</tbody>
@@ -54,18 +74,16 @@
 	</div>
 </div>
 
-<div class="pad">
-	<div class="pod podOverlay" id="colunmEdit">
-		<form action="<?php echo routeUri(array("controller"=>"auto", "action"=>"columnUpdate")) ?>" method="post">
-			<div class="body editPanel">
-				<label>Login URL</label>
-				<input type="text" name="value" />
-			</div>
-			
-			<div class="foot">
-				<input type="submit" value="OK" class="btnLink" />
-				<a href="#">Cancel</a>
-			</div>
-		</form>
-	</div>
+<div class="pod podOverlay" id="colunmEdit">
+	<form action="<?php echo routeUri(array("controller"=>"auto", "action"=>"columnUpdate")) ?>" method="post">
+		<div class="body editPanel">
+			<label>Login URL</label>
+			<input type="text" name="value" />
+		</div>
+		
+		<div class="foot">
+			<input type="submit" value="OK" class="btnLink" />
+			<a href="#">Cancel</a>
+		</div>
+	</form>
 </div>

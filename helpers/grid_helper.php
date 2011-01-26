@@ -47,6 +47,34 @@ function navLast($pager, $attr=null) {
 	);
 }
 
+function navPageLinks($pager, $max=10) {
+	if ($max > $pager->totalPages()) {
+		$max = $pager->totalPages();
+	}
+	
+	$shift = floor($max/2);
+	$page = $pager->page();
+	$start = $page - $shift;
+	if ($start < 1) {
+		$start = 1;
+	}
+	$end = $start + $max - 1;
+	if ($end > $pager->totalPages()) {
+		$end = $pager->totalPages();
+		$start = $end - $max - 1;
+	}
+	
+	return range($start, $end);
+}
+
+function navPageLink($pager, $page) {
+	if ($pager->page() == $page) {
+		return "<span>{$page}</span>";
+	}
+	
+	return '<a href="' . Request::uri(array($pager->name() . "_page" => $page)) . '">' . $page . '</a>';
+}
+
 function navPerPageOptions($pager) {
 	$options = array(10,20,50,100);
 	$optionHTML = '';

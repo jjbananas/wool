@@ -21,6 +21,7 @@ SQL
 		);
 		$this->data->setPerPage(3);
 		
+		$this->allColumns = array("name", "email", "password", "avatar");
 		$this->columns = isset($_SESSION['grids'][$this->table]) ? $_SESSION['grids'][$this->table] : $this->columns;
 	}
 	
