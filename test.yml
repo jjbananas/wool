@@ -22,22 +22,31 @@ cart:
     columns:
         cartId:
             type: primary
+            
+        shipping:
+            type: money
     
     derived:
-        price:
-            sum: cart_line.price
+        subTotal:
+            sum: cart_line.net
+            
+        net:
+            fetch: shipping + subTotal
             
         tax:
             sum: cart_line.tax
 				
         total:
-            count: cart_line.cartLineId
+            fetch: net + tax
             
             
 cart_line:
     columns:
         cartLineId:
             type: primary
+            
+        quantity:
+            type: int(10)
             
         cart:
             type: key
@@ -50,11 +59,20 @@ cart_line:
             delete: cascade
             
     derived:
-        price:
+        title:
+            fetch: product.title
+            
+        itemPrice:
             fetch: product.price
+            
+        net:
+            fetch: itemPrice * quantity
         
         tax:
-            fetch: price * product.tax.rate
+            fetch: net * product.tax.rate
+            
+        total:
+            fetch: net + tax
             
             
 product:
@@ -64,6 +82,11 @@ product:
             
         price:
             type: money
+            history: pre|post|diff
+            
+        title:
+            type: varchar(50)
+            history: pre|post
             
         tax:
             type: key
@@ -72,7 +95,7 @@ product:
             
     index:
         unique productId_price: [productId, price]
-    
+        
 tax:
     columns:
         taxId:
@@ -80,3 +103,56 @@ tax:
             
         rate:
             type: float
+
+            
+invoice:
+    columns:
+        invoiceId:
+            type: primary
+    
+        cart:
+            type: key
+            update: cascade
+            delete: cascade
+        
+    derived:
+        net:
+            sum: invoice_line.net
+            
+        tax:
+            sum: invoice_line.tax
+				
+        total:
+            fetch: net + tax
+
+            
+invoice_line:
+    columns:
+        invoiceLineId:
+            type: primary
+            
+        invoice:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        cart_line:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        quantity:
+            type: int(10)
+            
+    derived:
+        itemPrice:
+            fetch: cart_line.itemPrice
+            
+        net:
+            fetch: itemPrice * quantity
+        
+        tax:
+            fetch: quantity * (cart_line.tax / cart_line.quantity)
+            
+        total:
+            fetch: net + tax

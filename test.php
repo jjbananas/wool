@@ -8,7 +8,14 @@ require_once('./lib/Wool/Application.php');
 class SchemaInfo {
 	private static $import = array();
 	private static $tables = array();
-	private static $triggers = array();
+	private static $triggers = array(
+		"product" => array(
+			"history" => array(
+				"price" => array("old","new","diff"),
+				"title" => array("old","new")
+			)
+		)
+	);
 	private static $errors = array();
 	
 	// Current load state for each table during conversion from YAML. Important
@@ -37,7 +44,7 @@ class SchemaInfo {
 		foreach (self::$import as $name=>$entry) {
 			if (preg_match("/^column /", $name)) {
 				$column = substr($name, 7); 
-				self::$columnTypes[$column] = self::getColumnDef($name, $entry);
+				self::$columnTypes[$column] = self::getColumnDef($entry);
 			} else {
 				self::getTableDef($name);
 			}
@@ -99,13 +106,14 @@ class SchemaInfo {
 	}
 	
 	private static function generateFetchSql(&$declares, &$selects, &$joins, $table, $refTbl, $fetch) {
+		$joins[] = "join {$refTbl} on " . self::keyCondition($table, $refTbl, $table, $refTbl);
+		
 		foreach ($fetch as $column=>$var) {
 			if (is_string($var)) {
 				// Add declare
 				$varType = self::columnType(self::$tables[$refTbl]["columns"][$column]);
 				$declares[] = "declare {$var} {$varType};";
 				$selects["{$refTbl}.{$column}"] = $var;
-				$joins[] = "join {$refTbl} on " . self::keyCondition($table, $refTbl, $table, $refTbl);
 			} else {
 				// Deeper join so recurse.
 				self::generateFetchSql($declares, $selects, $joins, $refTbl, $column, $var);
@@ -113,10 +121,159 @@ class SchemaInfo {
 		}
 	}
 	
+	private static function createFetchTrigger($tblName, $deps) {
+		$declares = array();
+		$sqls = array();
+		
+		foreach ($deps as $refTbl=>$fetch) {
+			$selects = array();
+			$joins = array();
+			
+			self::generateFetchSql($declares, $selects, $joins, $tblName, $refTbl, $fetch);
+			array_shift($joins);
+			
+			$condition = self::keyCondition($tblName, $refTbl, "new", $refTbl);
+			$select = join(", ", array_keys($selects));
+			$into = join(", ", $selects);
+			$joins = join("\n", $joins);
+
+			$sqls[] = <<<SQL
+select
+{$select}
+into
+{$into}
+from {$refTbl}
+{$joins}
+where {$condition};
+SQL;
+		}
+		
+		if (!$declares && !$sqls) {
+			return array();
+		}
+		
+		$declares = join("\n", $declares);
+		$sqls = join("\n\n", $sqls);
+		$sql = array();
+		
+		foreach (array("ins", "upd") as $type) {
+			$sql[$type] = <<<SQL
+{$declares}
+
+{$sqls}
+SQL;
+		}
+		
+		return $sql;
+	}
+	
+	private static function createHistoryTrigger($tblName, $cols) {
+		$heads = array();
+		$ins = array();
+		$upd = array();
+		$del = array();
+		
+		// Add standard history columns.
+		$heads[] = "cause";
+		$ins[] = "'ins'";
+		$upd[] = "'upd'";
+		$del[] = "'del'";
+		
+		$heads[] = "changedOn";
+		$ins[] = "now()";
+		$upd[] = "now()";
+		$del[] = "now()";
+		
+		foreach ($cols as $colName=>$col) {
+			foreach ($col as $type) {
+				$heads[] = "{$type}_{$colName}";
+				
+				if ($type == "diff") {
+					$ins[] = "new.{$colName}";
+					$upd[] = "new.{$colName} - old.{$colName}";
+					$del[] = "-old.{$colName}";
+				}
+				else if ($type == "old") {
+					$ins[] = "null";
+					$upd[] = "old.{$colName}";
+					$del[] = "old.{$colName}";
+				}
+				else if ($type == "new") {
+					$ins[] = "new.{$colName}";
+					$upd[] = "new.{$colName}";
+					$del[] = "null";
+				}
+			}
+		}
+		
+		$heads = join(", ", $heads);
+		$ins = join(", ", $ins);
+		$upd = join(", ", $upd);
+		$del = join(", ", $del);
+		
+		$sql = array();
+		
+		foreach (array("ins", "upd", "del") as $type) {
+			$sql[$type] = <<<SQL
+insert into `history_{$tblName}`
+({$heads})
+values
+({$$type});
+SQL;
+		}
+		
+		return $sql;
+	}
+	
+	private static function createAggregateTrigger($tblName, $aggregates) {
+		$sqls = array();
+	
+		foreach ($aggregates as $refTbl=>$ag) {
+			$ins = array();
+			$upd = array();
+			$del = array();
+			
+			foreach ($ag as $type=>$group) {
+				foreach ($group as $local=>$foreign) {
+					if ($type == "sum") {
+						$ins[] = "t.{$foreign} = t.{$foreign} + new.{$local}";
+						$upd[] = "t.{$foreign} = t.{$foreign} - old.{$local} + new.{$local}";
+						$del[] = "t.{$foreign} = t.{$foreign} - old.{$local}";
+					} else if ($type == "count") {
+						$ins[] = "t.{$foreign} = t.{$foreign} + 1";
+						$del[] = "t.{$foreign} = t.{$foreign} - 1";
+					}
+				}
+			}
+			
+			$condition["ins"] = self::keyCondition($tblName, $refTbl, "new", "t");
+			$condition["upd"] = self::keyCondition($tblName, $refTbl, "new", "t");
+			$condition["del"] = self::keyCondition($tblName, $refTbl, "old", "t");
+			$ins = join(",\n", $ins);
+			$upd = join(",\n", $upd);
+			$del = join(",\n", $del);
+			
+			foreach (array("ins", "upd", "del") as $type) {
+				if (!($$type)) { continue; }
+				
+				$sqls[$type][] = <<<SQL
+update {$refTbl} t
+set
+{$$type}
+where {$condition[$type]};
+SQL;
+			}
+		}
+		
+		$sql = array();
+		foreach ($sqls as $type=>$data) {
+			$sql[$type] = join("\n\n", $data);
+		}
+		return $sql;
+	}
+	
 	public static function generateTriggerSql() {
 		$triggers = array();
-		
-		debug(self::$triggers);
 		
 		foreach (self::$triggers as $tblName=>$table) {
 			$declares = array();
@@ -124,72 +281,50 @@ class SchemaInfo {
 			
 			// FETCH automations.
 			if (isset($table["fetch"])) {
-				foreach ($table["fetch"] as $refTbl=>$fetch) {
-					$selects = array();
-					$joins = array();
-					
-					self::generateFetchSql($declares, $selects, $joins, $tblName, $refTbl, $fetch);
-					array_shift($joins);
-					
-					$condition = self::keyCondition($tblName, $refTbl, "new", $refTbl);
-					
-					$sqls[] = sprintf(<<<SQL
-select %s into %s
-from {$refTbl}
-%s
-where {$condition};
-%s
-SQL
-					,
-						join(", ", array_keys($selects)),
-						join(", ", $selects),
-						join("\n", $joins),
-						join("\n", $table['set'])
-					);
+				$t = self::createFetchTrigger($tblName, $table["fetch"]);
+				foreach ($t as $type=>$trigger) {
+					$sqls[$type][] = $trigger;
 				}
 			}
 			
-			// SUM automations
+			if (isset($table["set"])) {
+				$sqls["ins"][] = join("\n", $table['set']);
+				$sqls["upd"][] = join("\n", $table['set']);
+			}
+			
+			// History tables.
+			if (isset($table["history"])) {
+				$t = self::createHistoryTrigger($tblName, $table["history"]);
+				foreach ($t as $type=>$trigger) {
+					$sqls[$type][] = $trigger;
+				}
+			}
+			
+			// Aggregate automations
 			if (isset($table["aggregate"])) {
-				foreach ($table["aggregate"] as $refTbl=>$ag) {
-					$sets = array();
-					
-					foreach ($ag as $type=>$group) {
-						foreach ($group as $local=>$foreign) {
-							if ($type == "sum") {
-								$sets[] = "t.{$foreign} = t.{$foreign} + new.{$local}";
-							} else if ($type == "count") {
-								$sets[] = "t.{$foreign} = t.{$foreign} + 1";
-							}
-						}
-					}
-					
-					$condition = self::keyCondition($tblName, $refTbl, "new", "t");
-					$sets = join(",\n", $sets);
-					
-					$sqls[] = <<<SQL
-update {$refTbl} t
-set
-{$sets}
-where {$condition};
-SQL;
+				$t = self::createAggregateTrigger($tblName, $table["aggregate"]);
+				foreach ($t as $type=>$trigger) {
+					$sqls[$type][] = $trigger;
 				}
 			}
 			
-			$declares = join("\n", $declares);
-			$sqls = join("\n\n", $sqls);
-			
-			$sql = <<<SQL
-CREATE TRIGGER `tbi_{$tblName}`
-BEFORE INSERT ON `{$tblName}`
+			foreach (array("ins"=>"INSERT", "upd"=>"UPDATE", "del"=>"DELETE") as $type=>$sqlType) {
+				if (!isset($sqls[$type]) || !$sqls[$type]) {
+					continue;
+				}
+				
+				$sql = join("\n\n", $sqls[$type]);
+				$initial = $type[0];
+				
+				$sql = <<<SQL
+CREATE TRIGGER `tb{$initial}_{$tblName}`
+BEFORE {$sqlType} ON `{$tblName}`
 FOR EACH ROW BEGIN
-{$declares}
-
-{$sqls}
+{$sql}
 END;
 SQL;
-			
-			$triggers[] = $sql;
+				$triggers[] = $sql;
+			}
 		}
 		
 		return $triggers;
@@ -240,7 +375,7 @@ SQL;
 		}
 	}
 
-	private static function getColumnDef($colName, $col) {
+	private static function getColumnDef($col) {
 		if (isset($col["type"]) && isset(self::$columnTypes[$col["type"]])) {
 			$res = self::$columnTypes[$col["type"]];
 			unset($col["type"]);
@@ -248,26 +383,30 @@ SQL;
 			$res = self::$columnTypes["default"];
 		}
 		
+		return self::mergeColumnDef($res, $col);
+	}
+		
+	private static function mergeColumnDef($merge, $col) {
 		foreach ($col as $name=>$def) {
-			if (!array_key_exists($name, $res)) {
+			if (!array_key_exists($name, $merge)) {
 				$errors[] = "{$name} is not a valid column definition";
 				unset($col[$name]);
 				continue;
 			}
 			
 			if ($name == "type") {
-				self::splitTypeDef($res, $def);
+				self::splitTypeDef($merge, $def);
 			} else {
-				$res[$name] = $def;
+				$merge[$name] = $def;
 			}
 		}
 		
-		return $res;
+		return $merge;
 	}
 	
 	private static function getTableColumnDef($tblName, $colName, $col) {
 		if ($col['type'] != "key") {
-			self::$tables[$tblName]["columns"][$colName] = self::getColumnDef($colName, $col);
+			self::$tables[$tblName]["columns"][$colName] = self::getColumnDef($col);
 			return;
 		}
 		
@@ -290,7 +429,7 @@ SQL;
 		
 		// Set foreign key constraints.
 		self::$tables[$tblName]["keys"][$colName] = array(
-			"name" => "FK__{$colName}",
+			"name" => "FK__{$tblName}_{$colName}",
 			"columns" => $locals,
 			"references" => $colName,
 			"update" => $col['update'],
@@ -312,8 +451,8 @@ SQL;
 		);
 	}
 	
-	private static function getFetchTriggerDef($tblName, $colName, $expr) {
-		$expr = $expr["fetch"];
+	private static function getFetchTriggerDef($tblName, $colName, $col) {
+		$expr = $col["fetch"];
 		$matches = array();
 		
 		preg_match_all("/[\w\.]+/", $expr, $matches, PREG_OFFSET_CAPTURE);
@@ -327,12 +466,20 @@ SQL;
 		
 		$joins = array();
 		$grow = 0;
+		$srcTbl = null;
+		$srcCol = null;
+		
 		// Each match is a table/column selector.
 		foreach ($matches[0] as $match) {
 			if (strpos($match[0], ".") === false) {
 				// Local table selector, add "new."
 				$expr = str_insert("new.", $expr, $match[1]+$grow);
 				$grow += 4;
+				
+				if (!$srcTbl) {
+					$srcTbl = $tblName;
+					$srcCol = $match[0];
+				}
 			} else {
 				// Foreign fetch. Build joins and store to temp vars.
 				$expr = str_insert("var_", $expr, $match[1]+$grow);
@@ -346,11 +493,21 @@ SQL;
 					$last = &$last[$piece];	
 				}
 				
-				$last[$pieces[0]] = array(
-					$pieces[1] => "var_" . str_replace(".", "_", $match[0])
-				);
+				$last[$pieces[0]][$pieces[1]] = "var_" . str_replace(".", "_", $match[0]);
+				
+				if (!$srcTbl) {
+					$srcTbl = $pieces[0];
+					$srcCol = $pieces[1];
+				}
 			}
 		}
+		
+		// Create target column
+		self::getTableDef($srcTbl, true);
+		self::$tables[$tblName]["columns"][$colName] = self::mergeColumnDef(
+			self::$tables[$srcTbl]["columns"][$srcCol],
+			$col
+		);
 		
 		$expr = "set new.{$colName} = " . $expr . ";";
 		
@@ -367,6 +524,16 @@ SQL;
 			return;
 		}
 		
+		// Create target column.
+		self::getTableDef($pieces[0], true);
+		
+		self::$tables[$tblName]["columns"][$colName] = self::mergeColumnDef(
+			self::$tables[$pieces[0]]["columns"][$pieces[1]],
+			$expr
+		);
+		self::$tables[$tblName]["columns"][$colName]["default"] = "0.00";
+		
+		// Register trigger data.
 		self::$triggers[$pieces[0]]["aggregate"][$tblName][$type][$pieces[1]] = $colName;
 	}
 	
@@ -378,15 +545,14 @@ SQL;
 				return;
 			}
 			
-			self::$tables[$tblName]["columns"][$colName] = self::getColumnDef($colName, $col);
-			// Derived columns must be nullable so triggers have a chance to affect them. (MySQL Bug).
-			self::$tables[$tblName]["columns"][$colName]["nullable"] = true;
-			
 			if ($type == "fetch") {
 				self::getFetchTriggerDef($tblName, $colName, $col);
 			} else {
 				self::getSumTriggerDef($tblName, $colName, $col, $type);
 			}
+			
+			// Derived columns must be nullable so triggers have a chance to affect them. (MySQL Bug).
+			self::$tables[$tblName]["columns"][$colName]["nullable"] = true;
 		}
 	}
 
@@ -467,6 +633,7 @@ function str_insert($insert, $into, $offset) {
 
 
 SchemaInfo::load('test.yml');
+WoolDb::exec("SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;");
 $sql = SchemaInfo::generateSql();
 //debug($sql);
 
@@ -476,11 +643,11 @@ foreach ($sql as $table) {
 }
 $trans->success();
 
-
 $triggers = SchemaInfo::generateTriggerSql();
-debug($triggers);
+//debug($triggers);
 $trans = new TransactionRaii;
 foreach ($triggers as $trigger) {
 	WoolDb::exec($trigger);
 }
 $trans->success();
+WoolDb::exec("SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;");
