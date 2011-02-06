@@ -16,31 +16,48 @@ column primary:
 
 column email:
     type: varchar(50)
+
+column password:
+    type: varchar(50)
     
     
 cart:
+    info:
+        name: Shopping Cart
+        shortName: Cart
+        description: Shopping cart for adding products.
+        
     columns:
         cartId:
             type: primary
             
         shipping:
             type: money
+            name: Shipping Cost
     
     derived:
         subTotal:
             sum: cart_line.net
+            name: Sub Total
             
         net:
             fetch: shipping + subTotal
+            name: Net
             
         tax:
             sum: cart_line.tax
+            name: Tax
 				
         total:
             fetch: net + tax
+            name: Total
             
             
 cart_line:
+    info:
+        name: Cart Line
+        description: A shopping cart line inserts a particular product within a cart.
+        
     columns:
         cartLineId:
             type: primary
@@ -52,7 +69,7 @@ cart_line:
             type: key
             update: cascade
             delete: cascade
-						
+			
         product:
             type: key
             update: cascade
@@ -82,11 +99,11 @@ product:
             
         price:
             type: money
-            history: pre|post|diff
+            history: old|new|diff
             
         title:
             type: varchar(50)
-            history: pre|post
+            history: old|new
             
         tax:
             type: key
@@ -156,3 +173,97 @@ invoice_line:
             
         total:
             fetch: net + tax
+
+            
+access_roles_users:
+    columns:
+        accessRoleId: 
+            type: primary
+        
+        users:
+            type: key
+            update: cascade
+            delete: cascade
+
+
+users:
+    info:
+        name: Users
+        description: Each user has access to some part of the system, ranging from administrators to front-end customers.
+        
+    columns:
+        userId:
+            type: primary
+            
+        name:
+            type: varchar(50)
+            
+        email:
+            type: email
+            
+        password:
+            type: password
+            
+        avatar:
+            type: varchar(50)
+
+
+access_locations:
+    columns:
+        accessLocationId:
+            type: primary
+            
+        resource:
+            type: varchar(150)
+            
+        access_roles:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        createdOn:
+            type: datetime
+    
+        modifiedOn:
+            type: datetime
+    
+    index:
+        a: [resource]
+
+        
+access_roles:
+    columns:
+        accessRoleId:
+            type: primary
+            
+        roleName:
+            type: varchar(50)
+            
+        loginUrl:
+            type: varchar(150)
+            
+        deniedUrl:
+            type: varchar(150)
+
+
+sessions:
+    columns:
+        sessionId:
+            type: primary
+            
+        phpSession:
+            type: varchar(32)
+        
+        users:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        ipAddress:
+            type: int
+            
+        token:
+            type: int
+            
+        createdOn:
+            type: datetime

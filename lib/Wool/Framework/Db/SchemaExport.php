@@ -41,21 +41,6 @@ function formatDataType($type) {
 	return $type;
 }
 
-function mkdir_recursive($pathname, $mode)
-{
-    is_dir(dirname($pathname)) || mkdir_recursive(dirname($pathname), $mode);
-    return is_dir($pathname) || @mkdir($pathname, $mode);
-}
-
-function file_put_contents_mkdir($file, $contents){
-	$dir = dirname($file);
-	if(!is_dir($dir)) {
-		mkdir_recursive($dir, 0777);
-	}
-	return file_put_contents($file, $contents);
-}
-
-
 function exportSchema($file) {
 	$db = new Zend_Db_Adapter_Pdo_Mysql(array(
 			'host'     => $GLOBALS['DB_HOST'],
@@ -118,5 +103,5 @@ SQL
 		$relations[$column->TABLE_NAME][$column->COLUMN_NAME][$column->REFERENCED_TABLE_NAME][$column->REFERENCED_COLUMN_NAME] = true;
 	}
 	
-	return file_put_contents_mkdir($file, "<?php\nWoolTable::\$schema = " . var_export($schema, true) . ";\n\nEvanceTable::\$relations = " . var_export($relations, true) . ";\n");
+	return file_put_contents_mkdir($file, "<?php\nWoolTable::\$schema = " . var_export($schema, true) . ";\n\nWoolTable::\$relations = " . var_export($relations, true) . ";\n");
 }

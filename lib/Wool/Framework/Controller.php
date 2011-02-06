@@ -55,7 +55,7 @@ class Controller {
 	
 	private function checkPermissions($portal, $controller, $action) {
 		$allow = new RowSet(<<<SQL
-select accessRoleId, length(al.resource) score
+select accessRoleId accessRoleId, length(al.resource) score
 from access_locations al
 where
 	al.resource = '/{$portal}'
@@ -178,6 +178,14 @@ SQL
 			$this->js("/js/" . $path . ".js", self::MEDIA_TOP);
 		}
 	}
+	
+	function viewFile($view) {
+		if ($view[0] !== '/') {
+			return strtolower($this->controller) . '/' . $view;
+		}
+		
+		return substr($view, 1);
+	}
 
 	// Render a specific view. If no view is rendered the view matching the
 	// action name with be automatically rendered at the end of the action.
@@ -193,11 +201,7 @@ SQL
 		
 		$viewVars = coal($viewVars, $this->viewVars);
 		$viewVars['self'] = $this;
-		if ($renderedView[0] !== '/') {
-			$renderedView = strtolower($this->controller) . '/' . $renderedView;
-		} else {
-			$renderedView = substr($renderedView, 1);
-		}
+		$renderedView = $this->viewFile($renderedView);
 		
 		extract($viewVars);
 		
@@ -237,6 +241,11 @@ SQL
 			echo $this->renderToString($name . "_partial", $viewVars, null);
 			$num++;
 		}
+	}
+	
+	function canRenderPartial($view) {
+		$view = $this->viewFile($view);
+		return file_exists(basePath("/views/{$view}_partial.php"));
 	}
 	
 	// Change the layout template.

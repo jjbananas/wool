@@ -1,6 +1,6 @@
 <?php
 
-require_once('Wool/Core/AccessRoleContact.php');
+require_once('Wool/Core/AccessRoleUser.php');
 require_once('Wool/Core/AccessLocation.php');
 
 class AccessRole extends WoolTable {

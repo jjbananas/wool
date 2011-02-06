@@ -21,6 +21,10 @@ h2, .h2 {
 	font-size: 16px;
 }
 
+h3, .h3 {
+	font-size: 14px;
+}
+
 p {
 	margin-bottom: 1em;
 	line-height: 1.4;
@@ -44,7 +48,7 @@ img {
 	display: block;
 }
 
-input {
+input[type=text] {
 	padding: 4px;
 	border: 1px solid #808080;
 }
@@ -55,7 +59,7 @@ input:focus {
 }
 
 #pageCanvas {
-	width: 960px;
+	width: 980px;
 	margin: 0 auto 20px auto;
 }
 
@@ -65,12 +69,59 @@ input:focus {
 	background: #292b2c url(../images/header-bg.png) center repeat-x;
 }
 
+#pageBody {
+	margin: 10px;
+}
+
 .pad {
 	padding: 10px;
 }
 
+.padh {
+	padding: 0 10px;
+}
+
+.padv {
+	padding: 10px 0;
+}
+
 .clear {
 	clear: both;
+}
+
+.s1of2 {
+	width: 50%;
+	float: left;
+}
+
+
+/* Page header
+*/
+
+#pageHeader a {
+	line-height: 59px;
+	color: #ffffff;
+	display: block;
+	float: left;
+	margin: 0 5px;
+}
+
+
+/* Breadcrumbs
+*/
+
+.breadcrumbs {
+	padding-left: 22px;
+	background: url(../images/icons/map.png) left no-repeat;
+}
+
+.breadcrumbs li {
+	display: inline;
+}
+
+.breadcrumbs li a {
+	padding-right: 10px;
+	background: url(../images/icons/divider.png) right no-repeat;
 }
 
 
@@ -87,8 +138,7 @@ input:focus {
 .pod .head {
 	color: #000000;
 	border-bottom: 1px solid #d4d3d2;
-	padding: 4px 4px 8px 4px;
-	margin: 4px 
+	padding: 8px 8px 8px 8px;
 }
 
 .pod .head h2 {
@@ -100,7 +150,10 @@ input:focus {
 
 .pod .body {
 	clear: both;
-	margin: 4px;
+}
+
+.pod .splitBody {
+	background: url(../images/edit-bg.png) center repeat-y;
 }
 
 .pod .foot {
@@ -124,6 +177,17 @@ input:focus {
 .podOverlay {
 	border-color: #a8a8a8;
 	display: none;
+}
+
+/* Toolbar pod which rests against the top of an existing box
+*/
+
+.podToolbar {
+	border-top: 0;
+	-moz-border-radius-topleft: 0;
+	-moz-border-radius-topright: 0;
+	-webkit-border-radius-topleft: 0;
+	-webkit-border-radius-topright: 0;
 }
 
 
@@ -190,6 +254,15 @@ input:focus {
 	display: none;
 }
 
+.dataGrid .newRow {
+	line-height: 2;
+	cursor: pointer;
+}
+
+.dataGrid .rowForm {
+	display: none;
+}
+
 
 /* Data grid navigation
 */
@@ -215,8 +288,37 @@ input:focus {
 /* Column select
 */
 
+.columnSelect {
+}
+
+.columnSelect .button {
+	position: relative;
+	float: right;
+	margin: 4px;
+	padding: 4px;
+}
+
+.columnSelect .podOverlay {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.columnSelect .head {
+	text-align: right;
+	padding-left: 28px;
+}
+
+.columnSelect form {
+	clear: both;
+}
+
 .columnSelect input {
 	display: block;
+}
+
+.columnSelect table {
+	margin-bottom: 20px;
 }
 
 .columnSelect td {
@@ -240,6 +342,10 @@ input:focus {
 	line-height: 34px;
 }
 
+.btnLinkThin {
+	padding: 4px;
+}
+
 a.btnLink {
 	color: #000000;
 }
@@ -257,44 +363,77 @@ input.btnLink {
 	padding: 3px 4px 3px 28px;
 }
 
+.btnLinkLight {
+	background-color: #ffffff;
+}
+
 .icon {
 	background-repeat: no-repeat;
 	padding-left: 28px;
+	background-position: 6px center;
+}
+.iconLarge {
+	background-repeat: no-repeat;
+	padding-left: 42px;
+	background-position: 5px center;
 }
 
-.iconReply {
-	background-image: url(../images/icons/reply.png);
-	background-position: 5px center;
-	background-color: #ffffff;
+input.icon {
+	background-position: 8px center;
+	cursor: pointer;
 }
-.iconThreadDel {
-	background-image: url(../images/icons/thread-delete.png);
-	background-position: 5px center;
-	background-color: #ffffff;
-}
-.iconEdit {
-	background-image: url(../images/icons/page_white_edit.png);
-	background-position: 5px center;
+
+.iconAccept {
+	background-image: url(../images/icons/accept.png);
 }
 .iconAddItem {
 	background-image: url(../images/icons/page_add.png);
-	background-position: 5px center;
+}
+.iconColumn {
+	background-image: url(../images/icons/table_columns.png);
+}
+.iconDelete {
+	background-image: url(../images/icons/page_delete.png);
+}
+.iconEdit {
+	background-image: url(../images/icons/page_white_edit.png);
 }
 .iconFirst {
 	background-image: url(../images/icons/resultset_first.png);
-	background-position: 5px center;
 }
-.iconPrev {
-	background-image: url(../images/icons/resultset_previous.png);
-	background-position: 5px center;
+.iconHistory {
+	background-image: url(../images/icons/time.png);
 }
-.iconNext {
-	background-image: url(../images/icons/resultset_next.png);
-	background-position: 5px center;
+.iconKeyLink {
+	background-image: url(../images/icons/database_link.png);
 }
 .iconLast {
 	background-image: url(../images/icons/resultset_last.png);
-	background-position: 5px center;
+}
+.iconMap {
+	background-image: url(../images/icons/map.png);
+}
+.iconNext {
+	background-image: url(../images/icons/resultset_next.png);
+}
+.iconPrev {
+	background-image: url(../images/icons/resultset_previous.png);
+}
+.iconReply {
+	background-image: url(../images/icons/reply.png);
+}
+.iconReset {
+	background-image: url(../images/icons/table_refresh.png);
+}
+.iconSave {
+	background-image: url(../images/icons/page_save.png);
+}
+.iconThreadDel {
+	background-image: url(../images/icons/thread-delete.png);
+}
+
+.iconMainMenu {
+	background-image: url(../images/icons/main_menu.png);
 }
 
 
@@ -303,12 +442,10 @@ input.btnLink {
 
 .editPanel {
 	padding: 8px;
-	float: left;
-	width: 50%;
 }
 
 .editPanel .input {
-	margin-bottom: 1ex;
+	margin-bottom: 10px;
 }
 
 .editPanel label {
@@ -324,7 +461,16 @@ input.btnLink {
 	background: #fefefe url(../images/forms/foreign-bg.png) right no-repeat;
 	padding: 4px 50px 4px 4px;
 	cursor: pointer;
-	display: inline-block;
+	position: relative;
+	z-index: 2;
+}
+
+.editPanel .foreign.active {
+	background-color: #ffffff;
+	background-image: url(../images/forms/foreign-bg-active.png);
+	-moz-border-radius: 5px 0 0 5px;
+	-webkit-border-radius: 5px 0 0 5px;
+	margin-right: -8px;
 }
 
 .editPanel .foreign label {
@@ -336,15 +482,73 @@ input.btnLink {
 }
 
 
+.derivedPanel {
+}
+
+.derivedPanel .derived {
+	padding: 8px 5px;
+	border-bottom: 1px solid #e8e8e8;
+}
+.derivedPanel .derived:last-child {
+	border-bottom: 0;
+}
+
+.derivedPanel .derived span {
+	display: block;
+}
+
+.derivedPanel .derived .column {
+	color: #4b75a4;
+	margin-bottom: 4px;
+}
+.derivedPanel .derived .value {
+	color: #000000;
+}
+
+
 /* Selection grid
 */
 
 .selectionGrid {
 	display: none;
+	padding: 15px 0 5px 0;
+}
+
+.selectionGrid h3 {
+	color: #394a5d;
+	float: left;
+	width: 50%;
+	line-height: 26px;
+	margin: 0;
+	text-indent: 5px;
+}
+
+.selectionGrid .searchBar {
+	float: right;
+	width: 50%;
+	text-align: right;
+	line-height: 26px;
+}
+
+.selectionGrid .searchBar input[type=image] {
+	margin-right: 4px;
+}
+
+.selectionGrid .searchBar input,
+.selectionGrid .searchBar a,
+.selectionGrid .searchBar img {
+	border-color: #b2b2b2;
+	display: inline;
+	vertical-align: middle;
+}
+
+.selectionGrid .searchTarget {
+	color: #4b75a4;
 }
 
 .selectionGrid table {
 	width: 100%;
+	margin-top: 5px;
 }
 
 .selectionGrid .select {
@@ -353,13 +557,19 @@ input.btnLink {
 }
 
 .selectionGrid td {
-	border-bottom: 1px solid #d4d3d2;
+	border-bottom: 1px solid #e8e8e8;
 	vertical-align: middle;
-	padding: 2px 0;
+	padding: 10px 8px;
+	color: #807f80;
 }
 
-.selectionGrid .results {
-	overflow: auto;
+.selectionGrid tr:last-child td {
+	border: 0;
+}
+
+.selectionGrid td span {
+	color: #000000;
+	display: block;
 }
 
 

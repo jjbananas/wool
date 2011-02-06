@@ -11,13 +11,6 @@ require_once('Wool/Framework/Db/TransactionRaii.php');
 require_once('Wool/Framework/Db/RowSet.php');
 require_once('Wool/Framework/validation.php');
 
-if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php')) {
-	require_once('Wool/Db/SchemaExport.php');
-	exportSchema($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
-}
-
-require_once($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
-
 class WoolDb {
 	private static $db;
 	

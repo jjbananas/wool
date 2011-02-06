@@ -28,26 +28,10 @@ function add_error_classes($obj, $field) {
 	$classes = array();
 
 	// Handle WoolTable
-	if ($obj instanceof StdClass) {
-		$validators = WoolTable::validators($obj, $field);
-		if (isset($validators['required'])) {
-			$classes[] = 'required';
-		}
-		return $classes;
-	}
-
-	// Handle Doctrine
-	// Invalid after validation attempt.
-	if ($obj->getErrorStack()->contains($field)) {
-		$classes[] = 'invalid';
-	}
-
-	// Required fields.
-	$validators = $obj->getTable()->getFieldValidators($field);
-	if (isset($validators['notblank'])) {
+	$validators = WoolTable::validators($obj, $field);
+	if (isset($validators['required'])) {
 		$classes[] = 'required';
 	}
-
 	return $classes;
 }
 
@@ -68,7 +52,7 @@ function class_array($classes, $preSpace=false) {
 function label($objName, $field, $attrs = array()) {
 	return element_tag_build('label', array_merge(array(
 			'for' => "{$objName}_{$field}"
-		), $attrs), WoolTable::nameFor($objName, $field)
+		), $attrs), WoolTable::columnName($objName, $field)
 	);
 }
 
@@ -116,6 +100,16 @@ function password_field($obj, $objName, $field, $attrs = array()) {
 
 function password_field_tag($name, $value = null, $attrs = array()) {
 	$attrs['type'] = 'password';
+	return text_field_tag($name, $value, $attrs);
+}
+
+function hidden_field($obj, $objName, $field, $attrs = array()) {
+	$attrs['type'] = 'hidden';
+	return text_field($obj, $objName, $field, $attrs);
+}
+
+function hidden_field_tag($name, $value = null, $attrs = array()) {
+	$attrs['type'] = 'hidden';
 	return text_field_tag($name, $value, $attrs);
 }
 
@@ -259,105 +253,21 @@ function select_box_tag($name, $options, $selected=null, $ignoreValues = false) 
 	return element_tag_build('select', array('id'=>$name, 'name'=>$name), $optionHTML);
 }
 
-function msg_for_validator($obj, $field, $error) {
-	$errorStrs = array(
-		'type' => '%s must be a valid %s.',
-		'length' => '%s can have at most %d characters.',
-		'notblank' => '%s must not be empty.',
-		'values' => '%s must be a valid option.'
+function auto_field($obj, $table, $column) {
+	$types = array(
 	);
-
-	$errorConvert = array(
-		'enum'=>'values'
-	);
-
-	if (isset($errorConvert[$error])) {
-		$error = $errorConvert[$error];
-	}
-
-	if (method_exists($obj, 'errorMessage')) {
-		$msg = $obj->errorMessage($field, $error);
-		if ($msg) {
-			return $msg;
-		}
-	}
-
-	// Get the value specified for the validator.
-	$columns = $obj->getTable()->getColumns();
-	$validatorValue = $columns[strtolower($field)][$error];
-
-	$doctrineMan = Doctrine_Manager::getInstance();
-
-	$validators = $doctrineMan->getValidators();
-
-	if(in_array($error, $validators)) {
-		$validator = Doctrine_Validator::getValidator($error);
-
-		if(method_exists($validator, 'errorMessage')) {
-			return $validator->errorMessage($field, $validatorValue, $obj->get($field));
-		}
-	}
-
-	if (isset($errorStrs[$error])) {
-		return sprintf($errorStrs[$error], $field, $validatorValue);
-	} else {
-		return "{$field}: {$error}";
-	}
+	
+	$type = WoolTable::getColumnType($table, $column);
+	
+	return call_user_func(coal($types[$type], "text_field"), $obj, "item", $column);
 }
 
-function error_list($obj, $options=array()) {
-	$options = array_merge(array(
-		'text' => 'Some values may have been entered incorrectly. Please correct the following:'
-	), $options);
-
-	$errors = $obj->getErrorStack();
-	if (!$errors->toArray()) {
-		return;
-	}
-
-	$listHTML = array();
-	foreach ($errors as $field=>$fieldErrors) {
-		foreach ($fieldErrors as $fieldError) {
-			$errStr = msg_for_validator($obj, $field, $fieldError);
-			$listHTML[] = "<li>{$errStr}</li>";
-		}
-	}
-
-	$listHTML = join("\n", $listHTML);
-
-	return <<<HTML
-<div class="error-summary">
-	<p class="intro">{$options['text']}</p>
-	<ol>
-		{$listHTML}
-	</ol>
-</div>
-HTML;
+function selected($b) {
+	return $b ? 'selected="selected"' : '';
 }
-
-function error_list_for($obj, $field) {
-	$errors = $obj->getErrorStack();
-	if (!$errors->contains($field)) {
-		return;
-	}
-
-	$listHTML = array();
-	foreach ($errors->get($field) as $fieldError) {
-			$errStr = msg_for_validator($obj, $field, $fieldError);
-			$listHTML[] = "<li>{$errStr}</li>";
-	}
-
-	$listHTML = join("\n", $listHTML);
-
-	return <<<HTML
-<div class="error-field">
-	<ol>
-		{$listHTML}
-	</ol>
-</div>
-HTML;
+function checked($b) {
+	return $b ? 'checked="checked"' : '';
 }
-
 
 function formatErrors($obj=null, $options=array()) {
 	$options = array_merge(array(

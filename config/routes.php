@@ -18,6 +18,12 @@ Route::add("@portal/blog/:year", array("controller"=>"blog", "action"=>"year"));
 Route::add("@portal/user/@action", array("controller"=>"user"));
 Route::add("@portal/user/:name", array("controller"=>"user", "action"=>"view"));
 
+// Auto-backend
+Route::add("@portal/auto/:table/@action/:id", array("controller"=>"auto"));
+Route::add("@portal/auto/:table/@action", array("controller"=>"auto"));
+Route::add("@portal/auto/:table", array("controller"=>"auto", "action"=>"table"));
+Route::add("@portal/api/@action", array("controller"=>"auto"));
+
 // Standard routes
 Route::add("@portal/@controller/:id/@action");
 Route::add("@portal/@controller/@action");

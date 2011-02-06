@@ -67,7 +67,9 @@ class Router {
 			}
 		}
 		
-		Route::$revPortals = array_flip(Route::$portals);
+		foreach (Route::$portals as $alias=>$portal) {
+			Route::$revPortals[$portal] = is_numeric($alias) ? $portal : $alias;
+		}
 		Route::$revControllers = array_flip(Route::$controllers);
 	}
 	

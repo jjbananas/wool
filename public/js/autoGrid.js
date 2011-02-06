@@ -40,11 +40,12 @@ jQuery(function($) {
 	
 	grids.each(function() {
 		var grid = $(this);
+		var body = grid.find("tbody");
 		
 		// Dragables
 		var headers = $(".dragable", grid);
 		var dragRows = grid.attr("data-dragRows");
-		dragRows = (dragRows && dragRows == "true");
+		var headerUpdate = grid.attr("data-headerUpdate");
 		
 		grid.mousedown(function(e) {
 			var deadZone = 10;
@@ -121,7 +122,7 @@ jQuery(function($) {
 					var alert = WOOL.msgBox.add("Saving columns...");
 					
 					jQuery.ajax({
-						url: "auto/headerUpdate",
+						url: headerUpdate,
 						type: "post",
 						data: {
 							table: grid.attr("data-gridTable"),
@@ -151,7 +152,7 @@ jQuery(function($) {
 					var alert = WOOL.msgBox.add("Moving row...");
 					
 					jQuery.ajax({
-						url: "auto/rowOrder",
+						url: rowOrder,
 						type: "post",
 						data: {
 							table: grid.attr("data-gridTable"),
@@ -176,32 +177,21 @@ jQuery(function($) {
 		});
 		
 		// Hover rows and columns
-		grid.mouseover(function(e) {
-			var el = $(e.target);
-			if (!el.is("td")) {
-				return;
-			}
-			
+		body.mouseover(function(e) {
+			var el = $(e.target).closest("td");
 			el.parent().addClass("hover");
-			columnElements(el, grid, true).addClass("hover");
+			columnElements(el, body, true).addClass("hover");
 		});
 		
-		grid.mouseout(function(e) {
-			var el = $(e.target);
-			if (!el.is("td")) {
-				return;
-			}
-			
+		body.mouseout(function(e) {
+			var el = $(e.target).closest("td");
 			el.parent().removeClass("hover");
-			columnElements(el, grid, true).removeClass("hover");
+			columnElements(el, body, true).removeClass("hover");
 		});
 		
 		// Activate row by clicking
-		grid.click(function(e) {
+		body.click(function(e) {
 			var el = $(e.target).closest("td");
-			if (!el.is("td")) {
-				return;
-			}
 			
 			var row = el.parent();
 			var checkbox = row.find("td.rowSelect input");
@@ -210,6 +200,51 @@ jQuery(function($) {
 				checkbox.attr("checked", !checkbox.attr("checked")).change();
 			}
 			row.toggleClass("selected", checkbox.is(":checked"));
+		});
+		
+		// Dynamic insert of new rows.
+		var rowForm = $(".rowForm", grid);
+		var newRow = $(".newRow", grid);
+		newRow.click(function(e) {
+			if (!rowForm.length) {
+				if (!$(e.target).is("a")) {
+				 window.location = newRow.find("a:first").attr("href");
+				}
+				return true;
+			}
+			
+			e.preventDefault();
+			
+			newRow.hide();
+			rowForm.show().find("input:not([type=hidden]):first").select();
+		});
+		
+		rowForm.submit(function(e) {
+			e.preventDefault();
+			var form = $(e.target);
+
+			var insRow = $('<tr><td colspan="0">Saving...</td></tr>');
+			
+			jQuery.ajax({
+				url: form.attr("action"),
+				type: form.attr("method") || "post",
+				data: form.serialize(),
+				dataType: "json",
+				success: function(res) {
+					if (res.success == true) {
+						insRow.replaceWith(res.html);
+						rowForm.show().find("input:not([type=hidden]):first").select();
+					} else {
+						WOOL.msgBox.add(res.msg, 5000);
+					}
+				},
+				error: function(res, status) {
+					WOOL.msgBox.add(status, 5000);
+				}
+			});
+			
+			body.append(insRow);
+			form.get(0).reset();
 		});
 		
 		// Double-click to edit items
@@ -260,13 +295,17 @@ jQuery(function($) {
 				editBox.hide();
 			});
 			
-			grid.dblclick(function(e) {
+			body.dblclick(function(e) {
 				el = $(e.target);
-				if (!el.is("td")) {
+				if (!el.is("td") || el.closest("tfoot").length) {
 					return;
 				}
 				
 				var header = relatedHeader(el, grid);
+				
+				if (!header.hasClass("editable")) {
+					return;
+				}
 				
 				var x = e.pageX+5;
 				if (x + editBox.outerWidth(true) > $(document).width()) {
@@ -287,15 +326,40 @@ jQuery(function($) {
 				unique.val(el.closest("tr").attr("data-unique"));
 			});
 		})();
+		
+		// Column select box.
+		var columnSelect = $(".columnSelect .button");
+		columnSelect.click(function(e) {
+			e.preventDefault();
+			var columnOverlay = $(".podOverlay", this);
+			columnOverlay.show();
+		});
 	});
 	
 	
 	// Edit panels
-	$(".foreign").each(function() {
+	var grid = $(".selectionGrid");
+	var derived = $(".derivedPanel");
+	var foreigners = $(".foreign");
+	
+	foreigners.each(function() {
 		var el = $(this);
 		el.click(function(e) {
 			e.preventDefault();
-			var grid = $(".selectionGrid");
+			
+			if (el.hasClass("active")) {
+				el.removeClass("active");
+				grid.hide();
+				derived.show();
+				return;
+			}
+			
+			foreigners.removeClass("active");
+			el.addClass("active");
+			
+			grid.find(".searchTarget").html(el.find("label").text());
+			
+			derived.hide();
 			grid.show();
 			grid.find("input").select();
 		});

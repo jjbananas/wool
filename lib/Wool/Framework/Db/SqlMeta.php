@@ -26,22 +26,22 @@ class SqlMeta {
 				if ($select['table']) {
 					$table = $this->realTable($select['table']);
 					$schema = WoolTable::allColumns($table);
-					foreach ($schema as $col) {
-						if (isset($this->selects[$col['name']])) {
-							trigger_error("Attempting to select multiple columns with the name '{$col['name']}'.", E_USER_WARNING);
+					foreach ($schema as $colName=>$col) {
+						if (isset($this->selects[$colName])) {
+							trigger_error("Attempting to select multiple columns with the name '{$colName}'.", E_USER_WARNING);
 						}
-						$this->selects[$col['name']] = array('source'=>$col['name'], 'alias'=>$col['name'], 'table'=>$select['table'], 'srcTable'=>$table);
-						$this->tableSelects[$select['table']][$col['name']] = $col['name'];
+						$this->selects[$colName] = array('source'=>$colName, 'alias'=>$colName, 'table'=>$select['table'], 'srcTable'=>$table);
+						$this->tableSelects[$select['table']][$colName] = $colName;
 					}
 				} else {
 					foreach ($this->sourceTables() as $table=>$srcTable) {
 						$schema = WoolTable::allColumns($srcTable);
-						foreach ($schema as $col) {
-							if (isset($this->selects[$col['name']])) {
-								trigger_error("Attempting to select multiple columns with the name '{$col['name']}'.", E_USER_WARNING);
+						foreach ($schema as $name=>$col) {
+							if (isset($this->selects[$name])) {
+								trigger_error("Attempting to select multiple columns with the name '{$name}'.", E_USER_WARNING);
 							}
-							$this->selects[$col['name']] = array('source'=>$col['name'], 'alias'=>$col['name'], 'table'=>$table, 'srcTable'=>$srcTable);
-							$this->tableSelects[$table][$col['name']] = $col['name'];
+							$this->selects[$name] = array('source'=>$name, 'alias'=>$name, 'table'=>$table, 'srcTable'=>$srcTable);
+							$this->tableSelects[$table][$name] = $name;
 						}
 					}
 				}

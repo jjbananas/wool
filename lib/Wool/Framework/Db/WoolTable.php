@@ -2,9 +2,7 @@
 
 class WoolTable {
 	// The global database schema, created from the database.
-	// ONLY PUBLIC so that schema.php can access it. DO NOT USE externally.
-	public static $schema = array();
-	public static $relations = array();
+	private static $schema = array();
 	
 	private static $additionalColumns = array();
 	private static $registering = null;
@@ -14,6 +12,15 @@ class WoolTable {
 	
 	private static $queryMeta = array();
 	private static $pealCache = array();
+	
+	public static function init() {
+		if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php')) {
+			require_once('Wool/Db/SchemaExport.php');
+			exportSchema($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
+		}
+
+		self::$schema = require($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
+	}
 	
 	public static function define() {
 	}
@@ -32,19 +39,15 @@ class WoolTable {
 		self::$names[self::$registering][$column] = $pretty;
 	}
 	
-	public static function nameFor($table, $column) {
-		return coal(self::$names[$table][$column], $column);
-	}
-	
 	public static function nullable(/*...*/) {
 		$cols = func_get_args();
 		foreach ($cols as $column) {
-			self::$schema[self::$registering][$column]['nullable'] = true;
+			self::$schema[self::$registering]["columns"][$column]['nullable'] = true;
 		}
 	}
 	
 	public static function defaultValue($column, $value) {
-		self::$schema[self::$registering][$column]['default'] = $value;
+		self::$schema[self::$registering]["columns"][$column]['default'] = $value;
 	}
 	
 	public static function accessible($cols, $mergeGrp="default") {
@@ -59,11 +62,11 @@ class WoolTable {
 	}
 	
 	public static function column($column, $default, $type, $length=null, $nullable=false) {
-		if (isset(self::$schema[self::$registering][$column])) {
+		if (isset(self::$schema[self::$registering]["columns"][$column])) {
 			trigger_error("Attempting to override existing database column: '{$column}'", E_USER_ERROR);
 		}
 		
-		self::$schema[self::$registering][$column] = array (
+		self::$schema[self::$registering]["columns"][$column] = array (
 			'name' => $column,
 			'default' => $default,
 			'nullable' => $nullable,
@@ -71,7 +74,7 @@ class WoolTable {
 			'length' => $length,
 			'scale' => null,
 			'primary' => false,
-			'auto_increment' => false,
+			'increment' => false,
 			'additional' => true
 		);
 	}
@@ -131,12 +134,8 @@ class WoolTable {
 		$table = $meta->realTable($tableAlias);
 		$valid = true;
 		
-		if (!isset(self::$registered[$table])) {
-			trigger_error("Unregistered table '{$table}'", E_USER_ERROR);
-		}
-		
-		foreach (self::$schema[$table] as $col) {
-			$column = $meta->columnAlias($tableAlias, $col['name']);
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			$column = $meta->columnAlias($tableAlias, $colName);
 			
 			if ($column && isset($obj->$column)) {
 				$colVal = $obj->$column;
@@ -150,7 +149,7 @@ class WoolTable {
 			// Empty fields which are nullable don't need to pass any other
 			// validation. Non-empty fields always do even if they are potentially
 			// nullable.
-			if (is_null($colVal) && ($col['nullable'] || $col['auto_increment'])) {
+			if (is_null($colVal) && ($col['nullable'] || $col['increment'])) {
 				continue;
 			}
 			
@@ -179,6 +178,7 @@ class WoolTable {
 		self::$registered[$name] = $cls;
 		self::$registering = $name;
 		if (!isset(self::$schema[$name])) {
+			trigger_error("Table '{$name}' not found in schema cache", E_USER_NOTICE);
 			self::$schema[$name] = array();
 		}
 		call_user_func(array($cls, 'define'));
@@ -186,8 +186,96 @@ class WoolTable {
 		self::$registering = null;
 	}
 	
+	public static function tableList() {
+		return array_keys(self::$schema);
+	}
+	
+	public static function displayName($table) {
+		return coal(self::$schema[$table]["info"]["name"], $table);
+	}
+	
+	public static function shortName($table) {
+		return coal(self::$schema[$table]["info"]["shortName"], self::displayName($table));
+	}
+	
+	public static function uniqueColumn($table) {
+		return self::tableAutoIncrement($table);
+	}
+	
+	public static function description($table) {
+		return coal(self::$schema[$table]["info"]["description"], "");
+	}
+	
+	public static function columns($table) {
+		return array_keys(self::$schema[$table]["columns"]);
+	}
+	
+	public static function editableColumns($table) {
+		$cols = array();
+		
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if (self::columnEditable($table, $colName)) {
+				$cols[$colName] = $col;
+			}
+		}
+		
+		return $cols;
+	}
+	
+	public static function columnEditable($table, $column) {
+		$col = self::$schema[$table]["columns"][$column];
+		
+		if ($col['increment']) {
+			return false;
+		}
+		
+		if ($col['derived']) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public static function getColumnType($table, $column) {
+		return self::$schema[$table]["columns"][$column]["type"];
+	}
+	
+	public static function columnName($table, $column) {
+		return coal(self::$schema[$table]["columns"][$column]["name"], $column);
+	}
+	
+	public static function derivedColumns($table) {
+		$cols = array();
+		
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if (self::isColumnDerived($table, $colName)) {
+				$cols[$colName] = $col;
+			}
+		}
+		
+		return $cols;
+	}
+	
+	public static function isColumnDerived($table, $column) {
+		return self::$schema[$table]["columns"][$column]["derived"];
+	}
+	
+	public static function columnIsKey($table, $column) {
+		if (!isset(self::$schema[$table]["keys"])) {
+			return false;
+		}
+		
+		foreach (self::$schema[$table]["keys"] as $key) {
+			if (isset($key["columns"][$column])) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public static function allColumns($table) {
-		return self::$schema[$table];
+		return self::$schema[$table]["columns"];
 	}
 	
 	private static function registerTableTypeValidators() {
@@ -206,7 +294,7 @@ class WoolTable {
 			'datetime' => 'datetime', 'float' => 'int', 'double' => 'int'
 		);
 		
-		foreach (self::$schema[self::$registering] as $column => $col) {
+		foreach (self::$schema[self::$registering]["columns"] as $column => $col) {
 			// Gather up SQL specific params to pass to validators
 			$params = array_merge($col, array(
 				'unsigned' => coal($col['unsigned'], null),
@@ -227,8 +315,8 @@ class WoolTable {
 		$obj = new StdClass;
 		foreach ($meta->selects() as $select) {
 			$table = $meta->realTable($select['table']);
-			if (isset(self::$schema[$table][$select['source']])) {
-				$obj->$select['alias'] = self::$schema[$table][$select['source']]['default'];
+			if (isset(self::$schema[$table]["columns"][$select['source']])) {
+				$obj->$select['alias'] = self::$schema[$table]["columns"][$select['source']]['default'];
 			}
 		}
 		WoolTable::setQueryMeta($obj, $meta);
@@ -245,8 +333,8 @@ class WoolTable {
 			$obj = WoolDb::fetchRow("select * from {$table} where {$where}");
 		} else {
 			$obj = new StdClass;
-			foreach (self::$schema[$table] as $col) {
-				$obj->$col['name'] = $col['default'];
+			foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+				$obj->$colName = $col['default'];
 			}
 			WoolTable::setQueryMeta($obj, new SqlMeta($table, true));
 		}
@@ -319,24 +407,24 @@ class WoolTable {
 				$store[$table]['reqPrimaries'] = 0;
 				$store[$table]['primaries'] = array();
 				$store[$table]['values'] = array();
-				$store[$table]['auto_increment'] = null;
+				$store[$table]['increment'] = null;
 				
 				if ($validate) {
 					self::triggerEvent("preValidate", $obj, $table);
 				}
 				
-				foreach (self::$schema[$srcTable] as $col) {
-					if ($col['additional']) {
+				foreach (self::$schema[$srcTable]["columns"] as $colName=>$col) {
+					if (isset($col['additional'])) {
 						continue;
 					}
 					
-					$alias = $meta->columnAlias($table, $col['name']);
+					$alias = $meta->columnAlias($table, $colName);
 					
 					// Auto increment field is used to determine insert/update. A missing
 					// field skips save for this table. Null causes an insert. All other
 					// values cause an update.
-					if ($col['auto_increment']) {
-						$store[$table]['auto_increment'] = $alias;
+					if ($col['increment']) {
+						$store[$table]['increment'] = $alias;
 						
 						if (!property_exists($obj, $alias)) {
 							unset($store[$table]);
@@ -353,17 +441,17 @@ class WoolTable {
 					
 					// Store the primary keys separately to use for updates.
 					if ($col['primary']) {
-						if (!$col['auto_increment']) {
+						if (!$col['increment']) {
 							$store[$table]['reqPrimaries']++;
 						}
 						
 						if (isset($obj->$alias)) {
-							$store[$table]['primaries']["{$col['name']} = ?"] = $obj->$alias;
+							$store[$table]['primaries']["{$colName} = ?"] = $obj->$alias;
 						}
 					}
 					
 					if (isset($obj->$alias)) {
-						$store[$table]['values'][$col['name']] = &$obj->$alias;
+						$store[$table]['values'][$colName] = &$obj->$alias;
 					}
 				}
 				
@@ -406,24 +494,27 @@ class WoolTable {
 				}
 				
 				// Copy across any referential keys from saved objects, where possible.
-				if (isset(self::$relations[$srcTable])) {
-					foreach (self::$relations[$srcTable] as $relSrc=>$refRel) {
-						$relAlias = $meta->columnAlias($table, $relSrc);
-						if (!property_exists($s['obj'], $relAlias)) {
-							continue;
-						}
-						
-						foreach ($refRel as $srcTbl=>$refTbl) {
-							if (isset($store['srcTables'][$srcTbl])) {
-								$obj = $store['store'][$store['srcTables'][$srcTbl]]['obj'];
-								foreach ($refTbl as $colSrc=>$refCol) {
-									$colAlias = $meta->columnAlias($store['srcTables'][$srcTbl], $colSrc);
-									if (property_exists($obj, $colAlias)) {
-										$s['obj']->$relAlias = $obj->$colAlias;
-										$s['values'][$relSrc] = $obj->$colAlias;
-									}
-								}
+				if (isset(self::$schema[$srcTable]["keys"])) {
+					foreach (self::$schema[$srcTable]["keys"] as $frnTbl=>$def) {
+						foreach ($def["columns"] as $localCol=>$frnCol) {
+							$localAlias = $meta->columnAlias($table, $localCol);
+							if (!property_exists($s['obj'], $localAlias)) {
+								continue;
 							}
+							
+							if (!isset($store['srcTables'][$frnTbl])) {
+								continue;
+							}
+							
+							$frnObj = $store['store'][$store['srcTables'][$srcTbl]]['obj'];
+							$frnAlias = $meta->columnAlias($store['srcTables'][$srcTbl], $colSrc);
+							
+							if (!property_exists($frnObj, $frnAlias)) {
+								continue;
+							}
+							
+							$s['obj']->$relAlias = $frnObj->$frnAlias;
+							$s['values'][$relSrc] = $frnObj->$frnAlias;
 						}
 					}
 				}
@@ -432,7 +523,7 @@ class WoolTable {
 				if ($s['insert']) {
 					self::triggerEvent("preInsert", $s['obj'], $table);
 					WoolDb::insert($srcTable, $s['values']);
-					$s['obj']->$s['auto_increment'] = WoolDb::lastInsertId();
+					$s['obj']->$s['increment'] = WoolDb::lastInsertId();
 				}
 				else {
 					self::triggerEvent("preUpdate", $s['obj'], $table);
@@ -453,7 +544,7 @@ class WoolTable {
 		$id = spl_object_hash($obj);
 		$meta = self::$queryMeta[$id];
 		$srcTable = $meta->realTable($table);
-		$cls = self::$registered[$srcTable];
+		$cls = coal(self::$registered[$srcTable], null);
 		if (!method_exists($cls, $name)) {
 			return;
 		}
@@ -470,17 +561,17 @@ class WoolTable {
 		$inserts = array();
 		$selects = array();
 		
-		foreach (self::$schema[$table] as $col) {
-			if ($col['additional'] || $col['auto_increment']) {
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if ($col['additional'] || $col['increment']) {
 				continue;
 			}
 			
-			$inserts[] = $col['name'];
+			$inserts[] = $colName;
 			
-			if (isset($changes[$col['name']])) {
-				$selects[] = WoolDb::quote($changes[$col['name']]);
+			if (isset($changes[$colName])) {
+				$selects[] = WoolDb::quote($changes[$colName]);
 			} else {
-				$selects[] = $col['name'];
+				$selects[] = $colName;
 			}
 		}
 		
@@ -493,19 +584,18 @@ class WoolTable {
 	
 	// Build a where cause uniquely identifying a row by all its primary keys.
 	private static function primaryWhereClause($table, $id) {
-		$id = is_array($id) ? $id : array($id);
 		$primaries = self::tablePrimaries($table);
 		$where = array();
 		
-		if (count($primaries) == 1 && count($id) == 1) {
-			return $primaries[0]['name'] . "=" . $id[0];
+		if (count($primaries) == 1 && !is_array($id)) {
+			return key($primaries) . "=" . $id;
 		}
 		
-		foreach ($primaries as $col) {
-			if (!isset($id[$col['name']])) {
+		foreach ($primaries as $colName=>$col) {
+			if (!isset($id[$colName])) {
 				trigger_error("Missing primary key", E_USER_ERROR);
 			}
-			$where[] = $col['name'] . "=" . $id[$col['name']];
+			$where[] = $colName . "=" . $id[$colName];
 		}
 		
 		return join(" and ", $where);
@@ -513,20 +603,22 @@ class WoolTable {
 	
 	private static function tablePrimaries($table) {
 		$primaries = array();
-		foreach (self::$schema[$table] as $col) {
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
 			if ($col['primary']) {
-				$primaries[] = $col;
+				$primaries[$colName] = $col;
 			}
 		}
 		return $primaries;
 	}
 	
 	private static function tableAutoIncrement($table) {
-		foreach (self::$schema[$table] as $col) {
-			if ($col['auto_increment']) {
-				return $col['name'];
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if ($col['increment']) {
+				return $colName;
 			}
 		}
 		return null;
 	}
 }
+
+WoolTable::init();

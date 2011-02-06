@@ -10,10 +10,12 @@
 	<body>
 		<div id="pageCanvas">
 			<div id="pageHeader">
-				
+				<?php echo linkTo("Main Menu", array("controller"=>"auto", "action"=>"index"), 'class="iconLarge iconMainMenu"') ?>
 			</div>
 			
-			<?php echo $body_content ?>
+			<div id="pageBody">
+				<?php echo $body_content ?>
+			</div>
 		</div>
 		
 		<div id="ajaxThrobber">
