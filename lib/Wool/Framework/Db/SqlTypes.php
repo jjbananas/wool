@@ -4,21 +4,27 @@
 class SqlTypes {
 	private static $types = array(
 		"varchar" => array(
+			"text" => true
 		),
 		
 		"int" => array(
+			"text" => false
 		),
 		
 		"decimal" => array(
+			"text" => false
 		),
 		
 		"datetime" => array(
+			"text" => false
 		),
 		
 		"enum" => array(
+			"text" => false
 		),
 		
 		"float" => array(
+			"text" => false
 		)
 	);
 	

@@ -37,8 +37,17 @@ class SchemaInfo {
 
 	
 	public static function load($name) {
-		self::$import = Spyc::YAMLLoad($name);
-
+		if (is_dir($name)) {
+			$names = glob($name . "/*.yml");
+		} else {
+			$names = array($name);
+		}
+		
+		self::$import = array();
+		foreach ($names as $name) {
+			self::$import = array_merge(self::$import, Spyc::YAMLLoad($name));
+		}
+		
 		foreach (self::$import as $name=>$entry) {
 			if (preg_match("/^column /", $name)) {
 				$column = substr($name, 7); 
@@ -512,6 +521,9 @@ SQL;
 			"delete" => $col['delete']
 		);
 		
+		// Store inbound keys against the referenced table for faster lookup.
+		self::$tables[$colName]["inbound"][] = $tblName;
+		
 		if (isset($col['history'])) {
 			self::getHistoryColumnDef($tblName, $colName, $col['history']);
 		}
@@ -772,7 +784,7 @@ function camelCase($arr, $pascal=false) {
 	return implode('', $arr);
 }
 
-SchemaInfo::load('test.yml');
+SchemaInfo::load('./db');
 /*
 $db = new Zend_Db_Adapter_Pdo_Mysql(array(
 		'host'     => $GLOBALS['DB_HOST'],

@@ -53,13 +53,16 @@ SQL
 		$this->derivedColumns = WoolTable::derivedColumns($this->table);
 		
 		$this->foreign = array();
-		foreach (WoolTable::columns("cart_line") as $col) {
-			$this->foreign["cart_line"]["columns"][$col] = self::COL_NORMAL;
-		}
-		$this->foreign["cart_line"]["data"] = new WoolGrid("cart_line", <<<SQL
-select * from cart_line where cartId = {$this->item->cartId}
+		foreach (WoolTable::inboundKeys($this->table) as $key) {
+			foreach (WoolTable::columns($key) as $col) {
+				$this->foreign[$key]["columns"][$col] = self::COL_NORMAL;
+			}
+			$condition = WoolTable::primaryCondition($key, $this->table, $this->item, "f");
+			$this->foreign[$key]["data"] = new WoolGrid($key, <<<SQL
+select * from {$key} f where {$condition}
 SQL
-		);
+			);
+		}
 		
 		
 		if (Request::isPost()) {

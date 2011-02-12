@@ -15,7 +15,7 @@
 <div class="pad">
 	<div class="pod">
 		<div class="padh">
-			Filter:
+			Filter: <input type="text" />
 		</div>
 	</div>
 	

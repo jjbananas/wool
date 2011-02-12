@@ -1,26 +1,3 @@
-# Columns
-column money:
-    type: decimal(10,2)
-    default: 0.00
-
-column identity:
-    type: int(10)
-    increment: true
-    unsigned: true
-	
-column primary:
-    type: int(10)
-    increment: true
-    unsigned: true
-    primary: true
-
-column email:
-    type: varchar(50)
-
-column password:
-    type: varchar(50)
-    
-    
 cart:
     info:
         name: Shopping Cart

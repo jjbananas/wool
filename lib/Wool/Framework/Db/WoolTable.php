@@ -291,6 +291,41 @@ class WoolTable {
 		return false;
 	}
 	
+	public static function keyCondition($table, $key, $localNamespace=null, $foreignNamespace=null) {
+		if (!isset(self::$schema[$table]["keys"][$key])) {
+			return "";
+		}
+		
+		$ln = $localNamespace ? "{$localNamespace}." : "";
+		$fn = $foreignNamespace ? "{$foreignNamespace}." : "";
+		
+		$key = self::$schema[$table]["keys"][$key];
+		$cond = array();
+		foreach ($key["columns"] as $local=>$foreign) {
+			$cond[] = "{$ln}{$local} = {$fn}{$foreign}";
+		}
+		return join(" and ", $cond);
+	}
+	
+	public static function primaryCondition($table, $key, $item, $namespace=null) {
+		if (!isset(self::$schema[$table]["keys"][$key])) {
+			return "";
+		}
+		
+		$n = $namespace ? "{$namespace}." : "";
+		
+		$key = self::$schema[$table]["keys"][$key];
+		$cond = array();
+		foreach ($key["columns"] as $local=>$foreign) {
+			$cond[] = "{$n}{$local} = {$item->$foreign}";
+		}
+		return join(" and ", $cond);
+	}
+	
+	public static function inboundKeys($table) {
+		return coal(self::$schema[$table]["inbound"], array());
+	}
+	
 	public static function allColumns($table) {
 		return self::$schema[$table]["columns"];
 	}

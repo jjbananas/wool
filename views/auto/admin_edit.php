@@ -74,7 +74,7 @@
 <div class="pad">
 	<div class="pod">
 		<div class="head">
-			<h2>Related Cart Line</h2>
+			<h2>Related <?php echo WoolTable::displayName($table) ?></h2>
 		</div>
 		
 		<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-headerUpdate="<?php echo routeUri(array("controller"=>"api", "action"=>"headerUpdate")) ?>" data-dragRows="<?php echo routeUri(array("controller"=>"api", "action"=>"rowOrder")) ?>">
