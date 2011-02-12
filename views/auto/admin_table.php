@@ -47,32 +47,6 @@
 		</div>
 		
 		<div class="button">
-			<a href="#" class="icon iconReply">Sorting</a>
-		
-			<div class="pod podOverlay">
-				<div class="head">
-					<h2 class="icon iconReply">Sorting</h2>
-				</div>
-				
-				<form method="post" action="<?php echo routeUri(array("controller"=>"api", "action"=>"columnSelect")) ?>" class="pad">
-					<input type="hidden" name="direct" value="<?php echo Request::uriForDirect() ?>" />
-					<input type="hidden" name="table" value="<?php echo $table ?>" />
-					
-					<table>
-						<?php foreach ($allColumns as $column) { ?>
-						<tr>
-							<td><input type="checkbox" name="cols[<?php echo $column ?>]" <?php echo in_array($column, $columns) ? 'checked="checked"' : '' ?> /></td>
-							<td><?php echo WoolTable::columnName($table, $column) ?></td>
-						</tr>
-						<?php } ?>
-					</table>
-					
-					<input type="submit" value="Update" class="btnLink icon iconReply" />
-				</form>
-			</div>
-		</div>
-		
-		<div class="button">
 			<?php echo linkTo("Reset All", array("action"=>"reset", "table"=>$table), 'class="icon iconReset"') ?>
 		</div>
 		
@@ -84,8 +58,8 @@
 			<thead>
 				<tr>
 					<th></th>
-					<?php foreach ($columns as $column) { ?>
-					<th class="dragable <?php echo WoolTable::columnEditable($table, $column) ? "editable" : "" ?>" data-column="<?php echo $column ?>"><?php echo WoolTable::columnName($table, $column) ?></th>
+					<?php foreach ($columns as $column=>$sort) { ?>
+					<th class="dragable <?php echo gridHeaderClass($table, $column, $sort) ?>" data-column="<?php echo $column ?>"><span><?php echo WoolTable::columnName($table, $column) ?></span></th>
 					<?php } ?>
 					<th width="1"></th>
 				</tr>
@@ -94,15 +68,32 @@
 			<tbody>
 				<?php if (!count($data)) { ?>
 				<tr>
-					<td colspan="0">No items found.</td>
+					<td colspan="999">No items found.</td>
 				</tr>
 				<?php } ?>
 				<?php $self->renderPartials("row", $data, "item", array("table"=>$table, "columns"=>$columns)) ?>
 			</tbody>
 			
 			<tfoot>
+				<?php /*
+				<tr class="totals">
+					<td>Totals:</td>
+					<?php foreach ($columns as $column) { ?>
+					<td><?php echo arraySumInner($data, $column) ?></td>
+					<?php } ?>
+					<td></td>
+				</tr>
+				<tr class="totals">
+					<td>Average:</td>
+					<?php foreach ($columns as $column) { ?>
+					<td><?php echo arrayAvgInner($data, $column) ?></td>
+					<?php } ?>
+					<td></td>
+				</tr>
+				*/ ?>
+				
 				<tr>
-					<td colspan="0">
+					<td colspan="999">
 						<div class="newRow">
 						<?php echo linkTo("New " . WoolTable::shortName($table), array("action"=>"edit", "table"=>$table), 'class="icon iconAddItem"') ?>
 						</div>

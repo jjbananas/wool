@@ -225,7 +225,22 @@ input:focus {
 }
 
 .dataGrid th.dragable {
-	cursor: move;
+	cursor: pointer;
+}
+
+.dataGrid th.editable span {
+	background: url(../images/icons/pencil.png) right no-repeat;
+	padding-right: 14px;
+}
+
+.dataGrid th.asc span {
+	background: url(../images/icons/arrow_down.png) right no-repeat;
+	padding-right: 14px;
+}
+
+.dataGrid th.desc span {
+	background: url(../images/icons/arrow_up.png) right no-repeat;
+	padding-right: 14px;
 }
 
 .dataGrid td.rowSelect {
@@ -233,13 +248,17 @@ input:focus {
 }
 
 .dataGrid tr.hover td {
-	background-color: #f2f2f2;
+	background-color: #f6f6f9;
 	cursor: pointer;
 }
 
 .dataGrid td.hover,
 .dataGrid tr:nth-child(2n) td.hover {
-	background-color: #f2f2f2;
+	background-color: #f9f9f6;
+}
+
+.dataGrid tr.hover td.hover {
+	background-color: #ededed;
 }
 
 .dataGrid tr.selected td {
@@ -289,6 +308,7 @@ input:focus {
 */
 
 .columnSelect {
+	position: relative;
 }
 
 .columnSelect .button {
@@ -302,6 +322,7 @@ input:focus {
 	position: absolute;
 	right: 0;
 	top: 0;
+	z-index: 1;
 }
 
 .columnSelect .head {
@@ -509,9 +530,14 @@ input.icon {
 /* Selection grid
 */
 
-.selectionGrid {
+.selectionGrid,
+.selectionGridSpacer {
 	display: none;
 	padding: 15px 0 5px 0;
+}
+
+.selectionGrid {
+	position: absolute;
 }
 
 .selectionGrid h3 {
@@ -549,6 +575,7 @@ input.icon {
 .selectionGrid table {
 	width: 100%;
 	margin-top: 5px;
+	clear: both;
 }
 
 .selectionGrid .select {

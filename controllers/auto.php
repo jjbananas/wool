@@ -1,6 +1,13 @@
 <?php
 
+require_once('Wool/App/Product.php');
+
 class AutoController extends Controller {
+	const COL_HIDDEN = 0;
+	const COL_NORMAL = 1;
+	const COL_ASC = 2;
+	const COL_DESC = 3;
+	
 	function startUp() {
 		$this->addHelper('grid');
 	}
@@ -28,11 +35,14 @@ SQL
 			$this->columns = array();
 			foreach ($_SESSION['grids'][$this->table] as $col=>$val) {
 				if ($val) {
-					$this->columns[] = $col;
+					$this->columns[$col] = $val;
 				}
 			}
 		} else {
-			$this->columns = $this->allColumns;
+			$this->columns = array();
+			foreach ($this->allColumns as $col) {
+				$this->columns[$col] = self::COL_NORMAL;
+			}
 		}
 	}
 	
@@ -41,6 +51,16 @@ SQL
 		$this->item = WoolTable::fetch($this->table, "id", "item");
 		$this->columns = WoolTable::editableColumns($this->table);
 		$this->derivedColumns = WoolTable::derivedColumns($this->table);
+		
+		$this->foreign = array();
+		foreach (WoolTable::columns("cart_line") as $col) {
+			$this->foreign["cart_line"]["columns"][$col] = self::COL_NORMAL;
+		}
+		$this->foreign["cart_line"]["data"] = new WoolGrid("cart_line", <<<SQL
+select * from cart_line where cartId = {$this->item->cartId}
+SQL
+		);
+		
 		
 		if (Request::isPost()) {
 			if (WoolTable::save($this->item)) {
@@ -54,18 +74,42 @@ SQL
 		$this->item = WoolTable::fetch($this->table, "id", "item");
 		
 		if (Request::isPost()) {
-			if (WoolDb::delete($table, "id")) {
+			if (WoolTable::delete($this->table, "id")) {
 				$this->redirectTo(array("action"=>"table", "table"=>$this->table));
 			}
 		}
 	}
 	
 	function adminHistory() {
-		$this->table = param('table');
+		$this->data();
 		$this->item = WoolTable::fetch($this->table, "id");
+		$this->data = new WoolGrid("history_{$this->table}", <<<SQL
+select h.productId, h.changedOn, h.cause, new_price price, new_title title, taxId
+from history_product h
+join product s on s.productId = h.productId
+where h.productId = ?
+order by h.changedOn desc
+SQL
+		, $this->item->productId);
 		
 		if (Request::isPost()) {
 			
+		}
+	}
+	
+	function adminKeySearch() {
+		$this->data();
+		$class = WoolTable::tableClass($this->table);
+		if (method_exists($class, "keySearch")) {
+			$this->matches = call_user_func(array($class, "keySearch"), param('search'));
+		} else {
+			$this->matches = WoolTable::keySearch($this->table, param('search'));
+		}
+		
+		if ($this->canRenderPartial("/{$this->table}/keysearch")) {
+			$this->renderPartial("/{$this->table}/keysearch");
+		} else {
+			$this->renderPartial('keysearch');
 		}
 	}
 	
@@ -79,12 +123,12 @@ SQL
 		$new = array();
 		
 		foreach (param('cols', array()) as $col) {
-			$new[$col] = isset($grid[$col]) ? $grid[$col] : false;
+			$new[$col] = isset($grid[$col]) ? $grid[$col] : COL_NORMAL;
 		}
 		
 		foreach (WoolTable::columns($table) as $col) {
 			if (!isset($new[$col])) {
-				$new[$col] = true;
+				$new[$col] = isset($grid[$col]) ? $grid[$col] : COL_NORMAL;
 			}
 		}
 		
@@ -93,6 +137,12 @@ SQL
 		$this->renderJson(array(
 			"success" => true
 		));
+	}
+	
+	function adminReset() {
+		$this->data();
+		$_SESSION['grids'][$this->table] = null;
+		$this->redirectTo(array("action"=>"table", "table"=>$this->table));
 	}
 	
 	function adminColumnSelect() {
@@ -105,12 +155,12 @@ SQL
 		
 		foreach (WoolTable::columns($table) as $col) {
 			if (!isset($_SESSION['grids'][$table][$col])) {
-				$_SESSION['grids'][$table][$col] = true;
+				$_SESSION['grids'][$table][$col] = COL_NORMAL;
 			}
 		}
 		
 		foreach ($_SESSION['grids'][$table] as $col=>$val) {
-			$_SESSION['grids'][$table][$col] = isset($visible[$col]);
+			$_SESSION['grids'][$table][$col] = isset($visible[$col]) ? COL_NORMAL : COL_HIDDEN;
 		}
 		
 		$this->redirectTo(array("action"=>"index", "table"=>$table));
@@ -125,7 +175,7 @@ SQL
 		$this->item = WoolTable::fetch($this->table, "id", "item");
 		$json = array();
 		
-		if (true) { //WoolTable::save($this->item)) {
+		if (WoolTable::save($this->item)) {
 			$json['success'] = true;
 			$this->selected = true;
 			$json['html'] = $this->renderToString("row_partial", null, null);

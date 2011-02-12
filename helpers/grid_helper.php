@@ -84,3 +84,21 @@ function navPerPageOptions($pager) {
 	}
 	return $optionHTML;
 }
+
+function gridHeaderClass($table, $column, $sort) {
+	$cls = array();
+
+	if (WoolTable::columnEditable($table, $column)) {
+		$cls[] = "editable";
+	}
+	
+	if ($sort == AutoController::COL_ASC) {
+		$cls[] = "asc";
+	}
+	
+	if ($sort == AutoController::COL_DESC) {
+		$cls[] = "desc";
+	}
+	
+	return join(' ', $cls);
+}

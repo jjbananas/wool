@@ -446,6 +446,8 @@ SQL;
 			"type" => "enum",
 			"length" => array("ins", "upd", "del"),
 		));
+		
+		self::$tables[$name]["info"]["system"] = true;
 	}
 	
 	private static function getHistoryColumnDef($tblName, $colName, $def) {
@@ -468,6 +470,7 @@ SQL;
 			self::$tables[$name]["columns"][$cname]["increment"] = false;
 		}
 		
+		self::$tables[$tblName]["info"]["history"] = true;
 		self::$triggers[$tblName]["history"][$colName] = $def;
 	}
 	
@@ -635,6 +638,43 @@ SQL;
 			self::$tables[$tblName]["columns"][$colName]["derived"] = true;
 		}
 	}
+	
+	private static function tableAutoIncrement($table) {
+		foreach (self::$tables[$table]["columns"] as $colName=>$col) {
+			if ($col['increment']) {
+				return $colName;
+			}
+		}
+		return null;
+	}
+	
+	private static function tableToCamelCase($tblName) {
+		return camelCase(explode('_', $tblName));
+	}
+	
+	private static function checkTableRequirements($tblName) {
+		// Give the table a good default name if not provided.
+		if (!isset(self::$tables[$tblName]["info"]["name"])) {
+			self::$tables[$tblName]["info"]["name"] = ucwords(join(' ', explode('_', $tblName)));
+		}
+		
+		if (!self::tableAutoIncrement($tblName)) {
+			$colName = self::tableToCamelCase($tblName) . "Id";
+			
+			self::$tables[$tblName]["columns"][$colName] = self::mergeColumnDef(
+				self::$columnTypes["default"],
+				$colName,
+				array(
+					"increment" => true
+				)
+			);
+			
+			self::$tables[$tblName]['index']["unique_{$colName}"] = array(
+				"unique" => true,
+				"columns" => array($colName)
+			);
+		}
+	}
 
 	private static function getTableDef($tblName, $dependent=false) {
 		if (isset(self::$loadState[$tblName])) {
@@ -681,10 +721,7 @@ SQL;
 			}
 		}
 		
-		// Give the table a good default name if not provided.
-		if (!isset(self::$tables[$tblName]["info"]["name"])) {
-			self::$tables[$tblName]["info"]["name"] = ucwords(join(' ', explode('_', $tblName)));
-		}
+		self::checkTableRequirements($tblName);
 		
 		self::$loadState[$tblName] = self::LS_DONE;
 	}
@@ -726,6 +763,14 @@ function str_insert($insert, $into, $offset) {
    return substr($into, 0, $offset) . $insert . substr($into, $offset);
 }
 
+// Converts an array of strings to a single camel case string.
+function camelCase($arr, $pascal=false) {
+	$s = $pascal ? 0 : 1;
+	for($i = $s; $i < count($arr); $i++) {
+			$arr[$i] = ucfirst($arr[$i]);
+	}
+	return implode('', $arr);
+}
 
 SchemaInfo::load('test.yml');
 /*

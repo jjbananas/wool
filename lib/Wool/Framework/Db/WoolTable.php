@@ -187,7 +187,23 @@ class WoolTable {
 	}
 	
 	public static function tableList() {
-		return array_keys(self::$schema);
+		return array_filter(array_keys(self::$schema), array("self", "isStdTable"));
+	}
+	
+	public static function tableClass($table) {
+		return ucwords($table);
+	}
+	
+	public static function tableHasHistory($table) {
+		return isset(self::$schema[$table]["info"]["history"]);
+	}
+	
+	public static function isSystemTable($table) {
+		return isset(self::$schema[$table]["info"]["system"]);
+	}
+	
+	public static function isStdTable($table) {
+		return !self::isSystemTable($table);
 	}
 	
 	public static function displayName($table) {
@@ -260,6 +276,7 @@ class WoolTable {
 		return self::$schema[$table]["columns"][$column]["derived"];
 	}
 	
+	// Returns the referenced table if the column is a foreign key.
 	public static function columnIsKey($table, $column) {
 		if (!isset(self::$schema[$table]["keys"])) {
 			return false;
@@ -267,7 +284,7 @@ class WoolTable {
 		
 		foreach (self::$schema[$table]["keys"] as $key) {
 			if (isset($key["columns"][$column])) {
-				return true;
+				return $key["references"];
 			}
 		}
 		
@@ -276,6 +293,17 @@ class WoolTable {
 	
 	public static function allColumns($table) {
 		return self::$schema[$table]["columns"];
+	}
+	
+	public static function keySearch($table, $search) {
+		$u = self::uniqueColumn($table);
+		
+		return new RowSet(<<<SQL
+select {$u} id
+from {$table}
+where {$u} = ?
+SQL
+		, $search);
 	}
 	
 	private static function registerTableTypeValidators() {
@@ -580,6 +608,18 @@ class WoolTable {
 		
 		WoolDb::exec("insert into {$table} ({$inserts}) select {$selects} from {$table} where {$where}");
 		return WoolDb::lastInsertId();
+	}
+	
+	// Delete a row from a table using the unique ID.
+	public static function delete($table, $id) {
+		$id = !is_numeric($id) ? id_param($id) : $id;
+		$unique = self::tableAutoIncrement($table);
+		
+		if (!$unique) {
+			return false;
+		}
+		
+		return WoolDb::query("delete from {$table} where {$unique} = ?", $id);
 	}
 	
 	// Build a where cause uniquely identifying a row by all its primary keys.

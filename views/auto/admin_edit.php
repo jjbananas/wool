@@ -17,8 +17,8 @@
 				<div class="s1of2">
 					<div class="editPanel">
 						<?php foreach ($columns as $column=>$col) { ?>
-						<?php if (WoolTable::columnIsKey($table, $column)) { ?>
-						<div class="input foreign">
+						<?php if ($ref = WoolTable::columnIsKey($table, $column)) { ?>
+						<div class="input foreign" data-references="<?php echo $ref ?>">
 							<?php echo label($table, $column) ?>
 							<?php echo hidden_field($item, "item", $column) ?>
 							<a href="" class="choice icon iconKeyLink"><?php echo ($item->$column ? "{$item->$column}: {$item->title}" : 'None Selected') ?></a>
@@ -32,7 +32,6 @@
 						</div>
 						<?php } ?>
 						<?php } ?>
-						
 					</div>
 				</div>
 				
@@ -40,37 +39,14 @@
 					<div class="padh">
 						<div class="pod podToolbar podEditTools">
 							<div class="pad">
-								<?php echo linkTo('Delete', array("action"=>"delete"), 'class="btnLink btnLinkLight icon iconDelete"') ?>
-								<?php echo linkTo('History', array("action"=>"history"), 'class="btnLink btnLinkLight icon iconHistory "') ?>
+								<?php echo linkTo('Delete', array("action"=>"delete", "table"=>$table, "id"=>$item->$u), 'class="btnLink btnLinkLight icon iconDelete"') ?>
+								<?php if (WoolTable::tableHasHistory($table)) { ?>
+								<?php echo linkTo('History', array("action"=>"history", "table"=>$table, "id"=>$item->$u), 'class="btnLink btnLinkLight icon iconHistory "') ?>
+								<?php } ?>
 							</div>
 						</div>
 						
-						<div class="selectionGrid">
-							<h3>Search: <span class="searchTarget">Product Id</span></h3>
-							
-							<div class="searchBar">
-								<input type="text" name="search" value="Search or #ID" />
-								<input type="image" src="<?php echo baseUri('/images/icons/search.png') ?>" value="Search" />
-								<a href="#"><img src="<?php echo baseUri('/images/icons/close.png') ?>" alt="Close" title="Close" /></a>
-							</div>
-							
-							<table>
-								<tr>
-									<td><span>1: Tony Marklove</span></td>
-									<td class="select"><a href="#" class="icon iconAccept">Use</a></td>
-								</tr>
-								<tr>
-									<td><span>1: Boris</span></td>
-									<td class="select"><a href="#" class="icon iconAccept">Use</a></td>
-								</tr>
-								<tr>
-									<td>
-										<span>1: Billy Testerton</span>
-										Optional supplimentary information.
-									</td>
-									<td class="select"><a href="#" class="icon iconAccept">Use</a></td>
-								</tr>
-							</table>
+						<div class="selectionGridSpacer">
 						</div>
 					</div>
 					
@@ -93,3 +69,42 @@
 		</div>
 	</form>
 </div>
+
+<?php foreach ($foreign as $table=>$f) { ?>
+<div class="pad">
+	<div class="pod">
+		<div class="head">
+			<h2>Related Cart Line</h2>
+		</div>
+		
+		<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-headerUpdate="<?php echo routeUri(array("controller"=>"api", "action"=>"headerUpdate")) ?>" data-dragRows="<?php echo routeUri(array("controller"=>"api", "action"=>"rowOrder")) ?>">
+			<thead>
+				<tr>
+					<th></th>
+					<?php foreach ($f["columns"] as $column=>$sort) { ?>
+					<th class="dragable <?php echo WoolTable::columnEditable($table, $column) ? "editable" : "" ?>" data-column="<?php echo $column ?>"><?php echo WoolTable::columnName($table, $column) ?></th>
+					<?php } ?>
+					<th width="1"></th>
+				</tr>
+			</thead>
+			
+			<tbody>
+				<?php if (!count($f["data"])) { ?>
+				<tr>
+					<td colspan="999">No items found.</td>
+				</tr>
+				<?php } ?>
+				<?php $self->renderPartials("row", $f["data"], "item", array("table"=>$table, "columns"=>$f["columns"])) ?>
+			</tbody>
+		</table>
+		
+		<div class="foot">
+			<div class="pod podNested pad">
+				<?php $self->renderPartial('/grid/nav', array("pager"=>$f["data"])) ?>
+			</div>
+		</div>
+	</div>
+</div>
+<?php } ?>
+
+<?php $self->renderPartial('selection_grid') ?>

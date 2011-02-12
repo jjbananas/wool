@@ -267,3 +267,9 @@ sessions:
             
         createdOn:
             type: datetime
+            
+            
+example:
+    columns:
+        name:
+            type: varchar(50)

@@ -25,4 +25,8 @@ class SqlTypes {
 	public function isValidDataType($type) {
 		return isset(self::$types[$type]);
 	}
+	
+	public function isText($type) {
+		return self::$types[$type]["text"];
+	}
 }

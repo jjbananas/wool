@@ -375,6 +375,11 @@ return array (
         'derived' => false,
       ),
     ),
+    'info' => 
+    array (
+      'history' => true,
+      'name' => 'Product',
+    ),
     'keys' => 
     array (
       'tax' => 
@@ -400,10 +405,6 @@ return array (
           1 => 'price',
         ),
       ),
-    ),
-    'info' => 
-    array (
-      'name' => 'Product',
     ),
   ),
   'cart_line' => 
@@ -775,6 +776,10 @@ return array (
         'history' => 'old|new',
       ),
     ),
+    'info' => 
+    array (
+      'system' => true,
+    ),
   ),
   'invoice' => 
   array (
@@ -1117,6 +1122,53 @@ return array (
     'info' => 
     array (
       'name' => 'Sessions',
+    ),
+  ),
+  'example' => 
+  array (
+    'columns' => 
+    array (
+      'name' => 
+      array (
+        'name' => 'Name',
+        'type' => 'varchar',
+        'length' => '50',
+        'scale' => 0,
+        'default' => NULL,
+        'nullable' => false,
+        'primary' => false,
+        'increment' => false,
+        'unsigned' => false,
+        'derived' => false,
+      ),
+      'exampleId' => 
+      array (
+        'name' => 'Example Id',
+        'type' => 'int',
+        'length' => 0,
+        'scale' => 0,
+        'default' => NULL,
+        'nullable' => false,
+        'primary' => false,
+        'increment' => true,
+        'unsigned' => false,
+        'derived' => false,
+      ),
+    ),
+    'info' => 
+    array (
+      'name' => 'Example',
+    ),
+    'index' => 
+    array (
+      'unique_exampleId' => 
+      array (
+        'unique' => true,
+        'columns' => 
+        array (
+          0 => 'exampleId',
+        ),
+      ),
     ),
   ),
 );

@@ -119,6 +119,29 @@ function is_array_like(&$obj) {
 	return is_array($obj) || $obj instanceof ArrayAccess;
 }
 
+// Much like array_sum combined with pluck. Looks up an index for each item
+// in the outer array and sums those values.
+function arraySumInner($a, $index) {
+	$sum = 0;
+	foreach ($a as $x) {
+		if (is_array($x) && isset($x[$index])) {
+			$sum += $x[$index];
+		}
+		else if (isset($x->$index)) {
+			$sum += $x->$index;
+		}
+	}
+	return $sum;
+}
+
+function array_avg($a) {
+	return array_sum($a) / count($a);
+}
+
+function arrayAvgInner($a, $index) {
+	return arraySumInner($a, $index) / count($a);
+}
+
 function toQueryString($a) {
 	return http_build_query($a);
 }
