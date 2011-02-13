@@ -6,7 +6,7 @@
 <div class="pad">
 	<ul>
 		<?php foreach ($tables as $table) { ?>
-		<li><?php echo linkTo(WoolTable::displayName($table), array("table"=>$table)) ?></li>
+		<li><?php echo linkTo(Schema::displayName($table), array("table"=>$table)) ?></li>
 		<?php } ?>
 	</ul>
 </div>

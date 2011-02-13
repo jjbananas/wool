@@ -1,6 +1,6 @@
 <?php
 
-class TransactionRaii {
+class Transaction {
 	private $success = false;
 	private $strict = false;
 	private static $depth = 0;

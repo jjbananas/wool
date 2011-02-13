@@ -1,42 +1,20 @@
 <?php
 
+require_once('Wool/Framework/Db/Schema.php');
+
 class WoolTable {
-	// The global database schema, created from the database.
-	private static $schema = array();
-	
-	private static $additionalColumns = array();
 	private static $registering = null;
 	private static $registered = array();
-	private static $names = array();
 	private static $mergeGroups = array();
 	
 	private static $queryMeta = array();
 	private static $pealCache = array();
 	
-	public static function init() {
-		if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php')) {
-			require_once('Wool/Db/SchemaExport.php');
-			exportSchema($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
-		}
-
-		self::$schema = require($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
-	}
-	
 	public static function define() {
-	}
-	
-	public static function exportYaml($dir) {
-		foreach (self::$schema as $name=>$table) {
-			file_put_contents_mkdir($dir . $name . '.yaml', Spyc::YAMLDump($table));
-		}
 	}
 	
 	public static function validation($column, $type, $params=array()) {
 		WoolValidation::add(self::$registering, $column, $type, $params);
-	}
-	
-	public static function name($column, $pretty) {
-		self::$names[self::$registering][$column] = $pretty;
 	}
 	
 	public static function nullable(/*...*/) {
@@ -62,8 +40,9 @@ class WoolTable {
 	}
 	
 	public static function column($column, $default, $type, $length=null, $nullable=false) {
-		if (isset(self::$schema[self::$registering]["columns"][$column])) {
+		if (Schema::column(self::$registering, $column)) {
 			trigger_error("Attempting to override existing database column: '{$column}'", E_USER_ERROR);
+			return;
 		}
 		
 		self::$schema[self::$registering]["columns"][$column] = array (
@@ -134,7 +113,7 @@ class WoolTable {
 		$table = $meta->realTable($tableAlias);
 		$valid = true;
 		
-		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+		foreach (Schema::allColumns($table) as $colName=>$col) {
 			$column = $meta->columnAlias($tableAlias, $colName);
 			
 			if ($column && isset($obj->$column)) {
@@ -169,165 +148,18 @@ class WoolTable {
 	}
 	
 	public static function validateColumn($table, $column, $value, $obj) {
-		$pretty = isset(self::$names[$table][$column]) ? self::$names[$table][$column] : $column;
-		
-		return WoolValidation::validate($table, $column, $obj, $value, $pretty);
+		return WoolValidation::validate($table, $column, $obj, $value, Schema::columnName($table, $column));
 	}
 	
 	public static function registerTable($cls, $name) {
 		self::$registered[$name] = $cls;
 		self::$registering = $name;
-		if (!isset(self::$schema[$name])) {
+		if (!Schema::tableExists($name)) {
 			trigger_error("Table '{$name}' not found in schema cache", E_USER_NOTICE);
-			self::$schema[$name] = array();
 		}
 		call_user_func(array($cls, 'define'));
 		self::registerTableTypeValidators();
 		self::$registering = null;
-	}
-	
-	public static function tableList() {
-		return array_filter(array_keys(self::$schema), array("self", "isStdTable"));
-	}
-	
-	public static function tableClass($table) {
-		return ucwords($table);
-	}
-	
-	public static function tableHasHistory($table) {
-		return isset(self::$schema[$table]["info"]["history"]);
-	}
-	
-	public static function isSystemTable($table) {
-		return isset(self::$schema[$table]["info"]["system"]);
-	}
-	
-	public static function isStdTable($table) {
-		return !self::isSystemTable($table);
-	}
-	
-	public static function displayName($table) {
-		return coal(self::$schema[$table]["info"]["name"], $table);
-	}
-	
-	public static function shortName($table) {
-		return coal(self::$schema[$table]["info"]["shortName"], self::displayName($table));
-	}
-	
-	public static function uniqueColumn($table) {
-		return self::tableAutoIncrement($table);
-	}
-	
-	public static function description($table) {
-		return coal(self::$schema[$table]["info"]["description"], "");
-	}
-	
-	public static function columns($table) {
-		return array_keys(self::$schema[$table]["columns"]);
-	}
-	
-	public static function editableColumns($table) {
-		$cols = array();
-		
-		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
-			if (self::columnEditable($table, $colName)) {
-				$cols[$colName] = $col;
-			}
-		}
-		
-		return $cols;
-	}
-	
-	public static function columnEditable($table, $column) {
-		$col = self::$schema[$table]["columns"][$column];
-		
-		if ($col['increment']) {
-			return false;
-		}
-		
-		if ($col['derived']) {
-			return false;
-		}
-		
-		return true;
-	}
-	
-	public static function getColumnType($table, $column) {
-		return self::$schema[$table]["columns"][$column]["type"];
-	}
-	
-	public static function columnName($table, $column) {
-		return coal(self::$schema[$table]["columns"][$column]["name"], $column);
-	}
-	
-	public static function derivedColumns($table) {
-		$cols = array();
-		
-		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
-			if (self::isColumnDerived($table, $colName)) {
-				$cols[$colName] = $col;
-			}
-		}
-		
-		return $cols;
-	}
-	
-	public static function isColumnDerived($table, $column) {
-		return self::$schema[$table]["columns"][$column]["derived"];
-	}
-	
-	// Returns the referenced table if the column is a foreign key.
-	public static function columnIsKey($table, $column) {
-		if (!isset(self::$schema[$table]["keys"])) {
-			return false;
-		}
-		
-		foreach (self::$schema[$table]["keys"] as $key) {
-			if (isset($key["columns"][$column])) {
-				return $key["references"];
-			}
-		}
-		
-		return false;
-	}
-	
-	public static function keyCondition($table, $key, $localNamespace=null, $foreignNamespace=null) {
-		if (!isset(self::$schema[$table]["keys"][$key])) {
-			return "";
-		}
-		
-		$ln = $localNamespace ? "{$localNamespace}." : "";
-		$fn = $foreignNamespace ? "{$foreignNamespace}." : "";
-		
-		$key = self::$schema[$table]["keys"][$key];
-		$cond = array();
-		foreach ($key["columns"] as $local=>$foreign) {
-			$cond[] = "{$ln}{$local} = {$fn}{$foreign}";
-		}
-		return join(" and ", $cond);
-	}
-	
-	public static function primaryCondition($table, $key, $item, $namespace=null) {
-		if (!isset(self::$schema[$table]["keys"][$key])) {
-			return "";
-		}
-		
-		$n = $namespace ? "{$namespace}." : "";
-		
-		$key = self::$schema[$table]["keys"][$key];
-		$cond = array();
-		foreach ($key["columns"] as $local=>$foreign) {
-			$cond[] = "{$n}{$local} = {$item->$foreign}";
-		}
-		return join(" and ", $cond);
-	}
-	
-	public static function inboundKeys($table) {
-		return coal(self::$schema[$table]["inbound"], array());
-	}
-	
-	public static function allColumns($table) {
-		return self::$schema[$table]["columns"];
 	}
 	
 	public static function keySearch($table, $search) {
@@ -357,7 +189,7 @@ SQL
 			'datetime' => 'datetime', 'float' => 'int', 'double' => 'int'
 		);
 		
-		foreach (self::$schema[self::$registering]["columns"] as $column => $col) {
+		foreach (Schema::allColumns(self::$registering) as $column => $col) {
 			// Gather up SQL specific params to pass to validators
 			$params = array_merge($col, array(
 				'unsigned' => coal($col['unsigned'], null),
@@ -378,8 +210,9 @@ SQL
 		$obj = new StdClass;
 		foreach ($meta->selects() as $select) {
 			$table = $meta->realTable($select['table']);
-			if (isset(self::$schema[$table]["columns"][$select['source']])) {
-				$obj->$select['alias'] = self::$schema[$table]["columns"][$select['source']]['default'];
+			$col = Schema::column($table, $select['source']);
+			if ($col) {
+				$obj->$select['alias'] = $col['default'];
 			}
 		}
 		WoolTable::setQueryMeta($obj, $meta);
@@ -396,7 +229,7 @@ SQL
 			$obj = WoolDb::fetchRow("select * from {$table} where {$where}");
 		} else {
 			$obj = new StdClass;
-			foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			foreach (Schema::allColumns($table) as $colName=>$col) {
 				$obj->$colName = $col['default'];
 			}
 			WoolTable::setQueryMeta($obj, new SqlMeta($table, true));
@@ -476,7 +309,7 @@ SQL
 					self::triggerEvent("preValidate", $obj, $table);
 				}
 				
-				foreach (self::$schema[$srcTable]["columns"] as $colName=>$col) {
+				foreach (Schema::allColumns($srcTable) as $colName=>$col) {
 					if (isset($col['additional'])) {
 						continue;
 					}
@@ -540,7 +373,7 @@ SQL
 		}
 		
 		if ($transaction) {
-			$trans = new TransactionRaii;
+			$trans = new Transaction;
 		}
 		
 		// Finally, take all the batched store requests and insert/update the
@@ -557,28 +390,26 @@ SQL
 				}
 				
 				// Copy across any referential keys from saved objects, where possible.
-				if (isset(self::$schema[$srcTable]["keys"])) {
-					foreach (self::$schema[$srcTable]["keys"] as $frnTbl=>$def) {
-						foreach ($def["columns"] as $localCol=>$frnCol) {
-							$localAlias = $meta->columnAlias($table, $localCol);
-							if (!property_exists($s['obj'], $localAlias)) {
-								continue;
-							}
-							
-							if (!isset($store['srcTables'][$frnTbl])) {
-								continue;
-							}
-							
-							$frnObj = $store['store'][$store['srcTables'][$srcTbl]]['obj'];
-							$frnAlias = $meta->columnAlias($store['srcTables'][$srcTbl], $colSrc);
-							
-							if (!property_exists($frnObj, $frnAlias)) {
-								continue;
-							}
-							
-							$s['obj']->$relAlias = $frnObj->$frnAlias;
-							$s['values'][$relSrc] = $frnObj->$frnAlias;
+				foreach (Schema::allKeys($srcTable) as $frnTbl=>$def) {
+					foreach ($def["columns"] as $localCol=>$frnCol) {
+						$localAlias = $meta->columnAlias($table, $localCol);
+						if (!property_exists($s['obj'], $localAlias)) {
+							continue;
 						}
+						
+						if (!isset($store['srcTables'][$frnTbl])) {
+							continue;
+						}
+						
+						$frnObj = $store['store'][$store['srcTables'][$srcTbl]]['obj'];
+						$frnAlias = $meta->columnAlias($store['srcTables'][$srcTbl], $colSrc);
+						
+						if (!property_exists($frnObj, $frnAlias)) {
+							continue;
+						}
+						
+						$s['obj']->$relAlias = $frnObj->$frnAlias;
+						$s['values'][$relSrc] = $frnObj->$frnAlias;
 					}
 				}
 				
@@ -624,7 +455,7 @@ SQL
 		$inserts = array();
 		$selects = array();
 		
-		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+		foreach (Schema::allColumns($table) as $colName=>$col) {
 			if ($col['additional'] || $col['increment']) {
 				continue;
 			}
@@ -648,7 +479,7 @@ SQL
 	// Delete a row from a table using the unique ID.
 	public static function delete($table, $id) {
 		$id = !is_numeric($id) ? id_param($id) : $id;
-		$unique = self::tableAutoIncrement($table);
+		$unique = Schema::uniqueColumn($table);
 		
 		if (!$unique) {
 			return false;
@@ -659,14 +490,14 @@ SQL
 	
 	// Build a where cause uniquely identifying a row by all its primary keys.
 	private static function primaryWhereClause($table, $id) {
-		$primaries = self::tablePrimaries($table);
+		$primaries = Schema::primaryColumns($table);
 		$where = array();
 		
 		if (count($primaries) == 1 && !is_array($id)) {
-			return key($primaries) . "=" . $id;
+			return $primaries[0] . "=" . $id;
 		}
 		
-		foreach ($primaries as $colName=>$col) {
+		foreach ($primaries as $colName) {
 			if (!isset($id[$colName])) {
 				trigger_error("Missing primary key", E_USER_ERROR);
 			}
@@ -675,25 +506,6 @@ SQL
 		
 		return join(" and ", $where);
 	}
-	
-	private static function tablePrimaries($table) {
-		$primaries = array();
-		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
-			if ($col['primary']) {
-				$primaries[$colName] = $col;
-			}
-		}
-		return $primaries;
-	}
-	
-	private static function tableAutoIncrement($table) {
-		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
-			if ($col['increment']) {
-				return $colName;
-			}
-		}
-		return null;
-	}
 }
 
-WoolTable::init();
+Schema::loadFromCache();

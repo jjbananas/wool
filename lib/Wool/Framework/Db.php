@@ -7,7 +7,7 @@ require_once('Wool/Framework/Db/WoolTable.php');
 require_once('Wool/Framework/Db/SqlParser.php');
 require_once('Wool/Framework/Db/Sql.php');
 require_once('Wool/Framework/Db/SqlMeta.php');
-require_once('Wool/Framework/Db/TransactionRaii.php');
+require_once('Wool/Framework/Db/Transaction.php');
 require_once('Wool/Framework/Db/RowSet.php');
 require_once('Wool/Framework/validation.php');
 

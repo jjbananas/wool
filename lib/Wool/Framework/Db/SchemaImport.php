@@ -1,18 +1,16 @@
 <?php
 
-require_once('./lib/Wool/Boot.php');
-require_once('./lib/spyc/spyc.php');
+require_once('spyc/spyc.php');
 require_once('Zend/Db/Adapter/Pdo/Mysql.php');
-require_once('./lib/Wool/Framework/Db/SqlTypes.php');
+require_once('Wool/Framework/Db/SqlTypes.php');
+require_once('Wool/Framework/Db/Schema.php');
 
 //WoolTable::exportYaml($GLOBALS['BASE_PATH'] . '/db/export/');
 
 
-class SchemaInfo {
+class SchemaImport {
 	private static $import = array();
-	private static $tables = array();
 	private static $triggers = array();
-	private static $errors = array();
 	
 	// Current load state for each table during conversion from YAML. Important
 	// for recursive/dependent loads.
@@ -56,8 +54,6 @@ class SchemaInfo {
 				self::getTableDef($name);
 			}
 		}
-		
-		return file_put_contents_mkdir($GLOBALS['BASE_PATH'] . '/var/database/schema.php', "<?php\nreturn " . var_export(self::$tables, true) . ";\n");
 	}
 	
 	public static function generateSql() {
@@ -70,7 +66,7 @@ class SchemaInfo {
 				$lines[] = self::columnSql($colName, $column);
 			}
 			
-			$primary = self::primaryColumns($name);
+			$primary = Schema::primaryColumns($name);
 			$primary = join(", ", $primary);
 			if ($primary) {
 				$lines[] = "primary key ({$primary})";
@@ -113,7 +109,7 @@ class SchemaInfo {
 	}
 	
 	private static function generateFetchSql(&$declares, &$selects, &$joins, $table, $refTbl, $fetch) {
-		$joins[] = "join {$refTbl} on " . self::keyCondition($table, $refTbl, $table, $refTbl);
+		$joins[] = "join {$refTbl} on " . Schema::keyCondition($table, $refTbl, $table, $refTbl);
 		
 		foreach ($fetch as $column=>$var) {
 			if (is_string($var)) {
@@ -139,7 +135,7 @@ class SchemaInfo {
 			self::generateFetchSql($declares, $selects, $joins, $tblName, $refTbl, $fetch);
 			array_shift($joins);
 			
-			$condition = self::keyCondition($tblName, $refTbl, "new", $refTbl);
+			$condition = Schema::keyCondition($tblName, $refTbl, "new", $refTbl);
 			$select = join(", ", array_keys($selects));
 			$into = join(", ", $selects);
 			$joins = join("\n", $joins);
@@ -181,7 +177,7 @@ SQL;
 		$del = array();
 		
 		// Add primary key columns.
-		$primaries = self::primaryColumns($tblName);
+		$primaries = Schema::primaryColumns($tblName);
 		
 		foreach ($primaries as $primary) {
 			$heads[] = $primary;
@@ -263,9 +259,9 @@ SQL;
 				}
 			}
 			
-			$condition["ins"] = self::keyCondition($tblName, $refTbl, "new", "t");
-			$condition["upd"] = self::keyCondition($tblName, $refTbl, "new", "t");
-			$condition["del"] = self::keyCondition($tblName, $refTbl, "old", "t");
+			$condition["ins"] = Schema::keyCondition($tblName, $refTbl, "new", "t");
+			$condition["upd"] = Schema::keyCondition($tblName, $refTbl, "new", "t");
+			$condition["del"] = Schema::keyCondition($tblName, $refTbl, "old", "t");
 			$ins = join(",\n", $ins);
 			$upd = join(",\n", $upd);
 			$del = join(",\n", $del);
@@ -347,32 +343,6 @@ SQL;
 		
 		return $triggers;
 	}
-	
-	private static function primaryColumns($tableName) {
-		$primaries = array();
-		foreach (self::$tables[$tableName]["columns"] as $name=>$col) {
-			if ($col['primary']) {
-				$primaries[] = $name;
-			}
-		}
-		return $primaries;
-	}
-	
-	private static function keyCondition($table, $key, $localNamespace=null, $foreignNamespace=null) {
-		if (!isset(self::$tables[$table]["keys"][$key])) {
-			return "";
-		}
-		
-		$ln = $localNamespace ? "{$localNamespace}." : "";
-		$fn = $foreignNamespace ? "{$foreignNamespace}." : "";
-		
-		$key = self::$tables[$table]["keys"][$key];
-		$cond = array();
-		foreach ($key["columns"] as $local=>$foreign) {
-			$cond[] = "{$ln}{$local} = {$fn}{$foreign}";
-		}
-		return join(" and ", $cond);
-	}
 
 	// Split SQL types. These can be in three forms: text, int(10), decimal(10,2)
 	private static function splitTypeDef(&$result, $type) {
@@ -380,7 +350,7 @@ SQL;
 		$matches = array();
 		
 		if (!preg_match($regex, $type, $matches)) {
-			self::$errors[] = "{$type} is not recognised as an SQL type";
+			trigger_error("{$type} is not recognised as an SQL type", E_USER_WARNING);
 			return;
 		}
 		
@@ -412,8 +382,8 @@ SQL;
 	private static function mergeColumnDef($merge, $colName, $col) {
 		foreach ($col as $name=>$def) {
 			if ($name != "history" && !array_key_exists($name, $merge)) {
-				$errors[] = "{$name} is not a valid column definition";
-				unset($col[$name]);
+				//trigger_error("{$name} is not a valid column definition", E_USER_WARNING);
+				//unset($col[$name]);
 				continue;
 			}
 			
@@ -433,59 +403,66 @@ SQL;
 	private static function baseHistoryTable($tblName) {
 		$name = "history_{$tblName}";
 		
-		if (isset(self::$tables[$name])) {
+		if (Schema::tableExists($name)) {
 			return;
 		}
 		
 		// Copy primary columns.
-		$primaries = self::primaryColumns($tblName);
+		$primaries = Schema::primaryColumns($tblName);
 		
 		foreach ($primaries as $primary) {
-			self::$tables[$name]["columns"][$primary] = self::$tables[$tblName]["columns"][$primary];
-			self::$tables[$name]["columns"][$primary]["increment"] = false;
+			$def = Schema::column($tblName, $primary);
+			$def["increment"] = false;
+			Schema::addColumn($name, $primary, $def);
 		}
 		
 		// Set up standard history columns.
-		self::$tables[$name]["columns"]["changedOn"] = self::getColumnDef("changedOn", array(
+		Schema::addColumn($name, "changedOn", self::getColumnDef("changedOn", array(
 			"type" => "datetime",
 			"primary" => true
-		));
+		)));
 		
-		self::$tables[$name]["columns"]["cause"] = self::getColumnDef("cause", array(
+		Schema::addColumn($name, "cause", self::getColumnDef("cause", array(
 			"type" => "enum",
-			"length" => array("ins", "upd", "del"),
-		));
+			"length" => array("ins", "upd", "del")
+		)));
 		
-		self::$tables[$name]["info"]["system"] = true;
+		Schema::addInfo($name, "system", true);
 	}
 	
 	private static function getHistoryColumnDef($tblName, $colName, $def) {
 		$allowed = array("old", "new", "diff");
+		
+		// Force new values to always exist.
+		$def .= "|new";
+		
 		$def = array_map("trim", explode("|", $def));
+		$def = array_unique($def);
 		
 		self::baseHistoryTable($tblName);
 		
 		foreach ($def as $type) {
 			if (!in_array($type, $allowed)) {
-				self::$errors[] = "Unrecognised history type";
+				trigger_error("Unrecognised history type", E_USER_WARNING);
 				continue;
 			}
 			
 			$name = "history_{$tblName}";
 			$cname = "{$type}_{$colName}";
-			self::$tables[$name]["columns"][$cname] = self::$tables[$tblName]["columns"][$colName];
-			self::$tables[$name]["columns"][$cname]["nullable"] = true;
-			self::$tables[$name]["columns"][$cname]["primary"] = false;
-			self::$tables[$name]["columns"][$cname]["increment"] = false;
+			$colDef = Schema::column($tblName, $colName);
+			$colDef["nullable"] = true;
+			$colDef["primary"] = false;
+			$colDef["increment"] = false;
+			Schema::addColumn($name, $cname, $colDef);
 		}
 		
-		self::$tables[$tblName]["info"]["history"] = true;
+		Schema::addInfo($tblName, "history", true);
 		self::$triggers[$tblName]["history"][$colName] = $def;
 	}
 	
 	private static function getTableColumnDef($tblName, $colName, $col) {
 		if ($col['type'] != "key") {
-			self::$tables[$tblName]["columns"][$colName] = self::getColumnDef($colName, $col);
+			Schema::addColumn($tblName, $colName, self::getColumnDef($colName, $col));
 			
 			if (isset($col['history'])) {
 				self::getHistoryColumnDef($tblName, $colName, $col['history']);
@@ -496,7 +473,7 @@ SQL;
 		
 		// Copy columns from foreign primary key.
 		self::getTableDef($colName, true);
-		$primaries = self::primaryColumns($colName);
+		$primaries = Schema::primaryColumns($colName);
 		
 		if (!$primaries) {
 			return;
@@ -507,22 +484,23 @@ SQL;
 		foreach ($primaries as $primary) {
 			$local = "{$prefix}{$primary}";
 			$locals[$local] = $primary;
-			self::$tables[$tblName]["columns"][$local] = self::$tables[$colName]["columns"][$primary];
-			self::$tables[$tblName]["columns"][$local]["primary"] = false;
-			self::$tables[$tblName]["columns"][$local]["increment"] = false;
+			$colDef = Schema::column($colName, $primary);
+			$colDef["primary"] = false;
+			$colDef["increment"] = false;
+			Schema::addColumn($tblName, $local, $colDef);
 		}
 		
 		// Set foreign key constraints.
-		self::$tables[$tblName]["keys"][$colName] = array(
+		Schema::addKey($tblName, $colName, array(
 			"name" => "FK__{$tblName}_{$colName}",
 			"columns" => $locals,
 			"references" => $colName,
 			"update" => $col['update'],
 			"delete" => $col['delete']
-		);
+		));
 		
 		// Store inbound keys against the referenced table for faster lookup.
-		self::$tables[$colName]["inbound"][] = $tblName;
+		Schema::addInbound($colName, $tblName);
 		
 		if (isset($col['history'])) {
 			self::getHistoryColumnDef($tblName, $colName, $col['history']);
@@ -537,10 +515,10 @@ SQL;
 			$unique = true;
 		}
 		
-		self::$tables[$tblName]['index'][$idxName] = array(
+		Schema::addIndex($tblName, $idxName, array(
 			"unique" => $unique,
 			"columns" => $index
-		);
+		));
 	}
 	
 	private static function getFetchTriggerDef($tblName, $colName, $col) {
@@ -596,11 +574,11 @@ SQL;
 		
 		// Create target column
 		self::getTableDef($srcTbl, true);
-		self::$tables[$tblName]["columns"][$colName] = self::mergeColumnDef(
-			self::$tables[$srcTbl]["columns"][$srcCol],
+		Schema::addColumn($tblName, $colName, self::mergeColumnDef(
+			Schema::column($srcTbl, $srcCol),
 			$colName,
 			$col
-		);
+		));
 		
 		$expr = "set new.{$colName} = " . $expr . ";";
 		
@@ -620,12 +598,13 @@ SQL;
 		// Create target column.
 		self::getTableDef($pieces[0], true);
 		
-		self::$tables[$tblName]["columns"][$colName] = self::mergeColumnDef(
-			self::$tables[$pieces[0]]["columns"][$pieces[1]],
+		$colDef = self::mergeColumnDef(
+			Schema::column($pieces[0], $pieces[1]),
 			$colName,
 			$expr
 		);
-		self::$tables[$tblName]["columns"][$colName]["default"] = "0.00";
+		$colDef["default"] = "0.00";
+		Schema::addColumn($tblName, $colName, $colDef);
 		
 		// Register trigger data.
 		self::$triggers[$pieces[0]]["aggregate"][$tblName][$type][$pieces[1]] = $colName;
@@ -646,18 +625,9 @@ SQL;
 			}
 			
 			// Derived columns must be nullable so triggers have a chance to affect them. (MySQL Bug).
-			self::$tables[$tblName]["columns"][$colName]["nullable"] = true;
-			self::$tables[$tblName]["columns"][$colName]["derived"] = true;
+			Schema::setColumnValue($tblName, $colName, "nullable", true);
+			Schema::setColumnValue($tblName, $colName, "derived", true);
 		}
-	}
-	
-	private static function tableAutoIncrement($table) {
-		foreach (self::$tables[$table]["columns"] as $colName=>$col) {
-			if ($col['increment']) {
-				return $colName;
-			}
-		}
-		return null;
 	}
 	
 	private static function tableToCamelCase($tblName) {
@@ -666,25 +636,25 @@ SQL;
 	
 	private static function checkTableRequirements($tblName) {
 		// Give the table a good default name if not provided.
-		if (!isset(self::$tables[$tblName]["info"]["name"])) {
-			self::$tables[$tblName]["info"]["name"] = ucwords(join(' ', explode('_', $tblName)));
+		if (Schema::displayName($tblName) == $tblName) {
+			Schema::addInfo($tblName, "name", ucwords(join(' ', explode('_', $tblName))));
 		}
 		
-		if (!self::tableAutoIncrement($tblName)) {
+		if (!Schema::uniqueColumn($tblName)) {
 			$colName = self::tableToCamelCase($tblName) . "Id";
 			
-			self::$tables[$tblName]["columns"][$colName] = self::mergeColumnDef(
+			Schema::addColumn($tblName, $colName, self::mergeColumnDef(
 				self::$columnTypes["default"],
 				$colName,
 				array(
 					"increment" => true
 				)
-			);
+			));
 			
-			self::$tables[$tblName]['index']["unique_{$colName}"] = array(
+			Schema::addIndex($tblName, "unique_{$colName}", array(
 				"unique" => true,
 				"columns" => array($colName)
-			);
+			));
 		}
 	}
 
@@ -696,12 +666,6 @@ SQL;
 		self::$loadState[$tblName] = self::LS_LOADING;
 		
 		$allowed = array("columns", "derived", "index");
-		
-		if ($dependent) {
-			self::$tables = array($tblName=>array()) + self::$tables;
-		} else {
-			self::$tables[$tblName] = array();
-		}
 		
 		if (!isset(self::$import[$tblName])) {
 			trigger_error("'{$tblName}' not found in database dictionary", E_USER_WARNING);
@@ -725,11 +689,11 @@ SQL;
 			}
 			else if ($section == "info") {
 				foreach ($def as $name=>$col) {
-					self::$tables[$tblName]["info"][$name] = $col;
+					Schema::addInfo($tblName, $name, $col);
 				}
 			}
 			else {
-				$errors[] = "{$section} is not a valid table section";
+				trigger_error("{$section} is not a valid table section", E_USER_WARNING);
 			}
 		}
 		
@@ -771,20 +735,6 @@ SQL;
 	}
 }
 
-function str_insert($insert, $into, $offset) {
-   return substr($into, 0, $offset) . $insert . substr($into, $offset);
-}
-
-// Converts an array of strings to a single camel case string.
-function camelCase($arr, $pascal=false) {
-	$s = $pascal ? 0 : 1;
-	for($i = $s; $i < count($arr); $i++) {
-			$arr[$i] = ucfirst($arr[$i]);
-	}
-	return implode('', $arr);
-}
-
-SchemaInfo::load('./db');
 /*
 $db = new Zend_Db_Adapter_Pdo_Mysql(array(
 		'host'     => $GLOBALS['DB_HOST'],
@@ -794,13 +744,13 @@ $db = new Zend_Db_Adapter_Pdo_Mysql(array(
 ));
 
 $db->exec("SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;");
-$sql = SchemaInfo::generateSql();
+$sql = SchemaImport::generateSql();
 //debug($sql);
 foreach ($sql as $table) {
 	$db->exec($table);
 }
 
-$triggers = SchemaInfo::generateTriggerSql();
+$triggers = SchemaImport::generateTriggerSql();
 debug($triggers);
 foreach ($triggers as $trigger) {
 	$db->exec($trigger);

@@ -63,7 +63,7 @@ class BlogController extends AppController {
 			$revision->createdOn = now();
 			$revision->publishedOn = now();
 			
-			$trans = new TransactionRaii;
+			$trans = new Transaction;
 			if (WoolTable::save($article) && WoolTable::save($revision)) {
 				$trans->success();
 				$this->redirectTo(array("controller"=>"blog", "action"=>"view"));

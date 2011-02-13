@@ -10,7 +10,7 @@ class NestedSet {
 	public function insertRoot($obj) {
 		extract($this->config);
 		
-		$trans = new TransactionRaii;
+		$trans = new Transaction;
 		
 		// Save new node.
 		$obj->$parent = 0;
@@ -31,7 +31,7 @@ class NestedSet {
 	public function insertBefore($obj, $id) {
 		extract($this->config);
 		
-		$trans = new TransactionRaii;
+		$trans = new Transaction;
 		
 		$node = $this->nestedData($id);
 	
@@ -53,7 +53,7 @@ class NestedSet {
 	public function insertAfter($obj, $id) {
 		extract($this->config);
 		
-		$trans = new TransactionRaii;
+		$trans = new Transaction;
 		
 		$node = $this->nestedData($id);
 	
@@ -75,7 +75,7 @@ class NestedSet {
 	public function insertFirstChild($child, $id) {
 		extract($this->config);
 		
-		$trans = new TransactionRaii;
+		$trans = new Transaction;
 		
 		$parentNode = $this->nestedData($id);
 		
@@ -98,7 +98,7 @@ class NestedSet {
 	public function insertLastChild($child, $id) {
 		extract($this->config);
 		
-		$trans = new TransactionRaii;
+		$trans = new Transaction;
 		
 		$parentNode = $this->nestedData($id);
 		
@@ -187,7 +187,7 @@ class NestedSet {
 	private function moveNode($obj, $dest, $parentId, $moveLeft) {
 		extract($this->config);
 		
-		$trans = new TransactionRaii;
+		$trans = new Transaction;
 
 		$rootNode = $this->nestedData($obj->$root);
 		$branchSize = $obj->$right - $obj->$left + 1;

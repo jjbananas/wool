@@ -168,3 +168,17 @@ function matchItem($item, $options, $default=null) {
 function matchIndex($index, $options, $default=null) {
 	return isset($options[$index]) ? $index : coal($default, array_shift(array_keys($options)));
 }
+
+// Insert a string into another at a given offset.
+function str_insert($insert, $into, $offset) {
+   return substr($into, 0, $offset) . $insert . substr($into, $offset);
+}
+
+// Converts an array of strings to a single camel case string.
+function camelCase($arr, $pascal=false) {
+	$s = $pascal ? 0 : 1;
+	for($i = $s; $i < count($arr); $i++) {
+			$arr[$i] = ucfirst($arr[$i]);
+	}
+	return implode('', $arr);
+}

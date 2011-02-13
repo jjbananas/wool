@@ -52,7 +52,7 @@ function class_array($classes, $preSpace=false) {
 function label($objName, $field, $attrs = array()) {
 	return element_tag_build('label', array_merge(array(
 			'for' => "{$objName}_{$field}"
-		), $attrs), WoolTable::columnName($objName, $field)
+		), $attrs), Schema::columnName($objName, $field)
 	);
 }
 
@@ -257,7 +257,7 @@ function auto_field($obj, $table, $column) {
 	$types = array(
 	);
 	
-	$type = WoolTable::getColumnType($table, $column);
+	$type = Schema::getColumnType($table, $column);
 	
 	return call_user_func(coal($types[$type], "text_field"), $obj, "item", $column);
 }

@@ -25,7 +25,7 @@ class SqlMeta {
 			if ($select['source'] == '*') {
 				if ($select['table']) {
 					$table = $this->realTable($select['table']);
-					$schema = WoolTable::allColumns($table);
+					$schema = Schema::allColumns($table);
 					foreach ($schema as $colName=>$col) {
 						if (isset($this->selects[$colName])) {
 							trigger_error("Attempting to select multiple columns with the name '{$colName}'.", E_USER_WARNING);
@@ -35,7 +35,7 @@ class SqlMeta {
 					}
 				} else {
 					foreach ($this->sourceTables() as $table=>$srcTable) {
-						$schema = WoolTable::allColumns($srcTable);
+						$schema = Schema::allColumns($srcTable);
 						foreach ($schema as $name=>$col) {
 							if (isset($this->selects[$name])) {
 								trigger_error("Attempting to select multiple columns with the name '{$name}'.", E_USER_WARNING);
@@ -49,7 +49,7 @@ class SqlMeta {
 			else {
 				if (!$select['table']) {
 					foreach ($this->tables as $alias=>$table) {
-						$schema = WoolTable::allColumns($table);
+						$schema = Schema::allColumns($table);
 						if (isset($schema[$select['source']])) {
 							$select['table'] = $alias;
 						}

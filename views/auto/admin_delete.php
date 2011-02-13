@@ -2,7 +2,7 @@
 	<form method="post">
 		<div class="pod">
 			<div class="head">
-				<h2 class="icon iconEdit">Delete <?php echo WoolTable::displayName($table) ?> #<?php $u = WoolTable::uniqueColumn($table); echo $item->$u ?></h2>
+				<h2 class="icon iconEdit">Delete <?php echo Schema::displayName($table) ?> #<?php $u = Schema::uniqueColumn($table); echo $item->$u ?></h2>
 			</div>
 			
 			<div class="body">

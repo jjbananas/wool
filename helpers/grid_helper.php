@@ -88,7 +88,7 @@ function navPerPageOptions($pager) {
 function gridHeaderClass($table, $column, $sort) {
 	$cls = array();
 
-	if (WoolTable::columnEditable($table, $column)) {
+	if (Schema::columnEditable($table, $column)) {
 		$cls[] = "editable";
 	}
 	

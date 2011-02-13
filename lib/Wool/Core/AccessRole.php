@@ -8,9 +8,6 @@ class AccessRole extends WoolTable {
 	const ADMIN = 1;
 	
 	public static function define() {
-		self::name("roleName", "Role Name");
-		self::name("loginUrl", "Login URL");
-		self::name("deniedUrl", "Denied URL");
 	}
 	
 	public static function loginPageFor($id) {

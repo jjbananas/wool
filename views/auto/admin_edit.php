@@ -1,8 +1,8 @@
 <div class="pad">
 	<ol class="breadcrumbs">
 		<li><?php echo linkTo("Home", array("action"=>"index")) ?></li>
-		<li><?php echo linkTo(WoolTable::displayName($table), array("action"=>"table", "table"=>$table)) ?></li>
-		<li>Add/Edit <?php echo WoolTable::displayName($table) ?> #<?php $u = WoolTable::uniqueColumn($table); echo $item->$u ?></li>
+		<li><?php echo linkTo(Schema::displayName($table), array("action"=>"table", "table"=>$table)) ?></li>
+		<li>Add/Edit <?php echo Schema::displayName($table) ?> #<?php $u = Schema::uniqueColumn($table); echo $item->$u ?></li>
 	</ol>
 </div>
 
@@ -10,14 +10,14 @@
 	<form method="post">
 		<div class="pod">
 			<div class="head">
-				<h2 class="icon iconEdit">Add/Edit <?php echo WoolTable::displayName($table) ?> #<?php $u = WoolTable::uniqueColumn($table); echo $item->$u ?></h2>
+				<h2 class="icon iconEdit">Add/Edit <?php echo Schema::displayName($table) ?> #<?php $u = Schema::uniqueColumn($table); echo $item->$u ?></h2>
 			</div>
 			
 			<div class="body splitBody">
 				<div class="s1of2">
 					<div class="editPanel">
 						<?php foreach ($columns as $column=>$col) { ?>
-						<?php if ($ref = WoolTable::columnIsKey($table, $column)) { ?>
+						<?php if ($ref = Schema::columnIsKey($table, $column)) { ?>
 						<div class="input foreign" data-references="<?php echo $ref ?>">
 							<?php echo label($table, $column) ?>
 							<?php echo hidden_field($item, "item", $column) ?>
@@ -40,7 +40,7 @@
 						<div class="pod podToolbar podEditTools">
 							<div class="pad">
 								<?php echo linkTo('Delete', array("action"=>"delete", "table"=>$table, "id"=>$item->$u), 'class="btnLink btnLinkLight icon iconDelete"') ?>
-								<?php if (WoolTable::tableHasHistory($table)) { ?>
+								<?php if (Schema::tableHasHistory($table)) { ?>
 								<?php echo linkTo('History', array("action"=>"history", "table"=>$table, "id"=>$item->$u), 'class="btnLink btnLinkLight icon iconHistory "') ?>
 								<?php } ?>
 							</div>
@@ -53,7 +53,7 @@
 					<div class="pad derivedPanel">
 						<?php foreach ($derivedColumns as $column=>$col) { ?>
 						<div class="derived">
-							<span class="column"><?php echo WoolTable::columnName($table, $column) ?></span>
+							<span class="column"><?php echo Schema::columnName($table, $column) ?></span>
 							<span class="value"><?php echo $item->$column ?></span>
 						</div>
 						<?php } ?>
@@ -74,7 +74,7 @@
 <div class="pad">
 	<div class="pod">
 		<div class="head">
-			<h2>Related <?php echo WoolTable::displayName($table) ?></h2>
+			<h2>Related <?php echo Schema::displayName($table) ?></h2>
 		</div>
 		
 		<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-headerUpdate="<?php echo routeUri(array("controller"=>"api", "action"=>"headerUpdate")) ?>" data-dragRows="<?php echo routeUri(array("controller"=>"api", "action"=>"rowOrder")) ?>">
@@ -82,7 +82,7 @@
 				<tr>
 					<th></th>
 					<?php foreach ($f["columns"] as $column=>$sort) { ?>
-					<th class="dragable <?php echo WoolTable::columnEditable($table, $column) ? "editable" : "" ?>" data-column="<?php echo $column ?>"><?php echo WoolTable::columnName($table, $column) ?></th>
+					<th class="dragable <?php echo Schema::columnEditable($table, $column) ? "editable" : "" ?>" data-column="<?php echo $column ?>"><?php echo Schema::columnName($table, $column) ?></th>
 					<?php } ?>
 					<th width="1"></th>
 				</tr>

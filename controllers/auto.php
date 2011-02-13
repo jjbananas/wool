@@ -14,12 +14,12 @@ class AutoController extends Controller {
 	
 	private function data() {
 		$this->table = param('table');
-		$this->allColumns = WoolTable::columns($this->table);
+		$this->allColumns = Schema::columns($this->table);
 		$this->columns = $this->allColumns;
 	}
 	
 	function adminIndex() {
-		$this->tables = WoolTable::tableList();
+		$this->tables = Schema::tables();
 	}
 	
 	function adminTable() {
@@ -49,15 +49,15 @@ SQL
 	function adminEdit() {
 		$this->table = param('table');
 		$this->item = WoolTable::fetch($this->table, "id", "item");
-		$this->columns = WoolTable::editableColumns($this->table);
-		$this->derivedColumns = WoolTable::derivedColumns($this->table);
+		$this->columns = Schema::editableColumns($this->table);
+		$this->derivedColumns = Schema::derivedColumns($this->table);
 		
 		$this->foreign = array();
-		foreach (WoolTable::inboundKeys($this->table) as $key) {
-			foreach (WoolTable::columns($key) as $col) {
+		foreach (Schema::inboundKeys($this->table) as $key) {
+			foreach (Schema::columns($key) as $col) {
 				$this->foreign[$key]["columns"][$col] = self::COL_NORMAL;
 			}
-			$condition = WoolTable::primaryCondition($key, $this->table, $this->item, "f");
+			$condition = Schema::primaryCondition($key, $this->table, $this->item, "f");
 			$this->foreign[$key]["data"] = new WoolGrid($key, <<<SQL
 select * from {$key} f where {$condition}
 SQL

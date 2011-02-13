@@ -63,7 +63,7 @@ SQL
 		WoolTable::fromArray($article, $post);
 		WoolTable::fromArray($revision, $post);
 		
-		$trans = new TransactionRaii;
+		$trans = new Transaction;
 		if (!WoolTable::save($article)) {
 			return false;
 		}

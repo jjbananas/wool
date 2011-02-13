@@ -1,15 +1,15 @@
 <div class="pad">
 	<ol class="breadcrumbs">
 		<li><?php echo linkTo("Home", array("action"=>"index")) ?></li>
-		<li><?php echo WoolTable::displayName($table) ?></li>
+		<li><?php echo Schema::displayName($table) ?></li>
 	</ol>
 </div>
 
 <div class="pad">
-	<h1><?php echo WoolTable::displayName($table) ?></h1>
-	<p><?php echo WoolTable::description($table) ?></p>
+	<h1><?php echo Schema::displayName($table) ?></h1>
+	<p><?php echo Schema::description($table) ?></p>
 	
-	<?php echo linkTo("New " . WoolTable::shortName($table), array("action"=>"edit", "table"=>$table), 'class="btnLink icon iconAddItem"') ?>
+	<?php echo linkTo("New " . Schema::shortName($table), array("action"=>"edit", "table"=>$table), 'class="btnLink icon iconAddItem"') ?>
 </div>
 
 <div class="pad">
@@ -36,7 +36,7 @@
 						<?php foreach ($allColumns as $column) { ?>
 						<tr>
 							<td><input type="checkbox" name="cols[<?php echo $column ?>]" <?php echo in_array($column, $columns) ? 'checked="checked"' : '' ?> /></td>
-							<td><?php echo WoolTable::columnName($table, $column) ?></td>
+							<td><?php echo Schema::columnName($table, $column) ?></td>
 						</tr>
 						<?php } ?>
 					</table>
@@ -59,7 +59,7 @@
 				<tr>
 					<th></th>
 					<?php foreach ($columns as $column=>$sort) { ?>
-					<th class="dragable <?php echo gridHeaderClass($table, $column, $sort) ?>" data-column="<?php echo $column ?>"><span><?php echo WoolTable::columnName($table, $column) ?></span></th>
+					<th class="dragable <?php echo gridHeaderClass($table, $column, $sort) ?>" data-column="<?php echo $column ?>"><span><?php echo Schema::columnName($table, $column) ?></span></th>
 					<?php } ?>
 					<th width="1"></th>
 				</tr>
@@ -95,7 +95,7 @@
 				<tr>
 					<td colspan="999">
 						<div class="newRow">
-						<?php echo linkTo("New " . WoolTable::shortName($table), array("action"=>"edit", "table"=>$table), 'class="icon iconAddItem"') ?>
+						<?php echo linkTo("New " . Schema::shortName($table), array("action"=>"edit", "table"=>$table), 'class="icon iconAddItem"') ?>
 						</div>
 						
 						<?php
