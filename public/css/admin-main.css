@@ -191,6 +191,43 @@ input:focus {
 }
 
 
+/* Filter box
+*/
+
+.filter {
+	
+}
+
+.filter.active {
+	background-color: #F0F8F0;
+}
+
+.filter .filterControls {
+	float: right;
+	width: 50%;
+	text-align: right;
+	padding: 4px;
+	line-height: 25px;
+}
+
+.filter .filterControls form {
+	padding: 0;
+	display: inline;
+}
+
+.filter .filterOptions {
+	padding: 4px;
+}
+
+.filter .mainFilter {
+	width: 30em;
+}
+
+.filter .foot {
+	cursor: pointer;
+}
+
+
 /* Data grid
 */
 
@@ -295,8 +332,16 @@ input:focus {
 .dataGridNav > div,
 .dataGridNav > ul {
 	float: left;
-	width: 50%;
+	width: 30%;
 	line-height: 34px;
+}
+
+.dataGridNav .btnLink {
+	margin: 0;
+}
+
+.dataGridNav > ul {
+	width: 70%;
 }
 
 .dataGridNav li {
@@ -373,6 +418,11 @@ a.btnLink {
 
 input.btnLink {
 	line-height: 1.2;
+}
+
+input.noBtn {
+	border: 0;
+	background-color: transparent;
 }
 
 .btnLink:hover {
@@ -624,4 +674,36 @@ input.icon {
 
 #ajaxThrobber .content li {
 	margin-bottom: 4px;
+}
+
+
+/* Message boxes
+*/
+
+.msgBox {
+	padding: 8px 8px 0 8px;
+	margin-bottom: 1em;
+}
+
+.msgBox .intro {
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.msgError {
+	border: 1px solid #e7b4b4;
+	background-color: #fbeded;
+}
+
+.msgInfo {
+	border: 1px solid #cde2be;
+	background-color: #eef5e9;
+}
+
+.msgBox ol {
+	margin: 0 0 8px 2em;
+}
+
+.msgBox ol li {
+	list-style: decimal;
 }

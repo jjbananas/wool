@@ -13,9 +13,30 @@
 </div>
 
 <div class="pad">
-	<div class="pod">
-		<div class="padh">
-			Filter: <input type="text" />
+	<div class="pod filter active">
+		<div class="filterControls">
+			<a href="" class="icon iconReset">Clear Search</a>
+			<form>
+				<input type="submit" class="noBtn icon iconReset" value="Load" />
+				<select>
+					<option>Option #1</option>
+				</select>
+			</form>
+			
+			<div class="clear"></div>
+		</div>
+		
+		<form class="filterOptions">
+			Search: <?php echo text_field_tag("search", null, array('class'=>"mainFilter")) ?>
+			
+			<div class="additionalOptions" style="display: none">
+				<div class="s1fo3">
+					<label>Created On</label>
+				</div>
+			</div>
+		</form>
+		
+		<div class="foot">
 		</div>
 	</div>
 	

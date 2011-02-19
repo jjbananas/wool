@@ -6,7 +6,7 @@
 		</div>
 		
 		<div class="foot">
-			<input type="submit" value="OK" class="btnLink" />
+			<input type="submit" value="OK" class="btnLink icon iconSave" />
 			<a href="#">Cancel</a>
 		</div>
 	</form>

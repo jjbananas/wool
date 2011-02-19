@@ -1,0 +1,7 @@
+primary: [roleName]
+ignoreChanged: []
+
+-   roleName: Administrator
+    loginUrl: /admin/login
+    deniedUrl: /admin/denied
+

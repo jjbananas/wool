@@ -14,7 +14,7 @@
 		<li><?php echo navFirst($pager, 'class="btnLink icon iconFirst"') ?></li>
 		<li><?php echo navPrev($pager, 'class="btnLink icon iconPrev"') ?></li>
 		<?php foreach (navPageLinks($pager, 9) as $page) { ?>
-		<li class="<?php $page == $pager->page() ? 'active' : '' ?>"><?php echo navPageLink($pager, $page) ?></li>
+		<li class="<?php $page == $pager->page() ? 'active' : '' ?>"><?php echo navPageLink($pager, $page, 'class="btnLink"') ?></li>
 		<?php } ?>
 		<li><?php echo navNext($pager, 'class="btnLink icon iconNext"') ?></li>
 		<li><?php echo navLast($pager, 'class="btnLink icon iconLast"') ?></li>

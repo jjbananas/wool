@@ -3,6 +3,10 @@
 // MySQL type information.
 class SqlTypes {
 	private static $types = array(
+		"binary" => array(
+			"text" => false
+		),
+		
 		"varchar" => array(
 			"text" => true
 		),

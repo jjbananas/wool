@@ -1,0 +1,17 @@
+primary: [name]
+ignoreChanged: []
+
+-   name: test1
+    email: test@example.com
+    password: abc123
+    avatar: a.png
+
+-   name: test2
+    email: tes2@example.com
+    password: abc1234
+    avatar: c.png
+
+-   name: test3
+    email: test3@example.com
+    password: abc1234
+    avatar: e.png

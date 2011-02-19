@@ -1,8 +1,24 @@
+schema_data:
+    info:
+        system: true
+        
+    columns:
+        id:
+            type: binary(20)
+            primary: true
+        
+        data:
+            type: binary(20)
+            
+        uniqueId:
+            type: int
+
+
 cart:
     info:
         name: Shopping Cart
         shortName: Cart
-        description: Shopping cart for adding products.
+        description: A shopping cart line inserts a particular product within a cart.
         
     columns:
         cartId:
@@ -180,9 +196,11 @@ users:
             
         password:
             type: password
+            default: abc123
             
         avatar:
             type: varchar(50)
+            default: /test
 
 
 access_locations:
@@ -229,7 +247,7 @@ sessions:
             type: primary
             
         phpSession:
-            type: varchar(32)
+            type: varchar(64)
         
         users:
             type: key
@@ -250,3 +268,15 @@ example:
     columns:
         name:
             type: varchar(50)
+            
+        tony:
+            type: varchar(130)
+
+example_table:
+    columns:
+        name:
+            type: varchar(50)
+            
+        tony:
+            type: varchar(130)
+

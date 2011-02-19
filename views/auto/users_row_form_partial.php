@@ -1,3 +1,4 @@
+<?php echo renderNotices() ?>
 <form class="rowForm" method="post" action="<?php echo routeUri(array("controller"=>"api", "action"=>"rowInsert")) ?>">
 	<input type="hidden" name="table" value="<?php echo $table ?>" />
 	<label>Name</label>

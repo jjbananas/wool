@@ -22,8 +22,8 @@ class SchemaImport {
 		"default" => array(
 			"name" => "",
 			"type" => "int",
-			"length" => 0,
-			"scale" => 0,
+			"length" => null,
+			"scale" => null,
 			"default" => null,
 			"nullable" => false,
 			"primary" => false,

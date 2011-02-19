@@ -1,11 +1,16 @@
 <?php
 
-function navFirst($pager) {
+function navFirst($pager, $attr=null) {
 	if ($pager->page() <= 1) {
-		return "First";
+		return "";
 	}
 	
-	return '<a href="' . Request::uri(array($pager->name() . "_page" => 1)) . '">First</a>';
+	return sprintf(
+		'<a href="%s" %s>%s</a>',
+		Request::uri(array($pager->name() . "_page" => 1)),
+		$attr,
+		'First'
+	);
 }
 
 function navPrev($pager, $attr=null) {
@@ -17,7 +22,7 @@ function navPrev($pager, $attr=null) {
 		'<a href="%s" %s>%s</a>',
 		Request::uri(array($pager->name() . "_page" => $pager->page()-1)),
 		$attr,
-		'Previous'
+		'Prev'
 	);
 }
 
@@ -36,7 +41,7 @@ function navNext($pager, $attr=null) {
 
 function navLast($pager, $attr=null) {
 	if ($pager->page() >= $pager->totalPages()) {
-		return "Last";
+		return "";
 	}
 	
 	return sprintf(
@@ -67,12 +72,18 @@ function navPageLinks($pager, $max=10) {
 	return range($start, $end);
 }
 
-function navPageLink($pager, $page) {
+function navPageLink($pager, $page, $attr=null) {
 	if ($pager->page() == $page) {
-		return "<span>{$page}</span>";
+		$attr = 'class="btnLink btnLinkLight"';
+		return sprintf("<span %s>%s</span>", $attr, $page);
 	}
 	
-	return '<a href="' . Request::uri(array($pager->name() . "_page" => $page)) . '">' . $page . '</a>';
+	return sprintf(
+		'<a href="%s" %s>%s</a>',
+		Request::uri(array($pager->name() . "_page" => $page)),
+		$attr,
+		$page
+	);
 }
 
 function navPerPageOptions($pager) {

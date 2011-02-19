@@ -15,7 +15,10 @@ class AutoController extends Controller {
 	private function data() {
 		$this->table = param('table');
 		$this->allColumns = Schema::columns($this->table);
-		$this->columns = $this->allColumns;
+		$this->columns = array();
+		foreach ($this->allColumns as $col) {
+			$this->columns[$col] = self::COL_NORMAL;
+		}
 	}
 	
 	function adminIndex() {
@@ -25,11 +28,12 @@ class AutoController extends Controller {
 	function adminTable() {
 		$this->data();
 		
+		$search = param('search');
 		$this->data = new WoolGrid($this->table, <<<SQL
-select * from {$this->table}
+select * from {$this->table} where name like ?
 SQL
-		);
-		$this->data->setPerPage(3);
+		, "{$search}%");
+		$this->data->setPerPage(25);
 		
 		if (isset($_SESSION['grids'][$this->table])) {
 			$this->columns = array();
@@ -37,11 +41,6 @@ SQL
 				if ($val) {
 					$this->columns[$col] = $val;
 				}
-			}
-		} else {
-			$this->columns = array();
-			foreach ($this->allColumns as $col) {
-				$this->columns[$col] = self::COL_NORMAL;
 			}
 		}
 	}
@@ -53,15 +52,18 @@ SQL
 		$this->derivedColumns = Schema::derivedColumns($this->table);
 		
 		$this->foreign = array();
-		foreach (Schema::inboundKeys($this->table) as $key) {
-			foreach (Schema::columns($key) as $col) {
-				$this->foreign[$key]["columns"][$col] = self::COL_NORMAL;
-			}
-			$condition = Schema::primaryCondition($key, $this->table, $this->item, "f");
-			$this->foreign[$key]["data"] = new WoolGrid($key, <<<SQL
+		$u = Schema::uniqueColumn($this->table);
+		if ($this->item->$u) {
+			foreach (Schema::inboundKeys($this->table) as $key) {
+				foreach (Schema::columns($key) as $col) {
+					$this->foreign[$key]["columns"][$col] = self::COL_NORMAL;
+				}
+				$condition = Schema::primaryCondition($key, $this->table, $this->item, "f");
+				$this->foreign[$key]["data"] = new WoolGrid($key, <<<SQL
 select * from {$key} f where {$condition}
 SQL
-			);
+				);
+			}
 		}
 		
 		
@@ -102,7 +104,7 @@ SQL
 	
 	function adminKeySearch() {
 		$this->data();
-		$class = WoolTable::tableClass($this->table);
+		$class = Schema::tableClass($this->table);
 		if (method_exists($class, "keySearch")) {
 			$this->matches = call_user_func(array($class, "keySearch"), param('search'));
 		} else {
@@ -126,12 +128,12 @@ SQL
 		$new = array();
 		
 		foreach (param('cols', array()) as $col) {
-			$new[$col] = isset($grid[$col]) ? $grid[$col] : COL_NORMAL;
+			$new[$col] = isset($grid[$col]) ? $grid[$col] : self::COL_NORMAL;
 		}
 		
-		foreach (WoolTable::columns($table) as $col) {
+		foreach (Schema::columns($table) as $col) {
 			if (!isset($new[$col])) {
-				$new[$col] = isset($grid[$col]) ? $grid[$col] : COL_NORMAL;
+				$new[$col] = isset($grid[$col]) ? $grid[$col] : self::COL_NORMAL;
 			}
 		}
 		
@@ -156,14 +158,14 @@ SQL
 		$table = param('table');
 		$visible = param('cols', array());
 		
-		foreach (WoolTable::columns($table) as $col) {
+		foreach (Schema::columns($table) as $col) {
 			if (!isset($_SESSION['grids'][$table][$col])) {
 				$_SESSION['grids'][$table][$col] = COL_NORMAL;
 			}
 		}
 		
 		foreach ($_SESSION['grids'][$table] as $col=>$val) {
-			$_SESSION['grids'][$table][$col] = isset($visible[$col]) ? COL_NORMAL : COL_HIDDEN;
+			$_SESSION['grids'][$table][$col] = isset($visible[$col]) ? self::COL_NORMAL : self::COL_HIDDEN;
 		}
 		
 		$this->redirectTo(array("action"=>"index", "table"=>$table));
@@ -184,7 +186,7 @@ SQL
 			$json['html'] = $this->renderToString("row_partial", null, null);
 		} else {
 			$json['success'] = false;
-			$json['errors'] = WoolErrors::get();
+			$json['html'] = $this->renderToString("users_row_form_partial", null, null);
 		}
 		
 		$this->renderJson($json);

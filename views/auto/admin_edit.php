@@ -35,6 +35,7 @@
 					</div>
 				</div>
 				
+				<?php if ($item->$u) { ?>
 				<div class="s1of2">
 					<div class="padh">
 						<div class="pod podToolbar podEditTools">
@@ -59,6 +60,7 @@
 						<?php } ?>
 					</div>
 				</div>
+				<?php } ?>
 				
 				<div class="clear"></div>
 			</div>
