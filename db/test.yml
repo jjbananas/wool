@@ -201,6 +201,9 @@ users:
         avatar:
             type: varchar(50)
             default: /test
+            
+    index:
+        a: [name]
 
 
 access_locations:

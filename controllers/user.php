@@ -41,4 +41,10 @@ class UserController extends AppController {
 		Session::logout();
 		$this->redirectTo(baseUri('/'));
 	}
+	
+	
+	function adminLogin() {
+		$this->login();
+		$this->render('login');
+	}
 }

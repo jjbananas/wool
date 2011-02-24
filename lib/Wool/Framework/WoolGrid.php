@@ -139,20 +139,30 @@ class WoolGrid implements IteratorAggregate, Countable, ArrayAccess {
 	}
 	
 	function filter($filterFields) {
-		$filter = param("{$this->name}_filter");
+		$filter = $this->filterParam();
 
-		if (!$filter) {
+		if (!$filter || !$filterFields) {
 			return;
 		}
+		
+		$wild = $this->filterWildcard($filter);
 		
 		$matches = array();
 		// Build the filter on all the fields and insert after the WHERE.
 		foreach ($filterFields as $field) {
-			$matches[] = "{$field} like '%{$filter}%' ";
+			$matches[] = "{$field} like '{$wild}' ";
 		}
-
+		
 		$insert = '(' . join(' or ', $matches) . ')';
 		$this->sql->andWhere($insert);
+	}
+	
+	public function filterParam() {
+		return param("{$this->name}_filter");
+	}
+	
+	protected function filterWildcard($filter) {
+		return "%{$filter}%";
 	}
 	
 	private function pager() {

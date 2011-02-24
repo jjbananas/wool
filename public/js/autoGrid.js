@@ -87,7 +87,6 @@ jQuery(function($) {
 				clearMover();
 				
 				if (Math.abs(e.pageY - startPos.y) < deadZone && Math.abs(e.pageX - startPos.x) < deadZone) {
-					console.log("header click");
 					return;
 				}
 				
@@ -335,15 +334,31 @@ jQuery(function($) {
 		columnSelect.click(function(e) {
 			var columnOverlay = $(".podOverlay", this);
 			
-			if (!columnOverlay.length || columnOverlay.is(":visible")) {
+			if (!columnOverlay.length) {
 				return;
 			}
 			
-			console.log("click");
-			
-			e.preventDefault();
-			buttonOverlays.hide();
-			columnOverlay.show();
+			if (columnOverlay.is(":visible")) {
+				if ($(e.target).closest(".head").length) {
+					e.preventDefault();
+					buttonOverlays.show();
+					columnOverlay.hide();
+				}
+			} else {
+				e.preventDefault();
+				buttonOverlays.hide();
+				columnOverlay.show();
+			}
+		});
+	});
+	
+	
+	// Open/close toggle-able pods
+	$(".podToggleOpen").each(function() {
+		var pod = $(this);
+		
+		pod.find(".foot").click(function() {
+			pod.toggleClass("open");
 		});
 	});
 });

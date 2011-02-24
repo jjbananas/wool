@@ -66,7 +66,7 @@ input:focus {
 #pageHeader {
 	border-top: 4px solid #575757;
 	height: 59px;
-	background: #292b2c url(../images/header-bg.png) center repeat-x;
+	background: #292b2c center repeat-x;
 }
 
 #pageBody {
@@ -98,7 +98,24 @@ input:focus {
 /* Page header
 */
 
-#pageHeader a {
+#pageHeader .user {
+	float: right;
+	width: 200px;
+	padding: 2px 0;
+	text-align: right;
+}
+
+#pageHeader .user a {
+	color: #ffffff;
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+#pageHeader .buttons {
+	margin-right: 200px;
+}
+
+#pageHeader .buttons a {
 	line-height: 59px;
 	color: #ffffff;
 	display: block;
@@ -202,6 +219,7 @@ input:focus {
 	background-color: #F0F8F0;
 }
 
+
 .filter .filterControls {
 	float: right;
 	width: 50%;
@@ -219,12 +237,60 @@ input:focus {
 	padding: 4px;
 }
 
+.filter .additionalOptions {
+	display: none;
+	margin-top: 10px;
+}
+
+.filter.open .additionalOptions {
+	display: block;
+}
+
+.filter .additionalOptions label {
+	color: #585858;
+	font-size: 12px;
+	float: left;
+	margin-right: 1ex;
+}
+
+.filter .additionalOptions ul {
+	float: left;
+}
+
+.filter .additionalOptions li {
+	padding: 0 0 2px 0;
+}
+
+.filter .additionalOptions li input,
+.filter .additionalOptions li span {
+	vertical-align: middle;
+}
+
+.filter .save {
+	clear: both;
+	text-align: right;
+}
+
+.filter .save label {
+	float: none;
+	margin: 0;
+}
+
+.filter .save .btnLink {
+	margin: 0 0 0 1ex;
+}
+
 .filter .mainFilter {
 	width: 30em;
 }
 
 .filter .foot {
 	cursor: pointer;
+	background: #ece8df url(../images/icons/open-close.png) center top no-repeat;
+}
+
+.filter.open .foot {
+	background-position: center bottom;
 }
 
 
@@ -373,6 +439,7 @@ input:focus {
 .columnSelect .head {
 	text-align: right;
 	padding-left: 28px;
+	cursor: pointer;
 }
 
 .columnSelect form {
@@ -481,6 +548,9 @@ input.icon {
 .iconLast {
 	background-image: url(../images/icons/resultset_last.png);
 }
+.iconLogout {
+	background-image: url(../images/icons/logout.png);
+}
 .iconMap {
 	background-image: url(../images/icons/map.png);
 }
@@ -499,8 +569,14 @@ input.icon {
 .iconSave {
 	background-image: url(../images/icons/page_save.png);
 }
+.iconSearch {
+	background-image: url(../images/icons/search.png);
+}
 .iconThreadDel {
 	background-image: url(../images/icons/thread-delete.png);
+}
+.iconUser {
+	background-image: url(../images/icons/card.png);
 }
 
 .iconMainMenu {

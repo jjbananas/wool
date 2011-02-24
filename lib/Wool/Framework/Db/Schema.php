@@ -181,6 +181,19 @@ class Schema {
 		return self::$schema[$table]["columns"][$column]["derived"];
 	}
 	
+	
+	public static function keyColumns($table) {
+		$cols = array();
+		
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if (self::columnIsKey($table, $colName)) {
+				$cols[$colName] = $col;
+			}
+		}
+		
+		return $cols;
+	}
+	
 	// Returns the referenced table if the column is a foreign key.
 	public static function columnIsKey($table, $column) {
 		if (!isset(self::$schema[$table]["keys"])) {
@@ -195,6 +208,42 @@ class Schema {
 		
 		return false;
 	}
+	
+	
+	
+	public static function indexedColumns($table) {
+		$cols = array();
+		
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if (self::columnIsIndexed($table, $colName)) {
+				$cols[$colName] = $col;
+			}
+		}
+		
+		return $cols;
+	}
+	
+	public static function columnIsIndexed($table, $column) {
+		if (!isset(self::$schema[$table]["index"])) {
+			return false;
+		}
+		
+		foreach (self::$schema[$table]["index"] as $index) {
+			if (in_array($column, $index["columns"])) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	public static function searchColumns($table) {
+		return array_keys(self::indexedColumns($table))
+			+ array_keys(self::keyColumns($table))
+			+ self::primaryColumns($table);
+	}
+	
 	
 	public static function keyCondition($table, $key, $localNamespace=null, $foreignNamespace=null) {
 		if (!isset(self::$schema[$table]["keys"][$key])) {

@@ -35,9 +35,9 @@
 					</div>
 				</div>
 				
-				<?php if ($item->$u) { ?>
 				<div class="s1of2">
 					<div class="padh">
+						<?php if ($item->$u) { ?>
 						<div class="pod podToolbar podEditTools">
 							<div class="pad">
 								<?php echo linkTo('Delete', array("action"=>"delete", "table"=>$table, "id"=>$item->$u), 'class="btnLink btnLinkLight icon iconDelete"') ?>
@@ -46,6 +46,7 @@
 								<?php } ?>
 							</div>
 						</div>
+						<?php } ?>
 						
 						<div class="selectionGridSpacer">
 						</div>
@@ -60,7 +61,6 @@
 						<?php } ?>
 					</div>
 				</div>
-				<?php } ?>
 				
 				<div class="clear"></div>
 			</div>

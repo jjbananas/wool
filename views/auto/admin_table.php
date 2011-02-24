@@ -13,9 +13,9 @@
 </div>
 
 <div class="pad">
-	<div class="pod filter active">
+	<div class="pod filter podToggleOpen <?php echo $data->isFiltering() ? 'active' : '' ?>">
 		<div class="filterControls">
-			<a href="" class="icon iconReset">Clear Search</a>
+			<a href="<?php echo Request::uri(array("{$table}_clear"=>"true")) ?>" class="icon iconReset">Clear Search</a>
 			<form>
 				<input type="submit" class="noBtn icon iconReset" value="Load" />
 				<select>
@@ -27,11 +27,20 @@
 		</div>
 		
 		<form class="filterOptions">
-			Search: <?php echo text_field_tag("search", null, array('class'=>"mainFilter")) ?>
+			Search: <?php echo text_field_tag("{$table}_filter", $data->filterParam(), array('class'=>"mainFilter")) ?>
 			
-			<div class="additionalOptions" style="display: none">
+			<div class="additionalOptions">
 				<div class="s1fo3">
-					<label>Created On</label>
+					<label>Tax Id:</label>
+					<ul class="options">
+						<li><input type="checkbox" /> <span>1: Standard Rate</span></li>
+						<li><input type="checkbox" /> <span>2: No Tax</span></li>
+					</ul>
+				</div>
+				
+				<div class="save">
+					<label>Save As:</label> <input type="text" />
+					<input type="submit" class="btnLink btnLinkLight btnLinkThin icon iconSearch" value="Search" />
 				</div>
 			</div>
 		</form>
@@ -56,13 +65,13 @@
 					<table>
 						<?php foreach ($allColumns as $column) { ?>
 						<tr>
-							<td><input type="checkbox" name="cols[<?php echo $column ?>]" <?php echo in_array($column, $columns) ? 'checked="checked"' : '' ?> /></td>
+							<td><input type="checkbox" name="cols[<?php echo $column ?>]" <?php echo isset($columns[$column]) ? 'checked="checked"' : '' ?> /></td>
 							<td><?php echo Schema::columnName($table, $column) ?></td>
 						</tr>
 						<?php } ?>
 					</table>
 					
-					<input type="submit" value="Update" class="btnLink icon iconReply" />
+					<input type="submit" value="Update" class="btnLink btnLinkLight icon iconReply" />
 				</form>
 			</div>
 		</div>

@@ -163,7 +163,7 @@ class WoolTable {
 	}
 	
 	public static function keySearch($table, $search) {
-		$u = self::uniqueColumn($table);
+		$u = Schema::uniqueColumn($table);
 		
 		return new RowSet(<<<SQL
 select {$u} id

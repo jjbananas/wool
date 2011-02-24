@@ -29,10 +29,7 @@ class AutoController extends Controller {
 		$this->data();
 		
 		$search = param('search');
-		$this->data = new WoolGrid($this->table, <<<SQL
-select * from {$this->table} where name like ?
-SQL
-		, "{$search}%");
+		$this->data = new WoolAutoGrid($this->table);
 		$this->data->setPerPage(25);
 		
 		if (isset($_SESSION['grids'][$this->table])) {
@@ -160,7 +157,7 @@ SQL
 		
 		foreach (Schema::columns($table) as $col) {
 			if (!isset($_SESSION['grids'][$table][$col])) {
-				$_SESSION['grids'][$table][$col] = COL_NORMAL;
+				$_SESSION['grids'][$table][$col] = self::COL_NORMAL;
 			}
 		}
 		

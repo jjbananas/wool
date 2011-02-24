@@ -1,1 +1,1 @@
-<?phprequire_once('Wool/Framework/functions.php');require_once('Wool/Framework/WoolGrid.php');
+<?phprequire_once('Wool/Framework/functions.php');require_once('Wool/Framework/WoolGrid.php');require_once('Wool/Framework/WoolAutoGrid.php');
