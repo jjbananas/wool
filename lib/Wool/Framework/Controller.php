@@ -71,7 +71,7 @@ SQL
 		}
 		
 		if (!Session::loggedIn()) {
-			$this->redirectTo(baseUri(AccessRole::loginPageFor($allow[0]->accessRoleId)));
+			$this->redirectTo(baseUri(AccessRole::loginPageFor($allow[0]->accessRoleId)) . "?direct=" . Request::uriForDirect());
 		}
 		
 		// Next we need to find a match between allowed roles and the contact's

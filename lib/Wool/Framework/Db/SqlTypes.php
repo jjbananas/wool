@@ -4,39 +4,61 @@
 class SqlTypes {
 	private static $types = array(
 		"binary" => array(
-			"text" => false
+			"text" => false,
+			"numeric" => false,
+			"date" => false
 		),
 		
 		"varchar" => array(
-			"text" => true
+			"text" => true,
+			"numeric" => false,
+			"date" => false
 		),
 		
 		"int" => array(
-			"text" => false
+			"text" => false,
+			"numeric" => true,
+			"date" => false
 		),
 		
 		"decimal" => array(
-			"text" => false
+			"text" => false,
+			"numeric" => true,
+			"date" => false
 		),
 		
 		"datetime" => array(
-			"text" => false
+			"text" => false,
+			"numeric" => false,
+			"date" => true
 		),
 		
 		"enum" => array(
-			"text" => false
+			"text" => false,
+			"numeric" => false,
+			"date" => false
 		),
 		
 		"float" => array(
-			"text" => false
+			"text" => false,
+			"numeric" => true,
+			"date" => false
 		)
 	);
 	
-	public function isValidDataType($type) {
+	public static function isValidDataType($type) {
 		return isset(self::$types[$type]);
 	}
 	
-	public function isText($type) {
+	public static function isText($type) {
 		return self::$types[$type]["text"];
+	}
+	
+	public static function isNumeric($type) {
+		return self::$types[$type]["text"];
+	}
+	
+	public static function isDate($type) {
+		return self::$types[$type]["date"];
 	}
 }

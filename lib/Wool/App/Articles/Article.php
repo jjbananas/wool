@@ -2,7 +2,7 @@
 
 require_once('Wool/App/Articles/Revision.php');
 
-class Article extends WoolTable {
+class Article {
 	public static function define() {
 		self::name("location", "Location / URL");
 		self::defaultValue("createdOn", now());
@@ -90,5 +90,3 @@ SQL
 		));
 	}
 }
-
-WoolTable::registerTable("Article", "articles");

@@ -29,7 +29,8 @@ class SchemaImport {
 			"primary" => false,
 			"increment" => false,
 			"unsigned" => false,
-			"derived" => false
+			"derived" => false,
+			"validators" => array()
 		)
 	);
 
@@ -378,19 +379,27 @@ SQL;
 		
 		return self::mergeColumnDef($res, $colName, $col);
 	}
-		
+	
+	private static function getColumnValidatorDef(&$merge, $def) {
+		foreach ($def as $name=>$params) {
+			$merge["validators"][$name] = ($params ? $params : array());
+		}
+	}
+	
 	private static function mergeColumnDef($merge, $colName, $col) {
+		$skip = array("history", "fetch", "sum");
+		
 		foreach ($col as $name=>$def) {
-			if ($name != "history" && !array_key_exists($name, $merge)) {
-				//trigger_error("{$name} is not a valid column definition", E_USER_WARNING);
-				//unset($col[$name]);
-				continue;
-			}
-			
 			if ($name == "type") {
 				self::splitTypeDef($merge, $def);
-			} else {
+			} else if ($name == "validation") {
+				self::getColumnValidatorDef($merge, $def);
+			} else if (in_array($name, $skip)) {
+				continue;
+			} else if (array_key_exists($name, $merge)) {
 				$merge[$name] = $def;
+			} else {
+				trigger_error("{$name} is not a valid column definition", E_USER_WARNING);
 			}
 		}
 		

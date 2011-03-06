@@ -1,6 +1,6 @@
 <?php
 
-class User extends WoolTable {
+class User {
 	private static $roleCache = array();
 	
 	public static function define() {
@@ -34,5 +34,3 @@ SQL
 		return in_array($roleId, self::roles($userId));
 	}
 }
-
-WoolTable::registerTable("User", "users");

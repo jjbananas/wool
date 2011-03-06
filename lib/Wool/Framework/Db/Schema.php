@@ -1,5 +1,7 @@
 <?php
 
+require_once('Wool/Framework/Db/SqlTypes.php');
+
 function array_diff_recursive($aArray1, $aArray2) {
   $aReturn = array();
 
@@ -36,6 +38,10 @@ class Schema {
 	
 	public function saveToCache() {
 		return file_put_contents_mkdir($GLOBALS['BASE_PATH'] . '/var/database/schema.php', "<?php\nreturn " . var_export(self::$schema, true) . ";\n");
+	}
+	
+	public function debug() {
+		debug(self::$schema);
 	}
 	
 	public function diffFromCache() {
@@ -156,6 +162,34 @@ class Schema {
 		
 		return true;
 	}
+	
+	
+	public static function filterableColumns($table) {
+		$cols = array();
+		
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if (self::columnFilterable($table, $colName)) {
+				$cols[$colName] = $col;
+			}
+		}
+		
+		return $cols;
+	}
+	
+	public static function columnFilterable($table, $column) {
+		$col = self::$schema[$table]["columns"][$column];
+		
+		if (SqlTypes::isDate($col['type'])) {
+			return true;
+		}
+		
+		if ($col['type'] == "enum") {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	
 	public static function getColumnType($table, $column) {
 		return self::$schema[$table]["columns"][$column]["type"];

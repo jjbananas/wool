@@ -3,7 +3,7 @@
 require_once('Wool/Common/Cipher.php');
 require_once('Wool/Core/User.php');
 
-class Session extends WoolTable {
+class Session {
 	private static $session;
 	private static $user;
 	
@@ -78,5 +78,3 @@ SQL
 		WoolTable::save(self::$session);
 	}
 }
-
-WoolTable::registerTable("Session", "sessions");

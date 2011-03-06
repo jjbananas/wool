@@ -16,17 +16,19 @@
 			<div class="body splitBody">
 				<div class="s1of2">
 					<div class="editPanel">
+						<?php echo renderNotices() ?>
+						
 						<?php foreach ($columns as $column=>$col) { ?>
 						<?php if ($ref = Schema::columnIsKey($table, $column)) { ?>
 						<div class="input foreign" data-references="<?php echo $ref ?>">
-							<?php echo label($table, $column) ?>
+							<?php echo label($item, "item", $column) ?>
 							<?php echo hidden_field($item, "item", $column) ?>
 							<a href="" class="choice icon iconKeyLink"><?php echo ($item->$column ? "{$item->$column}: {$item->title}" : 'None Selected') ?></a>
 						</div>
 						<?php } else { ?>
 						<div class="input">
 							<?php
-								echo label($table, $column);
+								echo label($item, "item", $column);
 								echo auto_field($item, $table, $column);
 							?>
 						</div>

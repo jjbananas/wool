@@ -33,6 +33,8 @@ class UserController extends AppController {
 		if (Request::isPost()) {
 			if (Session::login(param('user'), param('pass'))) {
 				$this->redirectTo(array("action"=>"index"));
+			} else {
+				WoolErrors::add($this, "user", "Your user name or password is incorrect. Please try again.");
 			}
 		}
 	}
@@ -46,5 +48,17 @@ class UserController extends AppController {
 	function adminLogin() {
 		$this->login();
 		$this->render('login');
+	}
+	
+	function adminLogout() {
+		Session::logout();
+		$this->redirectTo(array("action"=>"login"));
+	}
+	
+	function adminDenied() {
+	}
+	
+	function adminView() {
+		$this->user = User::profileByName(urldecode(param('name')))->fetchRow();
 	}
 }

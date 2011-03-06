@@ -14,7 +14,7 @@ class Request {
 	}
 
 	// Full URI of the current page. Pass in an array of query string parameters
-	// which override the current ones, whic is useful for creating links.
+	// which override the current ones, which is useful for creating links.
 	// Nulling parameters will remove them from the query string:
 	//
 	// eg. Request:uri(array('action'=>'edit', 'id'=>null));

@@ -1,23 +1,7 @@
 <?php
 
 require_once('Zend/Db/Adapter/Pdo/Mysql.php');
-
-// SQL helpers
-$sqlTypes = array(
-	'int' => array('char'=>false, 'num'=>true),
-	'float' => array('char'=>false, 'num'=>true),
-	'varchar' => array('char'=>true, 'num'=>false),
-	'text' => array('char'=>true, 'num'=>false)
-);
-
-function isCharacterType($type) {
-	global $sqlTypes;
-	return isset($sqlTypes[$type]) ? $sqlTypes[$type]['char'] : false;
-}
-function isNumericType($type) {
-	global $sqlTypes;
-	return isset($sqlTypes[$type]) ? $sqlTypes[$type]['num'] : false;
-}
+require_once('Wool/Framework/Db/SqlTypes.php');
 
 function extractEnumOptions($column) {
 	$options = explode(',', substr($column->COLUMN_TYPE, 5, -1));
@@ -67,7 +51,7 @@ SQL
 			'default' => $column->COLUMN_DEFAULT,
 			'nullable' => $column->IS_NULLABLE == 'YES',
 			'type' => formatDataType($column->DATA_TYPE),
-			'length' => isCharacterType($column->DATA_TYPE) ? $column->CHARACTER_MAXIMUM_LENGTH : $column->NUMERIC_PRECISION,
+			'length' => SqlTypes::isText($column->DATA_TYPE) ? $column->CHARACTER_MAXIMUM_LENGTH : $column->NUMERIC_PRECISION,
 			'scale' => $column->NUMERIC_SCALE,
 			'primary' => $column->COLUMN_KEY == 'PRI',
 			'auto_increment' => $column->EXTRA == 'auto_increment',
@@ -80,7 +64,7 @@ SQL
 		}
 		
 		// For numeric types check if they are unsigned.
-		if (isNumericType($column->DATA_TYPE)) {
+		if (SqlTypes::isNumeric($column->DATA_TYPE)) {
 			$schema[$column->TABLE_NAME][$column->COLUMN_NAME]['unsigned'] = isUnsigned($column);
 		}
 	}

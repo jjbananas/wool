@@ -32,7 +32,24 @@ function add_error_classes($obj, $field) {
 	if (isset($validators['required'])) {
 		$classes[] = 'required';
 	}
-	return $classes;
+	
+	$errors = WoolErrors::get($obj);
+	if (!$errors) {
+		return join(' ', $classes);
+	}
+	
+	if ($obj) {
+		$errors = array($errors);
+	}
+
+	foreach ($errors as $objectErrors) {
+		if (isset($objectErrors[$field])) {
+			$classes[] = 'error';
+			break;
+		}
+	}
+
+	return join(' ', $classes);
 }
 
 function class_array($classes, $preSpace=false) {
@@ -49,10 +66,11 @@ function class_array($classes, $preSpace=false) {
 	return $cls;
 }
 
-function label($objName, $field, $attrs = array()) {
+function label($obj, $objName, $field, $attrs = array()) {
 	return element_tag_build('label', array_merge(array(
-			'for' => "{$objName}_{$field}"
-		), $attrs), Schema::columnName($objName, $field)
+			'for' => "{$objName}_{$field}",
+			'class' => add_error_classes($obj, $field)
+		), $attrs), Schema::columnName(Wooltable::srcTable($obj, $field), $field)
 	);
 }
 

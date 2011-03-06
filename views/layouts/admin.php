@@ -10,10 +10,12 @@
 	<body>
 		<div id="pageCanvas">
 			<div id="pageHeader">
+				<?php if (Session::loggedIn()) { ?>
 				<div class="user">
-					<?php echo linkTo(Session::user()->name, array("controller"=>"user", "id"=>Session::user()->userId), 'class="icon iconUser"') ?>
-					<a href="<?php echo Request::uri(array("action"=>"logout")) ?>" class="icon iconLogout" title="Logout"></a>
+					<?php echo linkTo(Session::user()->name, array("controller"=>"user", "action"=>"view", "name"=>Session::user()->name), 'class="icon iconUser"') ?>
+					<?php echo linkTo('', array("controller"=>"user", "action"=>"logout", "direct"=>Request::uriForDirect()), 'class="icon iconLogout" title="Logout"') ?>
 				</div>
+				<?php } ?>
 				
 				<div class="buttons">
 					<?php echo linkTo("Main Menu", array("controller"=>"auto", "action"=>"index"), 'class="iconLarge iconMainMenu"') ?>

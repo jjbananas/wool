@@ -74,6 +74,19 @@ class StrLenValidator extends Validator {
 		return "{$pretty} must be {$min} characters or longer.";
 	}
 }
+class RequiredValidator extends Validator {
+	// For minimum lenths only. Use the actual database lenth for maximum.
+	// Defaults to accept anything greater than 1 since an empty string would be
+	// accepted anyway.
+	public static function validate($value, $params=array()) {
+		$min = coal($params['min'], 1);
+		return strlen($value) >= $min;
+	}
+	
+	public static function errorMessage($field, $pretty, $value, $valParams) {
+		return "{$pretty} is required. Please enter a value.";
+	}
+}
 class LengthValidator extends Validator {
 	public static function validate($value, $params=array()) {
 		if (!isset($params['length'])) { return true; }
@@ -87,7 +100,7 @@ class LengthValidator extends Validator {
 
 
 WoolValidation::registerValidator("unique", "UniqueValidator");
-WoolValidation::registerValidator("required", "StrLenValidator");
+WoolValidation::registerValidator("required", "RequiredValidator");
 WoolValidation::registerValidator("range", "RangeValidator");
 WoolValidation::registerValidator("minlen", "StrLenValidator");
 WoolValidation::registerValidator("length", "LengthValidator");

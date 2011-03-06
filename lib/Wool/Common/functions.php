@@ -40,13 +40,6 @@ function id_param($name, $default=null) {
 	return is_numeric($value) ? $value : $default;
 }
 
-/**
-* Truncate a non-html formatted string with a suffix if its character length is longer than a given number.
-* @param string $str A non-html formatted string you wish to truncate.
-* @param int $length Length of the string to truncate to. The default length is 10 characters.
-* @param string $suffix A trailing string to be appended at the end if the string is longer than the length parameter. Default suffix is '...'
-* @return string Returns the original string if smaller, or truncated string if larger than the length parameter.
-*/
 function truncate($str, $length=10, $suffix='...'){
 	$length -= strlen($suffix);
 	if(strlen($str) > $length){
@@ -56,40 +49,14 @@ function truncate($str, $length=10, $suffix='...'){
 	}
 }
 
-/**
-* Short for coalesce. 
-*
-* Works the same as SQL coalesce, or the || (default)
-* operator in Javascript. You can actually use this as an a 'param'
-* replacement on any array access.
-*
-* @param mixed $a
-* @param mixed $b
-* @return mixed Returns argument $a if set or $b if not.
-*/
 function coal(&$a,$b) {
 	return $a ? $a : $b;
 }
 
-/**
-* Works the same as the && (guard) operator in Javascript. 
-*
-* @param mixed $a
-* @param mixed $b
-* @return mixed Returns argument $a if not set or $b otherwise.
-*/
 function guard(&$a, $b) {
 	return !$a ? $a : $b;
 }
 
-/**
-* Use rather than echo for debugging purposes, since they are easier to find
-* and remove. debug() only works if DEVELOPER is set to true in the config. 
-*
-* @param mixed $obj Anything you wish to check.
-* @param mixed $exit If set to true will exit the application after output.
-* @return void Nothing returned.
-*/
 function debug($obj, $exit=null){
 	if(DEVELOPER){
 		echo "<pre>";

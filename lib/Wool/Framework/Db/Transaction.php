@@ -1,5 +1,8 @@
 <?php
 
+// Implement a database transaction using the RAII (constructor/destructor)
+// pattern. Transaction will automaticall fail when object leaves scope unless
+// success() is called first.
 class Transaction {
 	private $success = false;
 	private $strict = false;

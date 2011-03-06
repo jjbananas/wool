@@ -48,9 +48,16 @@ img {
 	display: block;
 }
 
-input[type=text] {
+input[type=text],
+input[type=password],
+input[type=date] {
 	padding: 4px;
 	border: 1px solid #808080;
+}
+
+input.error {
+	outline: 0;
+	border: 1px solid #f8a8a8;
 }
 
 input:focus {
@@ -91,6 +98,10 @@ input:focus {
 
 .s1of2 {
 	width: 50%;
+	float: left;
+}
+.s1of3 {
+	width: 33%;
 	float: left;
 }
 
@@ -264,6 +275,17 @@ input:focus {
 .filter .additionalOptions li input,
 .filter .additionalOptions li span {
 	vertical-align: middle;
+}
+
+.filter .additionalOptions .date {
+	clear: both;
+}
+
+.filter .additionalOptions .date .label {
+	display: block;
+	color: #919191;
+	font-size: 11px;
+	padding: 6px 2px 4px 2px;
 }
 
 .filter .save {
@@ -598,6 +620,10 @@ input.icon {
 .editPanel label {
 	display: block;
 	padding: 2px 1px 6px 1px;
+}
+
+.editPanel label.required {
+	font-style: italic;
 }
 
 .editPanel .foreign {

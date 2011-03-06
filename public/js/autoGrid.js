@@ -47,6 +47,8 @@ jQuery(function($) {
 		var dragRows = grid.attr("data-dragRows");
 		var headerUpdate = grid.attr("data-headerUpdate");
 		
+		var lastSelectedRow = null;
+		
 		grid.mousedown(function(e) {
 			var deadZone = 10;
 			var srcItem = $(e.target).closest("th, tr");
@@ -152,7 +154,7 @@ jQuery(function($) {
 					var alert = WOOL.msgBox.add("Moving row...");
 					
 					jQuery.ajax({
-						url: rowOrder,
+						url: dragRows,
 						type: "post",
 						data: {
 							table: grid.attr("data-gridTable"),
@@ -200,6 +202,34 @@ jQuery(function($) {
 				checkbox.attr("checked", !checkbox.attr("checked")).change();
 			}
 			row.toggleClass("selected", checkbox.is(":checked"));
+			
+			// Group select
+			if (e.shiftKey) {
+				var group = [];
+				var found = false;
+				var rowEl = row.get(0);
+				
+				body.find("tr").each(function() {
+					if (this == rowEl || this == lastSelectedRow) {
+						if (found) {
+							group.push(this);
+							return false;
+						}
+						found = true;
+					}
+					
+					if (found) {
+						group.push(this);
+					}
+				});
+				
+				jQuery.each(group, function(i, el) {
+					$(el).find("td.rowSelect input").attr("checked", checkbox.attr("checked")).change();
+					$(el).toggleClass("selected", checkbox.is(":checked"));
+				});
+			}
+			
+			lastSelectedRow = row.get(0);
 		});
 		
 		// Dynamic insert of new rows.
@@ -361,4 +391,9 @@ jQuery(function($) {
 			pod.toggleClass("open");
 		});
 	});
+	
+	
+	
+	// Date inputs
+	//$("input[type=date]").daterangepicker();
 });

@@ -190,9 +190,18 @@ users:
             
         name:
             type: varchar(50)
+            validation:
+                required:
             
         email:
             type: email
+            validation:
+                required:
+                nohtml:
+                email:
+                range:
+                    min: 10
+                    max: 100
             
         password:
             type: password

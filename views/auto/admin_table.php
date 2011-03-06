@@ -30,13 +30,16 @@
 			Search: <?php echo text_field_tag("{$table}_filter", $data->filterParam(), array('class'=>"mainFilter")) ?>
 			
 			<div class="additionalOptions">
-				<div class="s1fo3">
-					<label>Tax Id:</label>
-					<ul class="options">
-						<li><input type="checkbox" /> <span>1: Standard Rate</span></li>
-						<li><input type="checkbox" /> <span>2: No Tax</span></li>
-					</ul>
+				<?php foreach (Schema::filterableColumns($table) as $colName=>$filterColumn) { ?>
+				<div class="s1of3">
+					<?php
+						$self->renderPartial(
+							(SqlTypes::isDate($filterColumn['type'])) ? "filter_date" : "filter_options",
+							array("table"=>$table, "column"=>$colName)
+						);
+					?>
 				</div>
+				<?php } ?>
 				
 				<div class="save">
 					<label>Save As:</label> <input type="text" />

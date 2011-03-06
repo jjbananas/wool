@@ -24,5 +24,3 @@ class AccessRole extends WoolTable {
 		);
 	}
 }
-
-WoolTable::registerTable("AccessRole", "access_roles");

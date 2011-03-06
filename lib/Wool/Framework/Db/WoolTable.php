@@ -3,59 +3,19 @@
 require_once('Wool/Framework/Db/Schema.php');
 
 class WoolTable {
-	private static $registering = null;
+	private static $dbFiles = array();
+	
 	private static $registered = array();
 	private static $mergeGroups = array();
 	
 	private static $queryMeta = array();
 	private static $pealCache = array();
 	
-	public static function define() {
-	}
-	
-	public static function validation($column, $type, $params=array()) {
-		WoolValidation::add(self::$registering, $column, $type, $params);
-	}
-	
-	public static function nullable(/*...*/) {
-		$cols = func_get_args();
-		foreach ($cols as $column) {
-			self::$schema[self::$registering]["columns"][$column]['nullable'] = true;
+	public static function addTableDefinitionFiles($dir) {
+		$di = new RecursiveDirectoryIterator($dir);
+		foreach (new RecursiveIteratorIterator($di) as $file) {
+			self::$dbFiles[$file->getBasename(".php")] = $file->getPathname();
 		}
-	}
-	
-	public static function defaultValue($column, $value) {
-		self::$schema[self::$registering]["columns"][$column]['default'] = $value;
-	}
-	
-	public static function accessible($cols, $mergeGrp="default") {
-		$cols = is_array($cols) ? $cols : array($cols);
-		foreach ($cols as $column) {
-			self::$mergeGroups[self::$registering][$mergeGrp][$column] = true;
-		}
-	}
-	
-	public static function columnType($column, $type) {
-		call_user_func(array($type . 'ColumnType', 'define'), $column);
-	}
-	
-	public static function column($column, $default, $type, $length=null, $nullable=false) {
-		if (Schema::column(self::$registering, $column)) {
-			trigger_error("Attempting to override existing database column: '{$column}'", E_USER_ERROR);
-			return;
-		}
-		
-		self::$schema[self::$registering]["columns"][$column] = array (
-			'name' => $column,
-			'default' => $default,
-			'nullable' => $nullable,
-			'type' => $type,
-			'length' => $length,
-			'scale' => null,
-			'primary' => false,
-			'increment' => false,
-			'additional' => true
-		);
 	}
 	
 	public static function setQueryMeta($obj, $meta) {
@@ -98,7 +58,14 @@ class WoolTable {
 		$table = $meta->columnTable($col);
 		$source = $meta->columnSource($col);
 		
+		self::registerTable($table);
 		return WoolValidation::getFor($table, $source);
+	}
+	
+	public static function srcTable($obj, $col) {
+		$id = spl_object_hash($obj);
+		$meta = self::$queryMeta[$id];
+		return $meta->columnTable($col);
 	}
 	
 	// Validate one or many rows. Identical to the validation preformed during
@@ -133,7 +100,9 @@ class WoolTable {
 			}
 			
 			// Test all attached validators.
-			$valid = self::validateColumn($table, $column, $colVal, $obj);
+			if (!self::validateColumn($table, $column, $colVal, $obj)) {
+				$valid = false;
+			}
 		}
 		
 		// Whole object validation
@@ -148,18 +117,31 @@ class WoolTable {
 	}
 	
 	public static function validateColumn($table, $column, $value, $obj) {
+		self::registerTable($table);
 		return WoolValidation::validate($table, $column, $obj, $value, Schema::columnName($table, $column));
 	}
 	
-	public static function registerTable($cls, $name) {
+	private static function registerTable($name) {
+		if (isset(self::$registered[$name])) {
+			return;
+		}
+		
+		$cls = self::tableToCamelCase($name);
 		self::$registered[$name] = $cls;
-		self::$registering = $name;
+		
 		if (!Schema::tableExists($name)) {
 			trigger_error("Table '{$name}' not found in schema cache", E_USER_NOTICE);
 		}
-		call_user_func(array($cls, 'define'));
-		self::registerTableTypeValidators();
-		self::$registering = null;
+		
+		if (isset(self::$dbFiles[$cls])) {
+			require_once(self::$dbFiles[$cls]);
+		}
+		
+		self::registerTableValidators($name);
+	}
+	
+	private static function tableToCamelCase($tblName) {
+		return camelCase(explode('_', $tblName), true);
 	}
 	
 	public static function keySearch($table, $search) {
@@ -173,7 +155,7 @@ SQL
 		, $search);
 	}
 	
-	private static function registerTableTypeValidators() {
+	private static function registerTableValidators($table) {
 		$typeParams = array(
 			'int' => array('length'=>10),
 			'tinyint' => array('length'=>3),
@@ -189,15 +171,20 @@ SQL
 			'datetime' => 'datetime', 'float' => 'int', 'double' => 'int'
 		);
 		
-		foreach (Schema::allColumns(self::$registering) as $column => $col) {
+		foreach (Schema::allColumns($table) as $column => $col) {
 			// Gather up SQL specific params to pass to validators
 			$params = array_merge($col, array(
 				'unsigned' => coal($col['unsigned'], null),
 				'options' => coal($col['options'], null)
 			), coal($typeParams[$col['type']], array()));
 			
-			self::validation($column, $typeValidators[$col['type']], $params);
-			self::validation($column, 'length', $params);
+			WoolValidation::add($table, $column, $typeValidators[$col['type']], $params);
+			WoolValidation::add($table, $column, 'length', $params);
+			
+			// Now add custom defined validators
+			foreach ($col['validators'] as $validator=>$params) {
+				WoolValidation::add($table, $column, $validator, $params);
+			}
 		}
 	}
 	
@@ -296,6 +283,8 @@ SQL
 			$srcTables = array();
 			
 			foreach ($meta->sourceTables() as $table=>$srcTable) {
+				self::registerTable($srcTable);
+				
 				$srcTables[$srcTable] = $table;
 				$store[$table] = array();
 				$store[$table]['obj'] = $obj;
@@ -509,3 +498,4 @@ SQL
 }
 
 Schema::loadFromCache();
+WoolTable::addTableDefinitionFiles($GLOBALS['BASE_PATH'] . '/lib/Wool/App/');
