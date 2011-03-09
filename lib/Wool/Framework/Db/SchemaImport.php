@@ -57,25 +57,79 @@ class SchemaImport {
 		}
 	}
 	
+	public static function primaryColumns($schema, $table) {
+		if (!isset($schema[$table])) {
+			return array();
+		}
+		
+		$primaries = array();
+		foreach ($schema[$table]["columns"] as $colName=>$col) {
+			if ($col['primary']) {
+				$primaries[] = $colName;
+			}
+		}
+		return $primaries;
+	}
+	
 	public static function generateSql() {
+		$old = Schema::cachedSchema();
+		$new = Schema::fullSchema();
+		
 		$sql = array();
 		
-		foreach (self::$tables as $name=>$table) {
+		foreach ($new as $name=>$table) {
+			$newTable = !isset($old[$name]);
+			
 			$out = '';
 			$lines = array();
 			foreach ($table["columns"] as $colName=>$column) {
-				$lines[] = self::columnSql($colName, $column);
+				if ($newTable) {
+					$update = null;
+				} else {
+					$update = isset($old[$name]["columns"][$colName]) ? "change" : "add";
+					if ($update && $column == $old[$name]["columns"][$colName]) {
+						continue;
+					}
+				}
+				$lines[] = self::columnSql($colName, $column, $update);
 			}
 			
 			$primary = Schema::primaryColumns($name);
-			$primary = join(", ", $primary);
-			if ($primary) {
-				$lines[] = "primary key ({$primary})";
+			$add = '';
+			
+			if (!$newTable) {
+				if ($primary != self::primaryColumns($old, $name)) {
+					$lines[] = "drop primary key";
+					$add = "add ";
+				}
 			}
 			
-			$indices = isset(self::$tables[$name]["index"]) ? self::$tables[$name]["index"] : array();
+			$primary = join(", ", $primary);
+			if ($primary && ($newTable || $add)) {
+				$lines[] = "{$add}primary key ({$primary})";
+			}
+			
+			
+			// Indices
+			$oldIndices = isset($old[$name]["index"]) ? $old[$name]["index"] : array();
+			
+			foreach ($oldIndices as $idxName=>$index) {
+				if (!isset($new[$name]["index"][$idxName]) || $new[$name]["index"][$idxName] != $index) {
+					$lines[] = "drop index {$idxName}";
+				}
+			}
+			
+			$indices = isset($new[$name]["index"]) ? $new[$name]["index"] : array();
 			foreach ($indices as $idxName=>$index) {
 				$indexSql = array();
+				
+				if (isset($old[$name]["index"][$idxName]) && $old[$name]["index"][$idxName] == $index) {
+					continue;
+				}
+				
+				if (!$newTable) {
+					$indexSql[] = "add";
+				}
 				if ($index["unique"]) {
 					$indexSql[] = "unique";
 				}
@@ -85,8 +139,23 @@ class SchemaImport {
 				$lines[] = join(" ", $indexSql);
 			}
 			
-			$keys = isset(self::$tables[$name]["keys"]) ? self::$tables[$name]["keys"] : array();
+			
+			// Keys
+			$oldKeys = isset($old[$name]["keys"]) ? $old[$name]["keys"] : array();
+			
+			foreach ($oldKeys as $key) {
+				if (!isset($new[$name]["keys"][$key['references']]) || $new[$name]["keys"][$key['references']] != $key) {
+					$lines[] = "drop foreign key {$key['name']}";
+				}
+			}
+			
+			
+			$keys = isset($new[$name]["keys"]) ? $new[$name]["keys"] : array();
 			foreach ($keys as $key) {
+				if (isset($old[$name]["keys"][$key['references']]) && $old[$name]["keys"][$key['references']] == $key) {
+					continue;
+				}
+				
 				$lines[] = sprintf(
 					"constraint `%s` foreign key (%s) references `%s` (%s) on update %s on delete %s",
 					$key['name'],
@@ -98,11 +167,24 @@ class SchemaImport {
 				);
 			}
 			
-			$out .= "create table `{$name}` (\n";
+			if (!$lines) {
+				continue;
+			}
+			
+			// Table
+			$create = $newTable ? "create" : "alter";
+			
+			$out .= "{$create} table `{$name}` (\n";
 			$out .= join(",\n", $lines);
 			$out .= "\n)\n";
-			$out .= "collate='utf8_general_ci'\n";
-			$out .= "engine=InnoDB;\n";
+			
+			if ($newTable) {
+				$out .= "collate='utf8_general_ci'\n";
+				$out .= "engine=InnoDB;\n";
+			} else {
+				$out .= ";\n";
+			}
+			
 			$sql[] = $out;
 		}
 		
@@ -115,7 +197,7 @@ class SchemaImport {
 		foreach ($fetch as $column=>$var) {
 			if (is_string($var)) {
 				// Add declare
-				$varType = self::columnType(self::$tables[$refTbl]["columns"][$column]);
+				$varType = self::columnType(Schema::column($refTbl, $column));
 				$declares[] = "declare {$var} {$varType};";
 				$selects["{$refTbl}.{$column}"] = $var;
 			} else {
@@ -329,13 +411,22 @@ SQL;
 					$sql = join("\n\n", $sql);
 					$wi = $triggerTime[0];
 					$ti = $type[0];
-				
+					$triggerBody = <<<SQL
+BEGIN
+{$sql}
+END
+SQL;
+					if (self::compareExistingTrigger($triggerTime, $triggerTypes[$type], $tblName, $triggerBody)) {
+						continue;
+					}
+					
+					$triggers[] = "DROP TRIGGER IF EXISTS `t{$wi}{$ti}_{$tblName}`;";
+					
 					$sql = <<<SQL
 CREATE TRIGGER `t{$wi}{$ti}_{$tblName}`
 {$triggerTime} {$triggerTypes[$type]} ON `{$tblName}`
-FOR EACH ROW BEGIN
-{$sql}
-END;
+FOR EACH ROW
+{$triggerBody};
 SQL;
 					$triggers[] = $sql;
 				}
@@ -343,6 +434,30 @@ SQL;
 		}
 		
 		return $triggers;
+	}
+	
+	private static function compareExistingTrigger($time, $event, $tblName, $trigger) {
+		$db = new Zend_Db_Adapter_Pdo_Mysql(array(
+				'host'     => $GLOBALS['DB_HOST'],
+				'username' => $GLOBALS['DB_USERNAME'],
+				'password' => $GLOBALS['DB_PASSWORD'],
+				'dbname'   => 'information_schema'
+		));
+
+		$db->setFetchMode(Zend_Db::FETCH_OBJ);
+		
+		$current = $db->fetchOne(<<<SQL
+select ACTION_STATEMENT
+from TRIGGERS t
+where
+	t.TRIGGER_SCHEMA = ?
+	and t.ACTION_TIMING = ?
+	and t.EVENT_MANIPULATION = ?
+	and t.EVENT_OBJECT_TABLE = ?
+SQL
+		, array($GLOBALS['DB_NAME'], $time, $event, $tblName));
+		
+		return $current == $trigger;
 	}
 
 	// Split SQL types. These can be in three forms: text, int(10), decimal(10,2)
@@ -727,14 +842,20 @@ SQL;
 		return $column['type'] . $length . $unsigned;
 	}
 
-	private static function columnSql($name, $column) {
+	private static function columnSql($name, $column, $update=null) {
 		$out = array();
+		
+		if ($update) {
+			$out[] = "{$update} column";
+			$out[] = $name;
+		}
+		
 		$out[] = $name;
 		$out[] = self::columnType($column);
 		$out[] = $column['nullable'] ? "null" : "not null";
 		
 		if ($column['default']) {
-			$out[] = "default " . $column['default'];
+			$out[] = "default '" . $column['default'] . "'";
 		}
 		if ($column['increment']) {
 			$out[] = 'auto_increment';
@@ -743,26 +864,3 @@ SQL;
 		return join(" ", $out);
 	}
 }
-
-/*
-$db = new Zend_Db_Adapter_Pdo_Mysql(array(
-		'host'     => $GLOBALS['DB_HOST'],
-		'username' => $GLOBALS['DB_USERNAME'],
-		'password' => $GLOBALS['DB_PASSWORD'],
-		'dbname'   => $GLOBALS['DB_NAME']
-));
-
-$db->exec("SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;");
-$sql = SchemaImport::generateSql();
-//debug($sql);
-foreach ($sql as $table) {
-	$db->exec($table);
-}
-
-$triggers = SchemaImport::generateTriggerSql();
-debug($triggers);
-foreach ($triggers as $trigger) {
-	$db->exec($trigger);
-}
-$db->exec("SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;");
-*/

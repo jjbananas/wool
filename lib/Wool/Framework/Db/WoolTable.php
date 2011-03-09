@@ -181,6 +181,10 @@ SQL
 			WoolValidation::add($table, $column, $typeValidators[$col['type']], $params);
 			WoolValidation::add($table, $column, 'length', $params);
 			
+			if (!$col['nullable']) {
+				WoolValidation::add($table, $column, 'required', $params);
+			}
+			
 			// Now add custom defined validators
 			foreach ($col['validators'] as $validator=>$params) {
 				WoolValidation::add($table, $column, $validator, $params);

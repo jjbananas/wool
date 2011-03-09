@@ -199,9 +199,6 @@ users:
                 required:
                 nohtml:
                 email:
-                range:
-                    min: 10
-                    max: 100
             
         password:
             type: password

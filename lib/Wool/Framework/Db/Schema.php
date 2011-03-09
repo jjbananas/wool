@@ -2,26 +2,6 @@
 
 require_once('Wool/Framework/Db/SqlTypes.php');
 
-function array_diff_recursive($aArray1, $aArray2) {
-  $aReturn = array();
-
-	foreach ($aArray1 as $mKey => $mValue) {
-		if (array_key_exists($mKey, $aArray2)) {
-			if (is_array($mValue)) {
-				$aRecursiveDiff = array_diff_recursive($mValue, $aArray2[$mKey]);
-				if (count($aRecursiveDiff)) { $aReturn[$mKey] = $aRecursiveDiff; }
-			} else {
-				if ($mValue != $aArray2[$mKey]) {
-					$aReturn[$mKey] = $mValue;
-				}
-			}
-		} else {
-			$aReturn[$mKey] = $mValue;
-		}
-	}
-	return $aReturn;
-}
-
 class Schema {
 	// The global database schema, created from the database.
 	private static $schema = array();
@@ -44,11 +24,12 @@ class Schema {
 		debug(self::$schema);
 	}
 	
-	public function diffFromCache() {
-		$old = require($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
-		
-		debug(array_diff_recursive($old, self::$schema));
-		debug(array_diff_recursive(self::$schema, $old));
+	public static function fullSchema() {
+		return self::$schema;
+	}
+	
+	public static function cachedSchema() {
+		return require($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
 	}
 	
 	// Export the current database schema to YAML. One file per table.
@@ -296,6 +277,10 @@ class Schema {
 	}
 	
 	public static function primaryColumns($table) {
+		if (!isset(self::$schema[$table])) {
+			return array();
+		}
+		
 		$primaries = array();
 		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
 			if ($col['primary']) {
