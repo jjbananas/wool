@@ -87,7 +87,7 @@ class SchemaImport {
 					$update = null;
 				} else {
 					$update = isset($old[$name]["columns"][$colName]) ? "change" : "add";
-					if ($update && $column == $old[$name]["columns"][$colName]) {
+					if ($update == "change" && $column == $old[$name]["columns"][$colName]) {
 						continue;
 					}
 				}
@@ -172,11 +172,15 @@ class SchemaImport {
 			}
 			
 			// Table
-			$create = $newTable ? "create" : "alter";
-			
-			$out .= "{$create} table `{$name}` (\n";
-			$out .= join(",\n", $lines);
-			$out .= "\n)\n";
+			if ($newTable) {
+				$out .= "create table `{$name}` (\n";
+				$out .= join(",\n", $lines);
+				$out .= "\n)\n";
+			} else {
+				$out .= "alter table `{$name}`\n";
+				$out .= join(",\n", $lines);
+				$out .= "\n";
+			}
 			
 			if ($newTable) {
 				$out .= "collate='utf8_general_ci'\n";
@@ -847,7 +851,9 @@ SQL
 		
 		if ($update) {
 			$out[] = "{$update} column";
-			$out[] = $name;
+			if ($update == "change") {
+				$out[] = $name;
+			}
 		}
 		
 		$out[] = $name;

@@ -42,7 +42,10 @@ class DatetimeValidator extends Validator {
 
 class EnumValidator extends Validator {
 	public static function validate($value, $params=array()) {
-		return in_array($value, $params['options']);
+		debug($value);
+		debug($params);
+		
+		return in_array($value, $params['length']);
 	}
 	
 	public static function errorMessage($field, $pretty, $value, $valParams) {

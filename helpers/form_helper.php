@@ -35,7 +35,7 @@ function add_error_classes($obj, $field) {
 	
 	$errors = WoolErrors::get($obj);
 	if (!$errors) {
-		return join(' ', $classes);
+		return $classes;
 	}
 	
 	if ($obj) {
@@ -49,7 +49,7 @@ function add_error_classes($obj, $field) {
 		}
 	}
 
-	return join(' ', $classes);
+	return $classes;
 }
 
 function class_array($classes, $preSpace=false) {
@@ -276,6 +276,10 @@ function auto_field($obj, $table, $column) {
 	);
 	
 	$type = Schema::getColumnType($table, $column);
+	
+	if ($type == "enum") {
+		return select_box($obj, "item", $column, Schema::enumOptions($table, $column), true);
+	}
 	
 	return call_user_func(coal($types[$type], "text_field"), $obj, "item", $column);
 }

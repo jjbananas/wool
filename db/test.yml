@@ -27,6 +27,10 @@ cart:
         shipping:
             type: money
             name: Shipping Cost
+            
+        status:
+            type: enum
+            length: ["cart", "order"]
     
     derived:
         subTotal:

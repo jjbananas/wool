@@ -55,6 +55,10 @@ input[type=date] {
 	border: 1px solid #808080;
 }
 
+select {
+	padding: 4px;
+}
+
 input.error {
 	outline: 0;
 	border: 1px solid #f8a8a8;

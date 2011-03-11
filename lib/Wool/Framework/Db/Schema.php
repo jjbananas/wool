@@ -320,4 +320,8 @@ class Schema {
 	public static function allKeys($table) {
 		return coal(self::$schema[$table]["keys"], array());
 	}
+	
+	public static function enumOptions($table, $column) {
+		return coal(self::$schema[$table]["columns"][$column]["length"], array());
+	}
 }
