@@ -273,6 +273,7 @@ function select_box_tag($name, $options, $selected=null, $ignoreValues = false) 
 
 function auto_field($obj, $table, $column) {
 	$types = array(
+		"text" => "text_area"
 	);
 	
 	$type = Schema::getColumnType($table, $column);

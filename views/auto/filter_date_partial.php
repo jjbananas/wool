@@ -4,5 +4,5 @@
 	<input type="date" />
 	
 	<span class="label">End</span>
-	<?php echo date_field_tag("{$table}_filter", $data->filterParam(), array('class'=>"mainFilter")) ?>
+	<?php echo date_field_tag("{$table}_filter", $data->filterParam()) ?>
 </div>

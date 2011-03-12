@@ -50,9 +50,15 @@ img {
 
 input[type=text],
 input[type=password],
-input[type=date] {
+input[type=date],
+textarea {
 	padding: 4px;
 	border: 1px solid #808080;
+}
+
+textarea {
+	width: 90%;
+	height: 6em;
 }
 
 select {

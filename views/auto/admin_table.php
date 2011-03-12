@@ -35,7 +35,7 @@
 					<?php
 						$self->renderPartial(
 							(SqlTypes::isDate($filterColumn['type'])) ? "filter_date" : "filter_options",
-							array("table"=>$table, "column"=>$colName)
+							array("table"=>$table, "column"=>$colName, "data"=>$data)
 						);
 					?>
 				</div>

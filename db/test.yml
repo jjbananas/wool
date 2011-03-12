@@ -101,6 +101,9 @@ product:
         title:
             type: varchar(50)
             history: old|new
+        
+        description:
+            type: text
             
         tax:
             type: key
@@ -109,11 +112,36 @@ product:
             
     index:
         unique productId_price: [productId, price]
-        
+
+product_category:
+    columns:
+        categoryId:
+            type: primary
+            
+        name:
+            type: varchar(50)
+
+product_in_category:
+    columns:
+        product_category:
+            type: key
+            primary: true
+            update: cascade
+            delete: cascade
+            
+        product:
+            type: key
+            primary: true
+            update: cascade
+            delete: cascade
+    
 tax:
     columns:
         taxId:
             type: primary
+            
+        name:
+            type: varchar(30)
             
         rate:
             type: float

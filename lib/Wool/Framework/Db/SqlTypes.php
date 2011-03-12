@@ -15,6 +15,12 @@ class SqlTypes {
 			"date" => false
 		),
 		
+		"text" => array(
+			"text" => true,
+			"numeric" => false,
+			"date" => false
+		),
+		
 		"int" => array(
 			"text" => false,
 			"numeric" => true,
