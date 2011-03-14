@@ -590,7 +590,12 @@ SQL
 	
 	private static function getTableColumnDef($tblName, $colName, $col) {
 		if ($col['type'] != "key") {
-			Schema::addColumn($tblName, $colName, self::getColumnDef($colName, $col));
+			$def = self::getColumnDef($colName, $col);
+			Schema::addColumn($tblName, $colName, $def);
+			
+			if ($def['type'] == "varchar" && $def['length'] < 70) {
+				Schema::addInfo($tblName, "titleColumn", $colName, false);
+			}
 			
 			if (isset($col['history'])) {
 				self::getHistoryColumnDef($tblName, $colName, $col['history']);

@@ -48,7 +48,10 @@ class Schema {
 		self::$schema[$table]["columns"][$column][$field] = $value;
 	}
 	
-	public function addInfo($table, $name, $value) {
+	public function addInfo($table, $name, $value, $overwrite=true) {
+		if (!$overwrite && isset(self::$schema[$table]["info"][$name])) {
+			return;
+		}
 		self::$schema[$table]["info"][$name] = $value;
 	}
 	
@@ -108,6 +111,10 @@ class Schema {
 			}
 		}
 		return null;
+	}
+	
+	public static function titleColumn($table) {
+		return coal(self::$schema[$table]["info"]["titleColumn"], null);
 	}
 	
 	public static function description($table) {
@@ -303,6 +310,32 @@ class Schema {
 			$cond[] = "{$n}{$local} = {$item->$foreign}";
 		}
 		return join(" and ", $cond);
+	}
+	
+	public static function keyJoins($table) {
+		if (!isset(self::$schema[$table]["keys"])) {
+			return array();
+		}
+		
+		$joins = array();
+		$j = 1;
+		
+		foreach (self::$schema[$table]["keys"] as $name=>$key) {
+			$titleCol = self::titleColumn($key["references"]);
+			if (!$titleCol) {
+				continue;
+			}
+			
+			$cond = array();
+			foreach ($key["columns"] as $local=>$foreign) {
+				$cond[] = "j{$j}.{$local} = t.{$foreign}";
+			}
+			$cond = join(" and ", $cond);
+			$joins["j{$j}.{$titleCol} as {$name}_title"] = "join {$key["references"]} j{$j} on {$cond}";
+			$j++;
+		}
+		
+		return $joins;
 	}
 	
 	public static function inboundKeys($table) {

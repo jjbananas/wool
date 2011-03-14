@@ -146,11 +146,22 @@ class WoolTable {
 	
 	public static function keySearch($table, $search) {
 		$u = Schema::uniqueColumn($table);
+		$tc = Schema::titleColumn($table);
+		
+		if ($tc) {
+			$select = "{$u} id, {$tc} title";
+			$where = "{$u} = ? or {$tc} like ?";
+			$search = array($search, "{$search}%");
+		} else {
+			$select = "{$u} id";
+			$where = "{$u} = ?";
+		}
 		
 		return new RowSet(<<<SQL
-select {$u} id
+select {$select}
 from {$table}
-where {$u} = ?
+where {$where}
+limit 10
 SQL
 		, $search);
 	}
@@ -216,8 +227,7 @@ SQL
 		
 		if ($id) {
 			$obj = new StdClass;
-			$where = self::primaryWhereClause($table, $id);
-			$obj = WoolDb::fetchRow("select * from {$table} where {$where}");
+			$obj = self::fetchJoined($table, $id);
 		} else {
 			$obj = new StdClass;
 			foreach (Schema::allColumns($table) as $colName=>$col) {
@@ -232,6 +242,26 @@ SQL
 	public static function fetchAll($table, $where='', $params=null) {
 		$where = guard($where, "where " . $where);
 		return new RowSet("select * from {$table} {$where}", $params);
+	}
+	
+	public static function queryJoined($table) {
+		$selects = array();
+		$selects[] = "t.*";
+		
+		$joins = Schema::keyJoins($table);
+		foreach ($joins as $select=>$join) {
+			$selects[] = $select;
+		}
+		
+		$selects = join(", ", $selects);
+		$joins = join("\n", $joins);
+		
+		return "select {$selects} from {$table} t {$joins}";
+	}
+	
+	private static function fetchJoined($table, $id) {
+		$where = self::primaryWhereClause($table, $id);
+		return WoolDb::fetchRow(self::queryJoined($table) . " where {$where}");
 	}
 	
 	public static function fromArray($obj, $merge=null, $mergeGrp="default") {
@@ -394,15 +424,15 @@ SQL
 							continue;
 						}
 						
-						$frnObj = $store['store'][$store['srcTables'][$srcTbl]]['obj'];
-						$frnAlias = $meta->columnAlias($store['srcTables'][$srcTbl], $colSrc);
+						$frnObj = $store['store'][$store['srcTables'][$srcTable]]['obj'];
+						$frnAlias = $meta->columnAlias($store['srcTables'][$srcTable], $localCol);
 						
 						if (!property_exists($frnObj, $frnAlias)) {
 							continue;
 						}
 						
-						$s['obj']->$relAlias = $frnObj->$frnAlias;
-						$s['values'][$relSrc] = $frnObj->$frnAlias;
+						$s['obj']->$frnAlias = $frnObj->$frnAlias;
+						$s['values'][$frnCol] = $frnObj->$frnAlias;
 					}
 				}
 				

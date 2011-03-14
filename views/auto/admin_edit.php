@@ -23,7 +23,7 @@
 						<div class="input foreign" data-references="<?php echo $ref ?>">
 							<?php echo label($item, "item", $column) ?>
 							<?php echo hidden_field($item, "item", $column) ?>
-							<a href="" class="choice icon iconKeyLink"><?php echo ($item->$column ? "{$item->$column}: {$item->title}" : 'None Selected') ?></a>
+							<a href="" class="choice icon iconKeyLink"><?php echo keyColumnDisplay($item, $column, $ref) ?></a>
 						</div>
 						<?php } else { ?>
 						<div class="input">
