@@ -1,0 +1,98 @@
+channel:
+    columns:
+        channelId:
+            type: primary
+        
+        name:
+            type: varchar(30)
+
+            
+page:
+    columns:
+        pageId:
+            type: primary
+            
+        title:
+            type: varchar(100)
+            
+        uri:
+            type: uri
+            
+        metaTitle:
+            type: varchar(100)
+            
+        metaDesc:
+            type: varchar(256)
+            
+        metaKeywords:
+            type: varchar(100)
+            
+        layout:
+            type: varchar(4096)
+            
+page_content:
+    columns:
+        pageContentId:
+            type: primary
+            
+        page:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        area:
+            type: varchar(30)
+            
+        content:
+            type: text
+
+page_widget:
+    columns:
+        widgetId:
+            type: primary
+            
+        page:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        type:
+            type: varchar(30)
+            
+        view:
+            type: varchar(30)
+            default: "default"
+            
+        area:
+            type: varchar(30)
+
+page_widget_param:
+    columns:
+        widgetParamId:
+            type: primary
+            
+        page_widget:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        name:
+            type: varchar(30)
+            
+        value:
+            type: varchar(30)
+
+uri_alias:
+    columns:
+        uri:
+            type: uri
+            
+        directTo:
+            type: uri
+            
+        generated:
+            type: bool
+            
+    index:
+        a: [uri]
+        b: [directTo]

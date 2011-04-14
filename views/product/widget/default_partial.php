@@ -1,0 +1,1 @@
+<?php $self->renderPartials("/product/product", $products, "product") ?>

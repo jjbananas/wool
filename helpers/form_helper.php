@@ -154,7 +154,7 @@ function radio_tag($name, $value = null, $checkedValue = null, $attrs = array())
 
 function text_area($obj, $objName, $field, $attrs = array()) {
 	return tag_build('textarea', array_merge($attrs, array(
-			'id' => $field,
+			'id' => "{$objName}_{$field}",
 			'name' => "{$objName}[{$field}]",
 			'class' => add_error_classes($obj, $field)
 		)
@@ -282,7 +282,13 @@ function auto_field($obj, $table, $column) {
 		return select_box($obj, "item", $column, Schema::enumOptions($table, $column), true);
 	}
 	
-	return call_user_func(coal($types[$type], "text_field"), $obj, "item", $column);
+	$inputType = coal($types[$type], "text_field");
+	
+	if (Schema::length($table, $column) > 100) {
+		$inputType = "text_area";
+	}
+	
+	return call_user_func($inputType, $obj, "item", $column);
 }
 
 function selected($b) {

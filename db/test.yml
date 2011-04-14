@@ -304,20 +304,3 @@ sessions:
         createdOn:
             type: datetime
             
-            
-example:
-    columns:
-        name:
-            type: varchar(50)
-            
-        tony:
-            type: varchar(130)
-
-example_table:
-    columns:
-        name:
-            type: varchar(50)
-            
-        tony:
-            type: varchar(130)
-

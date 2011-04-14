@@ -19,3 +19,6 @@ column email:
 
 column password:
     type: varchar(50)
+
+column uri:
+    type: varchar(256)

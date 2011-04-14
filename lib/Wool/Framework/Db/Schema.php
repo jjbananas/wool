@@ -357,4 +357,8 @@ class Schema {
 	public static function enumOptions($table, $column) {
 		return coal(self::$schema[$table]["columns"][$column]["length"], array());
 	}
+	
+	public static function length($table, $column) {
+		return coal(self::$schema[$table]["columns"][$column]["length"], null);
+	}
 }

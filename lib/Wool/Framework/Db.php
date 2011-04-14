@@ -76,6 +76,33 @@ class WoolDb {
 		return $row;
 	}
 	
+	// Upsert. In other words, insert if unique keys are not present otherwise
+	// update the matching record.
+	public static function upsert($table, $data=array()) {
+		$fields = join(', ', array_keys($data));
+		$values = join(', ', $data);
+		
+		$updates = array();
+		foreach ($data as $column=>$value) {
+			$updates[] = "{$column}={$value}";
+		}
+		$updates = join(",\n", $updates);
+		
+		$sql = <<<SQL
+insert into {$table}
+({$fields})
+values
+({$values})
+on duplicate key update
+{$updates}
+SQL;
+
+		// execute the statement and return the number of affected rows
+		$stmt = self::query($sql, array_values($data));
+		$result = $stmt->rowCount();
+		return $result;
+	}
+	
 	// Overload static calls and dispatch them off to the real zend database.
 	public static function __callStatic($name, $args) {
 		if (method_exists(self::$db, $name)) {

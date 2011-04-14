@@ -1,0 +1,113 @@
+/* Layout panel
+*/
+
+.layoutPanel {
+	font-size: 11px;
+	padding-top: 20px;
+}
+
+.layoutBreadcrumbs {
+	margin-bottom: 1.2ex;
+}
+
+.layoutBreadcrumbs li {
+	display: inline;
+}
+
+.layoutBreadcrumbs li a {
+	background: url("../../images/icons/divider.png") no-repeat right;
+	padding-right: 10px;
+}
+
+
+/* Layout structure builder
+*/
+
+.layoutStructure {
+	margin-bottom: 20px;
+}
+
+.layoutCanvas {
+	border: 1px solid #eeeeee;
+}
+
+.layoutCanvas .even,
+.layoutCanvas .odd {
+	margin: 8px;
+	border: 1px solid #eeeeee;
+	min-height: 60px;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.layoutCanvas .widget {
+	background-image: url(../../images/icons/widget.png);
+	background-position: center 20px;
+	background-repeat: no-repeat;
+}
+
+.layoutCanvas .content {
+	background-image: url(../../images/icons/content.png);
+	background-position: center 20px;
+	background-repeat: no-repeat;
+}
+
+.layoutCanvas .even {
+	background-color: #f9f8f6;
+}
+
+.layoutCanvas .even.active {
+	background-color: #f7f6f4;
+	border-style: dashed;
+	border-color: #d0d0d0;
+	box-shadow: 0px 0px 3px #000000;
+}
+
+.layoutCanvas .odd {
+	background-color: #ffffff;
+	margin: 8px 4px;
+}
+
+.layoutCanvas .odd.active {
+	background-color: #fdfdfd;
+	border-style: dashed;
+	border-color: #d0d0d0;
+	box-shadow: 0px 0px 3px #000000;
+}
+
+.layoutCanvas .first {
+	margin-left: 8px;
+}
+
+.layoutCanvas .last {
+	margin-right: 8px;
+}
+
+.layoutCanvas .label {
+	display: block;
+	clear: left;
+	padding: 2px 0 0 2px;
+}
+
+
+/* Unassigned widgets
+*/
+
+.layoutUnassigned .layoutCanvas {
+	overflow: hidden;
+	margin-top: 5px;
+}
+
+.layoutUnassigned .widget {
+	width: 25%;
+	float: left;
+	cursor: pointer;
+}
+
+.layoutUnassigned .widget .inner {
+	margin: 5px;
+	padding: 5px;
+	min-height: 30px;
+	border: 1px solid #eeeeee;
+	background-color: #f9f8f6;
+}

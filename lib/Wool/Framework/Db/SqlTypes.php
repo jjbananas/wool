@@ -21,6 +21,12 @@ class SqlTypes {
 			"date" => false
 		),
 		
+		"bool" => array(
+			"text" => false,
+			"numeric" => true,
+			"date" => false
+		),
+		
 		"int" => array(
 			"text" => false,
 			"numeric" => true,

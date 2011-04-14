@@ -98,8 +98,11 @@ class SchemaImport {
 			$add = '';
 			
 			if (!$newTable) {
-				if ($primary != self::primaryColumns($old, $name)) {
-					$lines[] = "drop primary key";
+				$selfPrimary = self::primaryColumns($old, $name);
+				if ($primary != $selfPrimary) {
+					if ($selfPrimary) {
+						$lines[] = "drop primary key";
+					}
 					$add = "add ";
 				}
 			}

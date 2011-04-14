@@ -141,7 +141,7 @@ SQL
 		}
 	}
 	public function meta($type, $content) {
-		$this->meta[] = sprintf("<meta name=\"%1\" content=\"%2\" />", $type, html($content));
+		$this->meta[] = sprintf("<meta name=\"%s\" content=\"%s\" />", $type, html($content));
 	}
 	
 	public function headerContent() {

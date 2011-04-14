@@ -70,7 +70,8 @@ input.error {
 	border: 1px solid #f8a8a8;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
 	outline: 0;
 	border: 1px solid #d8d828;
 }
@@ -100,6 +101,10 @@ input:focus {
 
 .padv {
 	padding: 10px 0;
+}
+
+.marTop {
+	margin-top: 10px;
 }
 
 .clear {
@@ -186,6 +191,13 @@ input:focus {
 	margin: 0;
 }
 
+.pod .head h3 {
+	font-size: 12px;
+	color: #000000;
+	font-family: verdana, sans-serif;
+	margin: 0;
+}
+
 .pod .body {
 	clear: both;
 }
@@ -205,8 +217,9 @@ input:focus {
 
 
 .podNested {
-	border-color: #eeedeb;
-	background-color: #ffffff;
+	border-color: #ffffff;
+	background-color: #f4f2f0;
+	border-width: 5px;
 }
 
 /* Darker bordered overlay box
@@ -633,7 +646,10 @@ input.icon {
 }
 
 .editPanel label.required {
-	font-style: italic;
+	font-variant: small-caps;
+}
+
+.editPanel label.required:after {
 }
 
 .editPanel .foreign {

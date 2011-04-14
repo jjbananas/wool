@@ -260,7 +260,7 @@ SQL
 	}
 	
 	private static function fetchJoined($table, $id) {
-		$where = self::primaryWhereClause($table, $id);
+		$where = self::uniqueWhereClause($table, $id);
 		return WoolDb::fetchRow(self::queryJoined($table) . " where {$where}");
 	}
 	
@@ -528,6 +528,10 @@ SQL
 		}
 		
 		return join(" and ", $where);
+	}
+	
+	private static function uniqueWhereClause($table, $id) {
+		return Schema::uniqueColumn($table) . " = " . $id;
 	}
 }
 
