@@ -1,3 +1,32 @@
+/* Edit header bar
+*/
+
+#editHeaderWrapper {
+	height: 50px;
+}
+
+#editHeader {
+	height: 50px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	background-color: #292b2c;
+	border-bottom: 1px solid #ffffff;
+}
+
+#editHeader .editContainer {
+	width: 960px;
+	margin: 0 auto;
+}
+
+#editHeader a {
+	color: #ffffff;
+	font-size: 14px;
+	line-height: 50px;
+}
+
+
 /* Page header
 */
 

@@ -14,16 +14,20 @@
 			$self->css("/css/screen.css");
 			$self->css("/css/grids.css");
 			$self->css("/css/style.css");
-			
-			$self->js("/js/jquery-1.4.2.js", Controller::MEDIA_TOP);
 		?>
 		
 		<?php $self->headerContent() ?>
 	</head>
 	
 	<body>
+		<div id="editHeaderWrapper">
+			<div id="editHeader">
+				<div class="editContainer">
+				</div>
+			</div>
+		</div>
+		
 		<div id="header">
-			
 			<div class="nav">
 				<div class="container">
 					<div class="userStatus">

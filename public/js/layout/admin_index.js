@@ -105,7 +105,8 @@ jQuery(function($) {
 		$("#widgetView").val(widget.view);
 		
 		if (widget.type == "content") {
-			createWidgetConfigInput("Content", $("<textarea>"), widgetCustom);
+			var input = $("<textarea>").val(widget.content);
+			createWidgetConfigInput("Content", input, widgetCustom);
 		} else {
 			_.each(widget.params, function(param, paramName) {
 				var input = $("<input>").attr("type", "text");
@@ -242,22 +243,24 @@ jQuery(function($) {
 		
 		$("#widget-config").show();
 		
-		if (type == "content") {
-			currentWidgets[area] = {
-				type: type,
-				content: ""
-			};
-		} else {
-			var params = {};
-			_.each(widgetTypes[type].params, function(value, key) {
-				params[key] = value.default;
-			});
-			
-			currentWidgets[area] = {
-				type: type,
-				view: widgetTypes[type].views[0],
-				params: params
-			};
+		if (type != currentWidgets[area].type) {
+			if (type == "content") {
+				currentWidgets[area] = {
+					type: type,
+					content: ""
+				};
+			} else {
+				var params = {};
+				_.each(widgetTypes[type].params, function(value, key) {
+					params[key] = value.default;
+				});
+				
+				currentWidgets[area] = {
+					type: type,
+					view: widgetTypes[type].views[0],
+					params: params
+				};
+			}
 		}
 		
 		createWidgetConfigPanel(area);

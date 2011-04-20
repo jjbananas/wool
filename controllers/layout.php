@@ -43,6 +43,7 @@ class Page {
 		foreach ($this->content as $content) {
 			$item = new StdClass;
 			$item->type = "content";
+			$item->content = $content->content;
 			
 			$name = $content->area;
 			$json->$name = $item;
@@ -59,11 +60,73 @@ class Page {
 				$item->params->$name = $param->value;
 			}
 			
-			$name = $content->area;
+			$name = $widget->area;
 			$json->$name = $item;
 		}
 		
 		return json_encode($json);
+	}
+	
+	// Create or replace widgets for a specific page.
+	public function widgetsFromJson($json) {
+		foreach ($json as $area=>$widget) {
+			if ($widget["type"] == "content") {
+				if ($this->content->by("area", $area)) {
+					$row = $this->content->by("area", $area);
+				} else {
+					$row = WoolTable::blank("page_content");
+				}
+				
+				$row->pageId = $this->row->pageId;
+				$row->area = $area;
+				$row->content = tidy_repair_string($widget["content"], array(
+					"show-body-only" => true,
+					"doctype" => "-//W3C//DTD XHTML 1.0 Transitional//EN",
+					"output-xhtml" => true
+				));
+				
+				WoolTable::save($row);
+				
+				continue;
+			}
+			
+			if (!isset(self::$types[$widget["type"]])) {
+				continue;
+			}
+			
+			$type = self::$types[$widget["type"]];
+			
+			if ($this->widgets->by("area", $area)) {
+				$row = $this->widgets->by("area", $area);
+			} else {
+				$row = WoolTable::blank("page_widget");
+			}
+			
+			$row->area = $area;
+			$row->pageId = $this->row->pageId;
+			$row->type = $type["id"];
+			$row->view = matchItem($widget["view"], $type["views"]);
+			
+			WoolTable::save($row);
+			
+			$widgetParams = $this->widgetParams->byGroup("widgetId", $row->widgetId);
+			$paramRows = array();
+			
+			foreach ($type["params"] as $paramName=>$paramValue) {
+				if ($widgetParams && $widgetParams->by("name", $paramName)) {
+					$paramRow = $widgetParams->by("name", $paramName);
+				} else {
+					$paramRow = WoolTable::blank("page_widget_param");
+				}
+				
+				$paramRow->widgetId = $row->widgetId;
+				$paramRow->name = $paramName;
+				$paramRow->value = coal($widget["params"][$paramName], $paramValue["default"]);
+				$paramRows[] = $paramRow;
+			}
+			
+			WoolTable::save($paramRows);
+		}
 	}
 }
 
@@ -103,48 +166,6 @@ class Widget {
 	
 	public static function typeDefJson() {
 		return json_encode(self::$types);
-	}
-	
-	// Create or replace widgets for a specific page.
-	public static function fromJson($json, $pageId, $widgets, $params) {
-		foreach ($json as $area=>$widget) {
-			if (!isset(self::$types[$widget["type"]])) {
-				continue;
-			}
-			
-			$type = self::$types[$widget["type"]];
-			
-			if ($widgets->by("area", $area)) {
-				$row = $widgets->by("area", $area);
-			} else {
-				$row = WoolTable::blank("page_widget");
-			}
-			
-			$row->area = $area;
-			$row->pageId = $pageId;
-			$row->type = $type["id"];
-			$row->view = matchItem($widget["view"], $type["views"]);
-			
-			WoolTable::save($row);
-			
-			$widgetParams = $params->byGroup("widgetId", $row->widgetId);
-			$paramRows = array();
-			
-			foreach ($type["params"] as $paramName=>$paramValue) {
-				if ($widgetParams && $widgetParams->by("name", $paramName)) {
-					$paramRow = $widgetParams->by("name", $paramName);
-				} else {
-					$paramRow = WoolTable::blank("page_widget_param");
-				}
-				
-				$paramRow->widgetId = $row->widgetId;
-				$paramRow->name = $paramName;
-				$paramRow->value = coal($widget["params"][$paramName], $paramValue["default"]);
-				$paramRows[] = $paramRow;
-			}
-			
-			WoolTable::save($paramRows);
-		}
 	}
 }
 
@@ -271,8 +292,16 @@ class LayoutController extends Controller {
 		
 		$page = new Page($this, '/layout');
 		$widgets = json_decode(param('widgets'), true);
-		Widget::fromJson($widgets, $page->row->pageId, $page->widgets, $page->widgetParams);
+		$page->widgetsFromJson($widgets);
 		
 		$this->renderJson($response);
+	}
+	
+	function adminSetContent() {
+		$page = new Page($this, '/layout');
+		$widgets = param('widgets', array());
+		$page->widgetsFromJson($widgets);
+		
+		$this->renderJson(array());
 	}
 }

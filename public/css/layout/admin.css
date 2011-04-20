@@ -40,7 +40,7 @@
 	cursor: pointer;
 }
 
-.layoutCanvas .widget {
+.layoutStructure .widget {
 	background-image: url(../../images/icons/widget.png);
 	background-position: center 20px;
 	background-repeat: no-repeat;

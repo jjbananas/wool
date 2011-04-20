@@ -81,6 +81,22 @@ page_widget_param:
             
         value:
             type: varchar(30)
+            
+page_directory:
+    columns:
+        pageDirectoryId:
+            type: primary
+        
+        page_directory:
+            type: nestedset
+            
+        title:
+            type: duplicate(page.title)
+            default: page.title
+            
+        page:
+            type: key
+            nullable: true
 
 uri_alias:
     columns:
