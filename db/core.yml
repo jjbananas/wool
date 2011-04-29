@@ -87,16 +87,18 @@ page_directory:
         pageDirectoryId:
             type: primary
         
-        page_directory:
-            type: nestedset
-            
         title:
-            type: duplicate(page.title)
-            default: page.title
+            type: page.title
+            default: static(page.title)
             
         page:
             type: key
+            update: cascade
+            delete: cascade
             nullable: true
+            
+    mixin:
+        nestedset:
 
 uri_alias:
     columns:

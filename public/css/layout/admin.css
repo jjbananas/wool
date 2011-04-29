@@ -110,4 +110,14 @@
 	min-height: 30px;
 	border: 1px solid #eeeeee;
 	background-color: #f9f8f6;
+	position: relative;
+}
+
+.layoutUnassigned .widget .inner span {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 12px;
+	height: 12px;
+	background: url(../../images/icons/cross_10.png) center no-repeat;
 }

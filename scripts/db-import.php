@@ -2,6 +2,7 @@
 
 require_once('../lib/Wool/Boot.php');
 require_once('Wool/Common/include.php');
+require_once('Wool/Request.php');
 require_once('Wool/Framework/Db/SchemaImport.php');
 
 SchemaImport::load('../db');
@@ -16,18 +17,30 @@ $db = new Zend_Db_Adapter_Pdo_Mysql(array(
 		'dbname'   => $GLOBALS['DB_NAME']
 ));
 
-$db->exec("SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;");
-$sql = SchemaImport::generateSql();
+$sql = ImportMySql::generateSql();
 debug($sql);
-foreach ($sql as $table) {
-	$db->exec($table);
-}
 
-$triggers = SchemaImport::generateTriggerSql();
+$triggers = ImportMySql::generateTriggerSql();
 debug($triggers);
-foreach ($triggers as $trigger) {
-	$db->exec($trigger);
-}
-$db->exec("SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;");
 
-Schema::saveToCache();
+if (Request::isPost()) {
+	$db->exec("SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;");
+
+	foreach ($sql as $table) {
+		$db->exec($table);
+	}
+	
+	foreach ($triggers as $trigger) {
+		$db->exec($trigger);
+	}
+	
+	$db->exec("SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;");
+	
+	Schema::saveToCache();
+	
+	redirectTo(Request::uri());
+}
+?>
+<form method="post">
+	<input type="submit" value="Apply Updates" />
+</form>

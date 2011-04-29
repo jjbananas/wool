@@ -111,6 +111,10 @@ textarea:focus {
 	clear: both;
 }
 
+.hide {
+	display: none;
+}
+
 .s1of2 {
 	width: 50%;
 	float: left;

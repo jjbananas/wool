@@ -90,11 +90,13 @@ class Page {
 				continue;
 			}
 			
-			if (!isset(self::$types[$widget["type"]])) {
+			$types = Widget::getTypes();
+			
+			if (!isset($types[$widget["type"]])) {
 				continue;
 			}
 			
-			$type = self::$types[$widget["type"]];
+			$type = $types[$widget["type"]];
 			
 			if ($this->widgets->by("area", $area)) {
 				$row = $this->widgets->by("area", $area);
@@ -126,6 +128,19 @@ class Page {
 			}
 			
 			WoolTable::save($paramRows);
+		}
+		
+		// Remove any widgets not sent.
+		foreach ($this->content as $content) {
+			if (!isset($json[$content->area])) {
+				WoolTable::delete("page_content", $content->pageContentId);
+			}
+		}
+		
+		foreach ($this->widgets as $widget) {
+			if (!isset($json[$widget->area])) {
+				WoolTable::delete("page_widget", $widget->widgetId);
+			}
 		}
 	}
 }
@@ -162,6 +177,10 @@ class Widget {
 			$def = call_user_func(array($type, "define"));
 			self::$types[$def["id"]] = $def;
 		}
+	}
+	
+	public static function getTypes() {
+		return self::$types;
 	}
 	
 	public static function typeDefJson() {
@@ -273,8 +292,7 @@ function processLayout($level, $layout, $layers=array()) {
 class LayoutController extends Controller {
 	function index() {
 		$this->page = new Page($this, Request::path(true));
-		$this->layoutAreas = processLayout("layout", json_decode($this->page->row->layout));
-		
+		$this->layoutAreas = processLayout("body", json_decode($this->page->row->layout));
 		
 		$this->meta("description", $this->page->row->metaDesc);
 	}

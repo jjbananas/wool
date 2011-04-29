@@ -3,8 +3,12 @@
 function layoutClass($props) {
 	$cls = array();
 	
-	if (isset($props->grid)) {
-		$cls[] = "span-" . $props->grid;
+	if (isset($props->sizeType)) {
+		if ($props->sizeType == "grid") {
+			$cls[] = "span-" . $props->size;
+		} else {
+			$cls[] = "span-" . $props->size;
+		}
 	}
 	
 	return join(" ", $cls);

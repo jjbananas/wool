@@ -5,6 +5,7 @@ require_once('Wool/Framework/Db/SqlTypes.php');
 class Schema {
 	// The global database schema, created from the database.
 	private static $schema = array();
+	private static $mixins = array();
 	
 	// Start up from a pre-existing cache.
 	public function loadFromCache() {
@@ -39,13 +40,28 @@ class Schema {
 		}
 	}
 	
+	public static function flagMixin($table) {
+		self::$mixins[$table] = array();
+	}
+	
+	public static function applyMixin($table, $mixin) {
+		self::$schema[$table] = array_merge_recursive(self::$schema[$table], self::$mixins[$mixin]);
+	}
 	
 	public function addColumn($table, $name, $def) {
-		self::$schema[$table]["columns"][$name] = $def;
+		if (isset(self::$mixins[$table])) {
+			self::$mixins[$table]["columns"][$name] = $def;
+		} else {
+			self::$schema[$table]["columns"][$name] = $def;
+		}
 	}
 	
 	public function setColumnValue($table, $column, $field, $value) {
-		self::$schema[$table]["columns"][$column][$field] = $value;
+		if (isset(self::$mixins[$table])) {
+			self::$mixins[$table]["columns"][$column][$field] = $value;
+		} else {
+			self::$schema[$table]["columns"][$column][$field] = $value;
+		}
 	}
 	
 	public function addInfo($table, $name, $value, $overwrite=true) {
@@ -56,15 +72,27 @@ class Schema {
 	}
 	
 	public function addIndex($table, $name, $def) {
-		self::$schema[$table]["index"][$name] = $def;
+		if (isset(self::$mixins[$table])) {
+			self::$mixins[$table]["index"][$name] = $def;
+		} else {
+			self::$schema[$table]["index"][$name] = $def;
+		}
 	}
 	
 	public function addKey($table, $name, $def) {
-		self::$schema[$table]["keys"][$name] = $def;
+		if (isset(self::$mixins[$table])) {
+			self::$mixins[$table]["keys"][$name] = $def;
+		} else {
+			self::$schema[$table]["keys"][$name] = $def;
+		}
 	}
 	
 	public function addInbound($table, $def) {
-		self::$schema[$table]["inbound"][] = $def;
+		if (isset(self::$mixins[$table])) {
+			self::$mixins[$table]["inbound"][] = $def;
+		} else {
+			self::$schema[$table]["inbound"][] = $def;
+		}
 	}
 	
 	

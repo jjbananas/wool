@@ -89,7 +89,7 @@ class Request {
 	
 	private static function getHandler() {
 		$uri = explode('?', $_SERVER['REQUEST_URI']);
-		return html($uri[0]);
+		return htmlspecialchars($uri[0]);
 	}
 }
 

@@ -38,14 +38,27 @@
 								</select>
 							</div>
 							
-							<div class="input">
+							<div class="input sizeInput">
 								<label for="size">Size</label>
 								<select type="text" name="size" id="size">
 									<option>width</option>
 									<option>grid</option>
 								</select>
 								
-								<input type="text" size="2" />
+								<select id="widthSelect" class="sizeSelect">
+									<option value="">1/1</option>
+									<option value="s1of2">1/2</option>
+									<option value="s1of3">1/3</option>
+									<option value="s2of3">2/3</option>
+									<option value="s1of4">1/4</option>
+									<option value="s3of4">3/4</option>
+								</select>
+								
+								<select id="gridSelect" class="sizeSelect hide">
+									<?php foreach (range(1,14) as $width) { ?>
+									<option value="<?php echo $width ?>"><?php echo $width ?></option>
+									<?php } ?>
+								</select>
 							</div>
 							
 							<div class="input">
@@ -60,17 +73,12 @@
 						</div>
 					</div>
 					
-					<div id="widget-config" class="pod podNested marTop">
+					<div id="widget-config" class="pod podNested marTop hide">
 						<div class="head">
 							<h3>Widget Configuration</h3>
 						</div>
 						
 						<div class="editPanel">
-							<div class="input">
-								<label for="widgetArea">Widget Area</label>
-								<input type="text" name="widgetArea" id="widgetArea" />
-							</div>
-							
 							<div class="input">
 								<label for="widgetView">Widget View</label>
 								<select type="text" name="widgetView" id="widgetView">
@@ -116,34 +124,6 @@
 						<div class="layoutCanvas">
 							<div class="area even">
 								<span class="label">body</span>
-								
-								<div class="s1of2">
-									<div class="area odd first">
-										<span class="label">leftNav</span>
-										
-										<div class="area even">
-											<span class="label">menu</span>
-										</div>
-									</div>
-								</div>
-								
-								<div class="s1of2">
-									<div class="area odd last">
-										<span class="label">mainContent</span>
-										
-										<div class="s1of2">
-											<div class="area even first">
-												<span class="label">textCol1</span>
-											</div>
-										</div>
-										
-										<div class="s1of2">
-											<div class="area even last">
-												<span class="label">textCol2</span>
-											</div>
-										</div>
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>

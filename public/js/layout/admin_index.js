@@ -6,9 +6,10 @@ jQuery(function($) {
 	var areas = $(".area", structure);
 	
 	var def = layoutJson;
+	var unsavedChanges = false;
 	
 	// This will need to match the generation code on PHP side.
-	function generateHtml(targetEl, jsonBranch) {
+	function generateHtmlBranch(targetEl, jsonBranch) {
 		if (!def[jsonBranch]) {
 			return;
 		}
@@ -47,8 +48,73 @@ jQuery(function($) {
 			} else {
 				targetEl.append(child);
 			}
-			generateHtml(child, name);
+			generateHtmlBranch(child, name);
 		});
+	}
+	
+	function generateHtml(targetEl, jsonBranch) {
+		generateHtmlBranch(targetEl, jsonBranch);
+		areas = $(".area", structure);
+	}
+	
+	var unassignedCanvas = $(".layoutUnassigned .layoutCanvas");
+	
+	unassignedCanvas.click(function(e) {
+		var widget = $(e.target).closest(".widget");
+		
+		if (!widget) {
+			return;
+		}
+		
+		if ($(e.target).is("span")) {
+			if (confirm("Are you sure you want to permanently delete this widget?")) {
+				delete currentWidgets[widget.text()];
+				unusedWidgets();
+			}
+			
+			return;
+		}
+		
+		var activeEl = $(".active", structure);
+		var activeLabel = activeEl.find(".label:first").text();
+		
+		if (activeEl.length != 1) {
+			alert("Please select an area above.");
+			return;
+		}
+		
+		if (currentWidgets[activeLabel]) {
+			if (!confirm("Are you sure you want to replace the widget in this position?")) {
+				return;
+			}
+		}
+		
+		currentWidgets[activeLabel] = currentWidgets[widget.text()];
+		delete currentWidgets[widget.text()];
+		
+		var parentEl = activeEl.parent().closest(".area");
+		var parentLabel = parentEl.find(".label:first").text();
+
+		generateHtml(parentEl, parentLabel);
+		unusedWidgets();
+	});
+	
+	function unusedWidgets() {
+		unassignedCanvas.empty();
+		var empty = true;
+		
+		_.each(currentWidgets, function(val, name) {
+			if (def[name]) {
+				return;
+			}
+			
+			empty = false;
+			unassignedCanvas.append('<div class="widget"><div class="inner"><span></span>' + name + '</div></div>');
+		});
+		
+		if (empty) {
+			unassignedCanvas.append('<div class="widget"><div class="inner">None</div></div>');
+		}
 	}
 	
 	function selectArea(el) {
@@ -65,8 +131,26 @@ jQuery(function($) {
 		// Update form
 		var label = $(el).find(".label").html();
 		$("#area").val(label);
-		$("#direction").val(def[label].direction || "vertical");
 		$("#widget").val((currentWidgets[label] && currentWidgets[label].type) || "layout").change();
+		
+
+		$("#direction").val(def[label].direction || "vertical");
+		
+		var parentEl = $(el).parent().closest(".area");
+		var parentLabel = parentEl.find(".label:first").text();
+		
+		if (parentLabel && def[parentLabel].direction == "horizontal") {
+			$(".sizeInput").show();
+		} else {
+			$(".sizeInput").hide();
+		}
+
+		if (def[label].sizeType == "grid") {
+			$("#gridSelect").val(def[label].size);
+		} else {
+			$("#widthSelect").change();
+		}
+		$("#size").val(def[label].sizeType || "width").change();
 	}
 	
 	function addCrumbItem(el, link) {
@@ -101,15 +185,14 @@ jQuery(function($) {
 		var widget = currentWidgets[area];
 		widgetCustom.empty();
 		
-		$("#widgetArea").val(area);
 		$("#widgetView").val(widget.view);
 		
 		if (widget.type == "content") {
-			var input = $("<textarea>").val(widget.content);
+			var input = $("<textarea>").val(widget.content).attr({name: "content"});
 			createWidgetConfigInput("Content", input, widgetCustom);
 		} else {
 			_.each(widget.params, function(param, paramName) {
-				var input = $("<input>").attr("type", "text");
+				var input = $("<input>").attr({type: "text", name: paramName});
 				input.val(param);
 				createWidgetConfigInput(widgetTypes[widget.type]["params"][paramName]["name"], input, widgetCustom);
 			});
@@ -150,8 +233,6 @@ jQuery(function($) {
 		parentDef.children.splice(_.indexOf(def[parentLabel].children, activeLabel)+offset, 0, name);
 		
 		generateHtml(parentEl, parentLabel);
-		areas = $(".area", structure);
-		
 		selectArea($("#layout-" + name));
 	}
 	
@@ -181,12 +262,27 @@ jQuery(function($) {
 		def[parentLabel].children[_.indexOf(def[parentLabel].children, activeLabel)] = name;
 		
 		generateHtml(parentEl, parentLabel);
-		areas = $(".area", structure);
-		
 		selectArea($("#layout-" + name));
 	});
 	
 	$(".inside", container).click(function(e) {
+		e.preventDefault();
+		var activeEl = $(".active", structure);
+		var activeLabel = activeEl.find(".label:first").text();
+		
+		var name = newName();
+		def[name] = {
+			children: def[activeLabel].children,
+			direction: def[activeLabel].direction
+		};
+		
+		def[activeLabel].children = [name];
+		
+		generateHtml(activeEl, activeLabel);
+		selectArea($("#layout-" + name));
+	});
+	
+	$(".lastChild", container).click(function(e) {
 		e.preventDefault();
 		var activeEl = $(".active", structure);
 		var activeLabel = activeEl.find(".label:first").text();
@@ -199,8 +295,6 @@ jQuery(function($) {
 		activeDef.children.push(name);
 		
 		generateHtml(activeEl, activeLabel);
-		areas = $(".area", structure);
-		
 		selectArea($("#layout-" + name));
 	});
 	
@@ -216,11 +310,50 @@ jQuery(function($) {
 		def[parentLabel].children = _.without(def[parentLabel].children, activeLabel);
 		
 		generateHtml(parentEl, parentLabel);
-		areas = $(".area", structure);
-		
 		selectArea($("#layout-" + parentLabel));
+		unusedWidgets();
 	});
 	
+	
+	$("#area").change(function(e) {
+		var activeEl = $(".active", structure);
+		var activeLabel = activeEl.find(".label:first").text();
+		
+		var parentEl = activeEl.parent().closest(".area");
+		var parentLabel = parentEl.find(".label:first").text();
+		
+		console.log($(this).val());
+		console.log(activeLabel);
+		
+		def[$(this).val()] = def[activeLabel];
+		delete def[activeLabel];
+		
+		for (var ch = 0; ch < def[parentLabel].children.length; ch++) {
+			if (def[parentLabel].children[ch] == activeLabel) {
+				def[parentLabel].children[ch] = $(this).val();
+				break;
+			}
+		}
+		
+		generateHtml(activeEl, $(this).val());
+		areas = $(".area", structure);
+	});
+	
+	
+	var sizeSelectors = $(".sizeSelect");
+	
+	$("#size").change(function(e) {
+		sizeSelectors.hide();
+		sizeSelectors.filter("#" + $(this).val() + "Select").show().change();
+	});
+	
+	sizeSelectors.change(function(e) {
+		var activeEl = $(".active", structure);
+		var activeLabel = activeEl.find(".label:first").text();
+		
+		def[activeLabel].sizeType = $(this).attr("id").slice(0,-6);
+		def[activeLabel].size = $(this).val();
+	});
 	
 	$("#direction").change(function(e) {
 		var activeEl = $(".active", structure);
@@ -229,7 +362,6 @@ jQuery(function($) {
 		def[activeLabel][$(this).attr("name")] = $(this).val();
 		
 		generateHtml(activeEl, activeLabel);
-		areas = $(".area", structure);
 	});
 	
 	$("#widget").change(function(e) {
@@ -267,8 +399,21 @@ jQuery(function($) {
 	});
 	
 	
+	$("#widget-config :input").live("change", function() {
+		var area = $("#area").val();
+		var input = $(this);
+		
+		if (currentWidgets[area].type == "content") {
+			currentWidgets[area].content = input.val();
+		} else {
+			currentWidgets[area].params[input.attr("name")] = input.val();
+		}
+	});
+	
+	
 	$(".iconAddItem").click(function(e) {
 		e.preventDefault();
+		var alert = WOOL.msgBox.add("Saving...");
 		
 		jQuery.ajax({
 			url: "/shaded/admin/layout/setLayout",
@@ -279,11 +424,19 @@ jQuery(function($) {
 				widgets: jQuery.toJSON(currentWidgets)
 			},
 			success: function() {
-				console.log("done");
+				WOOL.msgBox.update(alert, "Changes saved!", 3000);
+				unsavedChanges = false;
 			}
 		});
 	});
 	
-	generateHtml($(".layoutCanvas", structure), "layout");
+	$(window).bind("beforeunload", function(e) {
+		if (unsavedChanges) {
+			return "You have unsaved changes. Do you want to leave?";
+		}
+	});
+	
+	generateHtml($(".layoutCanvas .area:first", structure), "body");
+	unusedWidgets();
 	areas = $(".area", structure);
 });

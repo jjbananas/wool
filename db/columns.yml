@@ -22,3 +22,22 @@ column password:
 
 column uri:
     type: varchar(256)
+
+    
+mixin nestedset:
+    columns:
+        parentId:
+            type: int
+            
+        lft:
+            type: int
+            
+        rgt:
+            type: int
+            
+        level:
+            type: int
+        
+        rootId:
+            type: int
+        

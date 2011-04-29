@@ -1,0 +1,16 @@
+.editable {
+	outline: 2px dashed #cccccc;
+	clear: both;
+}
+
+.editable:focus {
+	outline: 2px dashed #d8d8d8;
+}
+
+.simpledit-button	{
+	-moz-user-select: none;
+}
+
+.simpledit-button.active {
+	color: #00ff00;
+}
