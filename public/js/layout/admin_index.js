@@ -375,7 +375,7 @@ jQuery(function($) {
 		
 		$("#widget-config").show();
 		
-		if (type != currentWidgets[area].type) {
+		if (!currentWidgets[area] || type != currentWidgets[area].type) {
 			if (type == "content") {
 				currentWidgets[area] = {
 					type: type,

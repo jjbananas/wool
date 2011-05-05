@@ -114,3 +114,16 @@ uri_alias:
     index:
         a: [uri]
         b: [directTo]
+
+        
+image:
+    columns:
+        imageId:
+            type: primary
+        
+        title:
+            type: varchar(50)
+            
+        file:
+            type: path
+        

@@ -246,7 +246,7 @@ SQL
 
 
 function processLayout($level, $layout, $layers=array()) {
-	$keywords = array("width", "grid", "direction");
+	$keywords = array("sizeType", "size", "direction");
 	$merged = new StdClass;
 	$merged->children = array();
 	

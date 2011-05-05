@@ -1,6 +1,6 @@
 <?php
 
-function mkdir_recursive($pathname, $mode) {
+function mkdir_recursive($pathname, $mode=0777) {
 	is_dir(dirname($pathname)) || mkdir_recursive(dirname($pathname), $mode);
 	return is_dir($pathname) || @mkdir($pathname, $mode);
 }

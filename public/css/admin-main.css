@@ -115,14 +115,14 @@ textarea:focus {
 	display: none;
 }
 
-.s1of2 {
-	width: 50%;
+.s1of2, .s1of3, .s2of3, .s1of4, .s3of4 {
 	float: left;
 }
-.s1of3 {
-	width: 33%;
-	float: left;
-}
+.s1of2 { width: 50%; }
+.s1of3 { width: 33%; }
+.s2of3 { width: 66%; }
+.s1of4 { width: 25%; }
+.s3of4 { width: 75%; }
 
 
 /* Page header
@@ -222,7 +222,7 @@ textarea:focus {
 
 .podNested {
 	border-color: #ffffff;
-	background-color: #f4f2f0;
+	background-color: #ffffff;
 	border-width: 5px;
 }
 
@@ -621,8 +621,14 @@ input.icon {
 .iconSearch {
 	background-image: url(../images/icons/search.png);
 }
+.iconTable {
+	background-image: url(../images/icons/table.png);
+}
 .iconThreadDel {
 	background-image: url(../images/icons/thread-delete.png);
+}
+.iconTree {
+	background-image: url(../images/icons/node-tree.png);
 }
 .iconUser {
 	background-image: url(../images/icons/card.png);
@@ -786,7 +792,7 @@ input.icon {
 */
 
 #ajaxThrobber {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	width: 100%;
 }

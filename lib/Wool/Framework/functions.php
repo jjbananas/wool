@@ -27,6 +27,11 @@ function publicPath($path) {
 	return $GLOBALS['BASE_PATH'] . '/public' . $path;
 }
 
+function publicUri($path) {
+	// Actually the same due to rewrite rules.
+	return baseUri($path);
+}
+
 // Will force the switch to HTTPS if enabled.
 function secureBaseUri($path) {
 	$host = coal($_SERVER['HTTP_HOST'], 'localhost');

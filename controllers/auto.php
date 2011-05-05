@@ -99,6 +99,27 @@ SQL
 		}
 	}
 	
+	function adminTree() {
+		$this->data();
+		
+		$this->tree = new RowSet(<<<SQL
+select pageDirectoryId id, parentId parentId, title title
+from page_directory
+SQL
+		);
+		
+		$this->item = WoolTable::fetch("page_directory", "id");
+		$this->derivedColumns = Schema::derivedColumns($this->table);
+		
+		if (Request::isAjax()) {
+			$this->renderJson(array(
+				"success" => true,
+				"item" => $this->item
+			));
+			return;
+		}
+	}
+	
 	function adminKeySearch() {
 		$this->data();
 		$class = Schema::tableClass($this->table);

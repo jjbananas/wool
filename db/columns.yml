@@ -23,6 +23,9 @@ column password:
 column uri:
     type: varchar(256)
 
+column path:
+    type: varchar(256)
+
     
 mixin nestedset:
     columns:
