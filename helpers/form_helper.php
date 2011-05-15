@@ -141,6 +141,16 @@ function date_field_tag($name, $value = null, $attrs = array()) {
 	return text_field_tag($name, $value, $attrs);
 }
 
+function color_field($obj, $objName, $field, $attrs = array()) {
+	$attrs['type'] = 'color';
+	return text_field($obj, $objName, $field, $attrs);
+}
+
+function color_field_tag($name, $value = null, $attrs = array()) {
+	$attrs['type'] = 'color';
+	return text_field_tag($name, $value, $attrs);
+}
+
 function radio_tag($name, $value = null, $checkedValue = null, $attrs = array()) {
 	return tag_build('input', array_merge($attrs, array(
 			'type' => 'radio',

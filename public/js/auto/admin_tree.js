@@ -12,14 +12,14 @@ jQuery(function($) {
 	var tree = $("#jstree")
 	var form = $("form");
 	var inputs = $(":input", form);
-	var changes = false;
+	var changed = null;
 	
 	var itemCache = {};
 	
 	tree.jstree({
 		"plugins" : ["themes", "html_data", "dnd", "ui", "crrm"]
 	}).bind("select_node.jstree", function(e, treeEvent) {
-		if (checkChanges() || !treeEvent.args[0]) {
+		if (!treeEvent.args[0]) {
 			return false;
 		}
 		
@@ -52,26 +52,32 @@ jQuery(function($) {
 				WOOL.msgBox.update(alert, status, 5000);
 			}
 		});
-	}).bind("before.jstree", function() {
-		console.log(arguments);
+	}).bind("before.jstree", function(e, treeEvent) {
+		if (treeEvent.func == "select_node" && checkChanges()) {
+			return false;
+		}
 	});
 	
 	
 	inputs.change(function(e) {
-		changes = true;
+		changed = changed || true;
 	});
 	
 	form.submit(function(e) {
 		e.preventDefault();
-		changes = false;
+		changed = null;
 	});
 	
 	function checkChanges() {
-		if (!changes) {
+		if (!changed) {
 			return false;
 		}
 		
 		if (confirm("You have unsaved changes.\n\nDiscard changes?")) {
+			changed = null;
+			if (changed !== false) {
+				tree.jstree("remove");
+			}
 			return false;
 		}
 		
@@ -81,15 +87,29 @@ jQuery(function($) {
 	$(".actionRoot").click(function(e) {
 		e.preventDefault();
 		
-		tree.jstree("create", -1, "last", {data: {title: "*new item*", attr: {"data-node": 0}}}, null, true);
+		if (changed) {
+			return;
+		}
+		
+		var params = {data: {title: "*new item*", attr: {"data-node": 0}}};
+		var inserted = tree.jstree("create", -1, "last", params, null, true);
+		tree.jstree("deselect_all");
+		tree.jstree("select_node", inserted);
+		changed = inserted;
 	});
 	
 	$(".actionInsert").click(function(e) {
 		e.preventDefault();
 		
-		var inserted = tree.jstree("create", null, "last", {data: {title: "*new item*", attr: {"data-node": 0}}}, null, true);
+		if (changed) {
+			return;
+		}
+		
+		var params = {data: {title: "*new item*", attr: {"data-node": 0}}};
+		var inserted = tree.jstree("create", null, "last", params, null, true);
 		tree.jstree("deselect_all");
 		tree.jstree("select_node", inserted);
+		changed = inserted;
 	});
 	
 	$(".actionRemove").click(function(e) {

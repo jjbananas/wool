@@ -2,11 +2,11 @@
 */
 
 #editHeaderWrapper {
-	height: 50px;
+	height: 80px;
 }
 
 #editHeader {
-	height: 50px;
+	height: 80px;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -18,14 +18,15 @@
 #editHeader .editContainer {
 	width: 960px;
 	margin: 0 auto;
+	padding: 5px 0;
 }
-
+/*
 #editHeader a {
 	color: #ffffff;
 	font-size: 14px;
 	line-height: 50px;
 }
-
+*/
 
 /* Page header
 */

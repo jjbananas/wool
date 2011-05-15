@@ -1,0 +1,14 @@
+logo:
+    final:
+        file: png
+        
+    layers:
+        -
+            image: background.png
+            color: background:#ffffff
+        
+        -
+            image: logo.png
+            func: blend
+            color: foreground:#ffffff
+            offset: [0, 0]

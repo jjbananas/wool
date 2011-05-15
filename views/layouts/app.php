@@ -22,7 +22,7 @@
 	<body>
 		<div id="editHeaderWrapper">
 			<div id="editHeader">
-				<div class="editContainer">
+				<div id="editContainer" class="editContainer">
 				</div>
 			</div>
 		</div>

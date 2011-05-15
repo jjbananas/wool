@@ -1,0 +1,18 @@
+shaded:
+    final:
+        file: png
+        
+    layers:
+        -
+            image: shaded-canvas.png
+        
+        -
+            image: shaded-background.png
+            color: background:#282828
+        
+        -
+            image: shaded-foreground.png
+            color: foreground:#500000
+        
+        -
+            image: shaded-detail.png

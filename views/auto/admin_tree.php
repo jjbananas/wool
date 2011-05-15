@@ -9,8 +9,10 @@
 		<li><?php echo Schema::displayName($table) ?></li>
 	</ol>
 	
-	<?php echo linkTo("Grid View", array("action"=>"table", "table"=>$table), 'class="btnLink icon iconTable"') ?>
-	<?php echo linkTo("Tree View", array("action"=>"tree", "table"=>$table), 'class="btnLink icon iconTree"') ?>
+	<div style="float: right;">
+		<?php echo linkTo("Grid View", array("action"=>"table", "table"=>$table), 'class="btnLink icon iconTable"') ?>
+		<?php echo linkTo("Tree View", array("action"=>"tree", "table"=>$table), 'class="btnLink icon iconTree"') ?>
+	</div>
 </div>
 
 <div class="pad">

@@ -1,5 +1,7 @@
 <?php
 
+require_once('Wool/Common/ImageCompositor.php');
+
 class ImageController extends AppController {
 	function adminIndex() {
 		$this->addHelper("grid");
@@ -49,18 +51,25 @@ class ImageController extends AppController {
 	
 	function adminPreSave() {
 		$json = array("result"=>"success");
-		$this->uploadSourceFiles();
+		$json["files"] = $this->uploadSourceFiles();
 		$this->renderJson($json);
 	}
 	
 	private function uploadSourceFiles($genId=false) {
 		$path = publicPath("/uploads/images/source");
-		mkdir_recursive($path);
 		
-		foreach ($_FILES as $id=>$file) {
-			$id = $genId ? time() : substr($id, 6);
-			move_uploaded_file($file["tmp_name"], $path . '/' . $id . '-' . $file["name"]);
+		$files = array();
+		
+		foreach ($_FILES as $file) {
+			$sha = sha1_file($file["tmp_name"]);
+			$shaPath = $path . "/" . str_insert("/", substr($sha, 0, 4), 2);
+			
+			mkdir_recursive($shaPath);
+			move_uploaded_file($file["tmp_name"], $shaPath . "/" . $sha . '-' . $file["name"]);
+			$files[$file["name"]] = $sha;
 		}
+		
+		return $files;
 	}
 	
 	private function locateSourceFile($id) {
@@ -72,5 +81,13 @@ class ImageController extends AppController {
 		}
 		
 		return $files[0];
+	}
+	
+	
+	public function adminCreate() {
+		$path = publicPath("/image-create/");
+		
+		$creator = new ImageCompositor($path . "image.yml", array("variables"=>array("foreground"=>"#00ff00")));
+		$this->stopRender();
 	}
 }
