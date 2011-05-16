@@ -191,6 +191,12 @@ jQuery(function($) {
 			columnElements(el, body, true).removeClass("hover");
 		});
 		
+		// Sort columns by clicking header
+		headers.click(function(e) {
+			e.preventDefault();
+			console.log("now");
+		});
+		
 		// Activate row by clicking
 		body.click(function(e) {
 			var el = $(e.target).closest("td");
@@ -358,8 +364,8 @@ jQuery(function($) {
 			});
 		})();
 		
-		// Column select box.
-		var columnSelect = $(".columnSelect .button");
+		// Column tools.
+		var columnSelect = $(".columnTools .button");
 		var buttonOverlays = $(".podOverlay", columnSelect);
 		columnSelect.click(function(e) {
 			var columnOverlay = $(".podOverlay", this);
@@ -371,7 +377,7 @@ jQuery(function($) {
 			if (columnOverlay.is(":visible")) {
 				if ($(e.target).closest(".head").length) {
 					e.preventDefault();
-					buttonOverlays.show();
+					buttonOverlays.hide();
 					columnOverlay.hide();
 				}
 			} else {
@@ -379,6 +385,29 @@ jQuery(function($) {
 				buttonOverlays.hide();
 				columnOverlay.show();
 			}
+		});
+		
+		// Column sorting box.
+		var columnSort = $(".columnSort");
+		var rowDup = $(".duplicate", columnSort);
+		var rowCount = $("tr", columnSort).length - 1;
+		rowDup.hide();
+		
+		$(".addRow", columnSort).click(function(e) {
+			e.preventDefault();
+			
+			var newRow = rowDup.clone();
+			newRow.find(":input").removeAttr("disabled").each(function() {
+				$(this).attr("name", $(this).attr("name").supplant({num: rowCount}));
+			});
+			rowCount++;
+			newRow.show();
+			$(this).closest("tr").before(newRow);
+		});
+		
+		$(".delRow", columnSort).live("click", function(e) {
+			e.preventDefault();
+			$(this).closest("tr").remove();
 		});
 	});
 	

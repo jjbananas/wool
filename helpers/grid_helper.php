@@ -96,19 +96,15 @@ function navPerPageOptions($pager) {
 	return $optionHTML;
 }
 
-function gridHeaderClass($table, $column, $sort) {
+function gridHeaderClass($table, $column, $sortColumns) {
 	$cls = array();
 
 	if (Schema::columnEditable($table, $column)) {
 		$cls[] = "editable";
 	}
 	
-	if ($sort == AutoController::COL_ASC) {
-		$cls[] = "asc";
-	}
-	
-	if ($sort == AutoController::COL_DESC) {
-		$cls[] = "desc";
+	if (isset($sortColumns[$column])) {
+		$cls[] = $sortColumns[$column];
 	}
 	
 	return join(' ', $cls);

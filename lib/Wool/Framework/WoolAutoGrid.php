@@ -2,11 +2,6 @@
 require_once('Wool/Framework/WoolGrid.php');
 
 class WoolAutoGrid extends WoolGrid {
-	const COL_HIDDEN = 0;
-	const COL_NORMAL = 1;
-	const COL_ASC = 2;
-	const COL_DESC = 3;
-	
 	private $table;
 	
 	public function __construct($table) {
@@ -43,7 +38,13 @@ class WoolAutoGrid extends WoolGrid {
 		return "{$filter}%";
 	}
 	
-	public function orderBySql() {
+	protected function orderBySql() {
+		if (!isset($_SESSION['grids'][$this->table]['sort'])) {
+			return;
+		}
 		
+		foreach ($_SESSION['grids'][$this->table]['sort'] as $column=>$dir) {
+			$this->sql->orderBy($column, $dir);
+		}
 	}
 }

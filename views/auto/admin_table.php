@@ -1,3 +1,7 @@
+<?php
+	$self->js('/components/fancybox/jquery.fancybox-1.3.4.js');
+	$self->css('/components/fancybox/jquery.fancybox-1.3.4.css');
+?>
 <div class="pad">
 	<ol class="breadcrumbs">
 		<li><?php echo linkTo("Home", array("action"=>"index")) ?></li>
@@ -10,6 +14,7 @@
 	<p><?php echo Schema::description($table) ?></p>
 	
 	<?php echo linkTo("New " . Schema::shortName($table), array("action"=>"edit", "table"=>$table), 'class="btnLink icon iconAddItem"') ?>
+	
 </div>
 
 <div class="pad">
@@ -52,8 +57,8 @@
 		</div>
 	</div>
 	
-	<div class="columnSelect">
-		<div class="button">
+	<div class="columnTools">
+		<div class="columnSelect button">
 			<a href="#" class="icon iconColumn">Columns</a>
 		
 			<div class="pod podOverlay">
@@ -79,6 +84,73 @@
 			</div>
 		</div>
 		
+		<div class="columnSort button">
+			<a href="#" class="icon iconSort">Sorting</a>
+		
+			<div class="pod podOverlay">
+				<div class="head">
+					<h2 class="icon iconSort">Sorting</h2>
+				</div>
+				
+				<form method="post" action="<?php echo routeUri(array("controller"=>"api", "action"=>"columnSort")) ?>" class="pad">
+					<input type="hidden" name="direct" value="<?php echo Request::uriForDirect() ?>" />
+					<input type="hidden" name="table" value="<?php echo $table ?>" />
+					
+					<table>
+						<tr class="duplicate">
+							<td>
+								<select name="cols[{num}][sort]" disabled="disabled">
+									<option value="productId">Product Id</option>
+									<option value="price">Price</option>
+								</select>
+							</td>
+							<td>
+								<select name="cols[{num}][dir]" disabled="disabled">
+									<option>asc</option>
+									<option>desc</option>
+								</select>
+							</td>
+							<td>
+								<a href="#" class="delRow">Del</a>
+							</td>
+						</tr>
+						
+						<?php foreach ($sortColumns as $column=>$dir) { ?>
+						<tr>
+							<td>
+								<?php 
+								echo select_box_tag("cols[1][sort]", array(
+									"productId"=>"Product Id",
+									"price"=>"Price"
+								), $column);
+								?>
+							</td>
+							<td>
+								<?php 
+								echo select_box_tag("cols[1][dir]", array(
+									"asc"=>"asc",
+									"desc"=>"desc"
+								), $dir);
+								?>
+							</td>
+							<td>
+								<a href="#" class="delRow">Del</a>
+							</td>
+						</tr>
+						<?php } ?>
+						
+						<tr>
+							<td colspan="3">
+								<a href="#" class="btnLink btnLinkLight addRow">Add</a>
+							</td>
+						</tr>
+					</table>
+					
+					<input type="submit" value="Update" class="btnLink btnLinkLight icon iconReply" />
+				</form>
+			</div>
+		</div>
+		
 		<div class="button">
 			<?php echo linkTo("Reset All", array("action"=>"reset", "table"=>$table), 'class="icon iconReset"') ?>
 		</div>
@@ -92,7 +164,7 @@
 				<tr>
 					<th></th>
 					<?php foreach ($columns as $column=>$sort) { ?>
-					<th class="dragable <?php echo gridHeaderClass($table, $column, $sort) ?>" data-column="<?php echo $column ?>"><span><?php echo Schema::columnName($table, $column) ?></span></th>
+					<th class="dragable <?php echo gridHeaderClass($table, $column, $sortColumns) ?>" data-column="<?php echo $column ?>"><span><?php echo Schema::columnName($table, $column) ?></span></th>
 					<?php } ?>
 					<th width="1"></th>
 				</tr>
@@ -150,3 +222,4 @@
 </div>
 
 <?php $self->renderPartial('column_edit') ?>
+<?php $self->renderPartial('filter_save') ?>

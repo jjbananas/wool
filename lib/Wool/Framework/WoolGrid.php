@@ -4,7 +4,7 @@ require_once('Wool/Common/sql.php');
 
 class WoolGrid implements IteratorAggregate, Countable, ArrayAccess {
 	private $name;
-	private $sql;
+	protected $sql;
 	private $pager;
 	
 	private $order;
@@ -113,7 +113,7 @@ class WoolGrid implements IteratorAggregate, Countable, ArrayAccess {
 		return preg_replace('/select.*?from/ius', "select count(*) from", $this->sql->toString(), 1);
 	}
 	
-	private function orderBySql() {
+	protected function orderBySql() {
 		$order = param("{$this->name}_order", $this->order);
 		
 		if ($this->orderables) {

@@ -5,8 +5,6 @@ require_once('Wool/App/Product.php');
 class AutoController extends Controller {
 	const COL_HIDDEN = 0;
 	const COL_NORMAL = 1;
-	const COL_ASC = 2;
-	const COL_DESC = 3;
 	
 	function startUp() {
 		$this->addHelper('grid');
@@ -32,14 +30,16 @@ class AutoController extends Controller {
 		$this->data = new WoolAutoGrid($this->table);
 		$this->data->setPerPage(25);
 		
-		if (isset($_SESSION['grids'][$this->table])) {
+		if (isset($_SESSION['grids'][$this->table]['cols'])) {
 			$this->columns = array();
-			foreach ($_SESSION['grids'][$this->table] as $col=>$val) {
+			foreach ($_SESSION['grids'][$this->table]['cols'] as $col=>$val) {
 				if ($val) {
 					$this->columns[$col] = $val;
 				}
 			}
 		}
+		
+		$this->sortColumns = coal($_SESSION['grids'][$this->table]['sort'], array());
 	}
 	
 	function adminEdit() {
@@ -142,7 +142,7 @@ SQL
 		}
 		
 		$table = param('table');
-		$grid = isset($_SESSION['grids'][$table]) ? $_SESSION['grids'][$table] : array();
+		$grid = isset($_SESSION['grids'][$table]['cols']) ? $_SESSION['grids'][$table]['cols'] : array();
 		$new = array();
 		
 		foreach (param('cols', array()) as $col) {
@@ -155,7 +155,7 @@ SQL
 			}
 		}
 		
-		$_SESSION['grids'][$table] = $new;
+		$_SESSION['grids'][$table]['cols'] = $new;
 		
 		$this->renderJson(array(
 			"success" => true
@@ -164,7 +164,8 @@ SQL
 	
 	function adminReset() {
 		$this->data();
-		$_SESSION['grids'][$this->table] = null;
+		$_SESSION['grids'][$this->table]['cols'] = null;
+		$_SESSION['grids'][$this->table]['sort'] = null;
 		$this->redirectTo(array("action"=>"table", "table"=>$this->table));
 	}
 	
@@ -177,13 +178,38 @@ SQL
 		$visible = param('cols', array());
 		
 		foreach (Schema::columns($table) as $col) {
-			if (!isset($_SESSION['grids'][$table][$col])) {
-				$_SESSION['grids'][$table][$col] = self::COL_NORMAL;
+			if (!isset($_SESSION['grids'][$table]['cols'][$col])) {
+				$_SESSION['grids'][$table]['cols'][$col] = self::COL_NORMAL;
 			}
 		}
 		
-		foreach ($_SESSION['grids'][$table] as $col=>$val) {
-			$_SESSION['grids'][$table][$col] = isset($visible[$col]) ? self::COL_NORMAL : self::COL_HIDDEN;
+		foreach ($_SESSION['grids'][$table]['cols'] as $col=>$val) {
+			$_SESSION['grids'][$table]['cols'][$col] = isset($visible[$col]) ? self::COL_NORMAL : self::COL_HIDDEN;
+		}
+		
+		$this->redirectTo(array("action"=>"index", "table"=>$table));
+	}
+	
+	function adminColumnSort() {
+		if (!$this->ensurePost()) {
+			return;
+		}
+		
+		$table = param('table');
+		$cols = param('cols', array());
+		
+		$allowedCols = Schema::columns($table);
+		
+		$_SESSION['grids'][$table]['sort'] = array();
+		
+		debug($cols);
+		
+		foreach ($cols as $col) {
+			if (!in_array($col["sort"], $allowedCols)) {
+				continue;
+			}
+			
+			$_SESSION['grids'][$table]['sort'][$col["sort"]] = matchSqlOrder($col["dir"]);
 		}
 		
 		$this->redirectTo(array("action"=>"index", "table"=>$table));

@@ -65,7 +65,8 @@ select {
 	padding: 4px;
 }
 
-input.error {
+input.error,
+textarea.error {
 	outline: 0;
 	border: 1px solid #f8a8a8;
 }
@@ -467,43 +468,41 @@ textarea:focus {
 /* Column select
 */
 
-.columnSelect {
+.columnTools {
 	position: relative;
 }
 
-.columnSelect .button {
+.columnTools .button {
 	position: relative;
 	float: right;
 	margin: 4px;
 	padding: 4px;
 }
 
-.columnSelect .podOverlay {
+.columnTools .podOverlay {
 	position: absolute;
 	right: 0;
 	top: 0;
 	z-index: 1;
 }
 
-.columnSelect .head {
-	text-align: right;
-	padding-left: 28px;
+.columnTools .head {
 	cursor: pointer;
 }
 
-.columnSelect form {
+.columnTools form {
 	clear: both;
 }
 
-.columnSelect input {
+.columnTools input {
 	display: block;
 }
 
-.columnSelect table {
+.columnTools table {
 	margin-bottom: 20px;
 }
 
-.columnSelect td {
+.columnTools td {
 	vertical-align: middle;
 	padding: 2px 4px;
 }
@@ -620,6 +619,9 @@ input.icon {
 }
 .iconSearch {
 	background-image: url(../images/icons/search.png);
+}
+.iconSort {
+	background-image: url(../images/icons/table_sort.png);
 }
 .iconTable {
 	background-image: url(../images/icons/table.png);
@@ -823,6 +825,15 @@ input.icon {
 	margin-bottom: 1em;
 }
 
+.msgNoIntro {
+	padding-top: 0;
+}
+
+.msgFieldError {
+	margin-top: 5px;
+	padding: 8px;
+}
+
 .msgBox .intro {
 	font-weight: bold;
 	margin-bottom: 5px;
@@ -844,4 +855,8 @@ input.icon {
 
 .msgBox ol li {
 	list-style: decimal;
+}
+
+.msgBox label {
+	padding: 0;
 }
