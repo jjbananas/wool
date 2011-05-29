@@ -194,7 +194,6 @@ jQuery(function($) {
 		// Sort columns by clicking header
 		headers.click(function(e) {
 			e.preventDefault();
-			console.log("now");
 		});
 		
 		// Activate row by clicking
@@ -425,4 +424,7 @@ jQuery(function($) {
 	
 	// Date inputs
 	//$("input[type=date]").daterangepicker();
+	
+	
+	$(".comboBox").comboBox({buttonLabelEl: ".btn .label"});
 });

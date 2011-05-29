@@ -22,10 +22,19 @@
 		<div class="filterControls">
 			<a href="<?php echo Request::uri(array("{$table}_clear"=>"true")) ?>" class="icon iconReset">Clear Search</a>
 			<form>
-				<input type="submit" class="noBtn icon iconReset" value="Load" />
-				<select>
-					<option>Option #1</option>
-				</select>
+				<div class="comboBox">
+					<span class="btn btnLink btnLinkThin">Saved Searches</span>
+					
+					<div class="combo">
+						<input type="text" />
+						
+						<ul class="options">
+							<li>Tax free</li>
+							<li>Some other</li>
+							<li>BT Internet</li>
+						</ul>
+					</div>
+				</div>
 			</form>
 			
 			<div class="clear"></div>
@@ -33,6 +42,24 @@
 		
 		<form class="filterOptions">
 			Search: <?php echo text_field_tag("{$table}_filter", $data->filterParam(), array('class'=>"mainFilter")) ?>
+			
+			<div class="comboBox">
+				<span class="btn btnLink btnLinkThin">Save Search: <span class="label"></span></span>
+				
+				<div class="combo">
+					<input type="text" name="<?php echo $table . "_save" ?>" data-action="" autocomplete="off" />
+					
+					<ul class="options">
+						<li>Tax free</li>
+						<li>Some other</li>
+						<li>BT Internet</li>
+					</ul>
+					
+					<ul class="fixed">
+						<li><a href="">Manage Saved Searches</a></li>
+					</ul>
+				</div>
+			</div>
 			
 			<div class="additionalOptions">
 				<?php foreach (Schema::filterableColumns($table) as $colName=>$filterColumn) { ?>
@@ -47,7 +74,6 @@
 				<?php } ?>
 				
 				<div class="save">
-					<label>Save As:</label> <input type="text" />
 					<input type="submit" class="btnLink btnLinkLight btnLinkThin icon iconSearch" value="Search" />
 				</div>
 			</div>

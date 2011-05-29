@@ -26,7 +26,7 @@
 					<div class="pod podNested">
 						<a href="<?php echo publicUri('/uploads/images') . $image->file ?>">
 							<span class="title"><?php echo $image->title ?></span>
-							<img src="<?php echo publicUri('/uploads/images') . $image->file ?>" />
+							<img src="<?php echo routeUri(array("portal"=>"default", "action"=>"thumbnail", "uri"=>"sx-158__" . $image->file)) ?>" />
 							<span class="size"><?php echo byteUnits(filesize(publicPath('/uploads/images') . $image->file)) ?></span>
 							<span class="date">[<?php echo date('Y-m-d', filemtime(publicPath('/uploads/images') . $image->file)) ?>]</span>
 						</a>

@@ -41,9 +41,9 @@
 						<div class="pad">
 							<div class="pod podNested options advanced">
 								<div class="pad">
-									<input type="checkbox" checked="checked" name="aspect" /><label>Keep Aspect Ratio</label>
-									<input type="checkbox" checked="checked" name="keepAspect" /><label>Restrict Min</label>
-									<input type="checkbox" checked="checked" class="keepAspect" /><label>Restrict Max</label>
+									<input type="checkbox" checked="checked" class="keepAspect" /><label>Keep Aspect Ratio</label>
+									<input type="checkbox" checked="checked" class="restrictMin" /><label>Restrict Min</label>
+									<input type="checkbox" checked="checked" class="restrictMax" /><label>Restrict Max</label>
 								</div>
 							</div>
 						</div>
@@ -69,23 +69,23 @@
 								<div class="target min">
 									Min: <a href="#" class="useTarget"><img src="<?php echo baseUri("/images/icons/textfield_add.png") ?>" alt="Use Max" /></a>
 									<div>
-										<label>W:</label><span class="width">&#8734;</span>
-										<label>H:</label><span class="height">480</span>
+										<label>W:</label><span class="width">&#8734;<?php echo $imageParams["min"]["w"] ?></span>
+										<label>H:</label><span class="height"><?php echo $imageParams["min"]["h"] ?></span>
 									</div>
 									<div class="clear"></div>
 								</div>
 								<div class="target max">
 									Max: <a href="#" class="useTarget"><img src="<?php echo baseUri("/images/icons/textfield_add.png") ?>" alt="Use Max" /></a>
 									<div>
-										<label>W:</label><span class="width">640</span>
-										<label>H:</label><span class="height">480</span>
+										<label>W:</label><span class="width"><?php echo $imageParams["max"]["w"] ?></span>
+										<label>H:</label><span class="height"><?php echo $imageParams["max"]["h"] ?></span>
 									</div>
 									<div class="clear"></div>
 								</div>
 								<div class="target aspect">
 									Forced Aspect:
 									<div>
-										<span class="width">No</span>
+										<span class="width"><?php echo $imageParams["aspect"] ? "Yes" : "No" ?></span>
 									</div>
 									<div class="clear"></div>
 								</div>
@@ -142,8 +142,8 @@
 
 <script>
 var imageParams = {
-	min: {w: 0, h: 120},
-	max: {w: 200, h: 150},
-	aspect: 640/480
+	min: {w: <?php echo $imageParams["min"]["w"] ?>, h: <?php echo $imageParams["min"]["h"] ?>},
+	max: {w: <?php echo $imageParams["max"]["w"] ?>, h: <?php echo $imageParams["max"]["h"] ?>},
+	aspect: <?php echo $imageParams["aspect"] ?>
 };
 </script>

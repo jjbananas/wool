@@ -127,3 +127,6 @@ image:
         file:
             type: path
         
+        hash:
+            type: binary(20)
+        

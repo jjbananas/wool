@@ -12,3 +12,7 @@ function file_put_contents_mkdir($file, $contents){
 	}
 	return file_put_contents($file, $contents);
 }
+
+function fileExtension($filename) {
+	return pathinfo($filename, PATHINFO_EXTENSION);
+}

@@ -32,6 +32,10 @@ function publicUri($path) {
 	return baseUri($path);
 }
 
+function varPath($path) {
+	return $GLOBALS['BASE_PATH'] . '/var' . $path;
+}
+
 // Will force the switch to HTTPS if enabled.
 function secureBaseUri($path) {
 	$host = coal($_SERVER['HTTP_HOST'], 'localhost');

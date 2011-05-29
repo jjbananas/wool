@@ -251,7 +251,8 @@ textarea:focus {
 */
 
 .filter {
-	
+	position: relative;
+	z-index: 3;
 }
 
 .filter.active {
@@ -470,6 +471,7 @@ textarea:focus {
 
 .columnTools {
 	position: relative;
+	z-index: 2;
 }
 
 .columnTools .button {
@@ -859,4 +861,56 @@ input.icon {
 
 .msgBox label {
 	padding: 0;
+}
+
+
+/* Combobox
+*/
+
+.comboBox {
+	display: inline-block;
+	position: relative;
+}
+
+.comboBox .btn {
+	background: #ffffff url(../images/icons/drop-arrow.png) right no-repeat;
+	padding-right: 24px;
+}
+
+.comboBox .combo {
+	position: absolute;
+	top: 27px;
+	left: 0;
+	background: #ffffff;
+	border: 1px solid #e3e3e3;
+	border-top: 0;
+	padding: 5px;
+	display: none;
+}
+
+.comboBox .combo input {
+	font-size: 11px;
+	width: 12em;
+}
+
+.comboBox .combo ul {
+	padding: 6px 2px 1px 2px;
+	max-height: 200px;
+	overflow: auto;
+	font-size: 11px;
+}
+
+.comboBox .combo ul li {
+	padding: 2px 0;
+	cursor: pointer;
+}
+
+.comboBox .combo ul li:hover,
+.comboBox .combo ul li.active {
+	background-color: #faf9f2;
+}
+
+.comboBox .combo ul.fixed {
+	border-top: 1px solid #e3e3e3;
+	margin-top: 6px;
 }

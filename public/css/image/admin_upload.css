@@ -61,9 +61,17 @@
 	color: #aa2323;
 }
 
-.keepAspect {
+
+/* Options area
+*/
+
+.options input {
 	vertical-align: middle;
 	margin: 0 7px;
+}
+
+.options label {
+	vertical-align: middle;
 }
 
 
