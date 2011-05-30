@@ -33,6 +33,7 @@ class Burn {
 			
 			$files['source'][] = $sourceFile;
 			$files['uri'][] = $filePath;
+			$files['path'][] = $path;
 		} else {
 			$conf = file_get_contents($confFile);
 			$conf = Zend_Json::decode($conf);
@@ -62,12 +63,18 @@ class Burn {
 		$cachedPath = $GLOBALS['BASE_PATH'] . SLASH . 'var' . SLASH . 'burn' . SLASH . $path . SLASH . $filename;
 		$debugFile = "{$cachedPath}.{$extension}";
 		$minFile = "{$cachedPath}.min.{$extension}";
-	
+		
 		$files = self::expandFileList($path . '/' . $filename . '.' . $extension);
 		if (!$files) {
 			header("HTTP/1.1 404 Not Found", true, 404);
 			exit;
 		}
+		
+		// Work out relative paths.
+		foreach ($files["path"] as &$path) {
+			$path = str_replace($files["path"][0] . "/", "", $path);
+		}
+		$files["path"][0] = "";
 		
 		$lastModifiedSource = lastModifiedTime(array_merge($files['conf'], $files['source']));
 
@@ -86,21 +93,28 @@ class Burn {
 		}
 		
 		if (DEVELOPER) {
-			$output = self::updateDebug($debugFile, $lastModifiedSource, $files['source']);
+			$output = self::updateDebug($debugFile, $lastModifiedSource, $files['source'], $extension, $files['path']);
 			header("Last-modified: " . gmdate("D, d M Y H:i:s",lastModifiedTime($debugFile)) . " GMT"); 
 			echo $output;
 		} else {
-			$output = self::updateMinified($minFile, $lastModifiedSource, $files['source'], $extension);
+			$output = self::updateMinified($minFile, $lastModifiedSource, $files['source'], $extension, $files['path']);
 			header("Last-modified: " . gmdate("D, d M Y H:i:s",lastModifiedTime($minFile)) . " GMT"); 
 			echo $output;
 		}
 	}
 	
-	private static function minify($files, $extension) {
+	private static function convertUrls($contents, $file, $relPath) {
+		$regex = "/url\([\"\']?([^\"\'\)]+)[\"\']?\)/";
+		return $relPath ? preg_replace($regex, "url('{$relPath}/$1')", $contents) : $contents;
+	}
+	
+	private static function minify($files, $extension, $relPath) {
 		$min = array();
-		foreach ($files as $file) {
+		foreach ($files as $num=>$file) {
 			if ($extension == 'css') {
-				$min[] = CssCompressor::process(file_get_contents($file));
+				$contents = file_get_contents($file);
+				$contents = self::convertUrls($contents, $file, $relPath[$num]);
+				$min[] = CssCompressor::process($contents);
 			} else {
 				$min[] = JSMin::minify(file_get_contents($file));
 			}
@@ -108,24 +122,30 @@ class Burn {
 		return join("\r\n", $min);
 	}
 
-	private static function joinDebugFiles($files) {
+	private static function joinDebugFiles($files, $extension, $relPath) {
 		$debug = array();
 
-		foreach ($files as $file) {
-			$debug[] = file_get_contents($file);
+		foreach ($files as $num=>$file) {
+			$contents = file_get_contents($file);
+			
+			if ($extension == "css") {
+				$contents = self::convertUrls($contents, $file, $relPath[$num]);
+			}
+
+			$debug[] = $contents;
 			$debug[] = '';
 		}
 
 		return join("\r\n", $debug);
 	}
 
-	private static function updateMinified($minFile, $lastModifiedSource, $files, $extension) {
+	private static function updateMinified($minFile, $lastModifiedSource, $files, $extension, $relPath) {
 		$min = '';
 		if (lastModifiedTime($minFile) < $lastModifiedSource) {
 			// We need to recache.
-			$min = self::minify($files, $extension);
+			$min = self::minify($files, $extension, $relPath);
 			if (!$min) {
-				$min = self::joinDebugFiles($files);
+				$min = self::joinDebugFiles($files, $extension, $relPath);
 			}
 			file_put_contents_mkdir($minFile, $min);
 		} else {
@@ -134,11 +154,11 @@ class Burn {
 		return $min;
 	}
 
-	private static function updateDebug($debugFile, $lastModifiedSource, $files) {
+	private static function updateDebug($debugFile, $lastModifiedSource, $files, $extension, $relPath) {
 		$debug = '';
 		if (lastModifiedTime($debugFile) < $lastModifiedSource) {
 			// We need to recreate debug cache.
-			$debug = self::joinDebugFiles($files);
+			$debug = self::joinDebugFiles($files, $extension, $relPath);
 			file_put_contents_mkdir($debugFile, $debug);
 		} else {
 			$debug = file_get_contents($debugFile);

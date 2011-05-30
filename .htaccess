@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
 	RewriteEngine On
-	#RewriteRule ^(.+)/(\w+)\.(js|css)$ lib/Burn/Burn.php?path=$1&file=$2&ext=$3 [L]
+	RewriteRule ^(.+)/([^\.]+)\.(js|css)$ lib/Burn/proxy.php?path=$1&file=$2&ext=$3 [L]
 	RewriteRule ^track.gif$ track.php [L]
 	
 	RewriteCond public/%{REQUEST_FILENAME} -s [OR]
