@@ -44,7 +44,7 @@
 			Search: <?php echo text_field_tag("{$table}_filter", $data->filterParam(), array('class'=>"mainFilter")) ?>
 			
 			<div class="comboBox">
-				<span class="btn btnLink btnLinkThin">Save Search: <span class="label"></span></span>
+				<span class="btn btnLink btnLinkThin"><span class="label">Save Search</span></span>
 				
 				<div class="combo">
 					<input type="text" name="<?php echo $table . "_save" ?>" data-action="" autocomplete="off" />

@@ -48,3 +48,8 @@
 <?php } ?>
 
 <?php $self->renderPartial('selection_grid') ?>
+
+<script>
+	var validators = <?php echo live_validators() ?>;
+</script>
+

@@ -86,6 +86,10 @@ class RequiredValidator extends Validator {
 	public static function errorMessage($field, $pretty, $value, $valParams) {
 		return "{$pretty} is required. Please enter a value.";
 	}
+	
+	public static function liveValidation($params) {
+		return array("required"=>true);
+	}
 }
 class LengthValidator extends Validator {
 	public static function validate($value, $params=array()) {

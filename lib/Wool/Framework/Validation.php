@@ -17,6 +17,19 @@ class WoolValidation {
 		self::$regValidators[$name] = $class;
 	}
 	
+	public static function classByName($name) {
+		return isset(self::$regValidators[$name]) ? self::$regValidators[$name] : null;
+	}
+	
+	public static function liveValidation($name, $params) {
+		$cls = self::classByName($name);
+		if (!$cls || !method_exists($cls, "liveValidation")) {
+			return array();
+		}
+		
+		return call_user_func(array($cls, 'liveValidation'), $params);
+	}
+	
 	public static function validate($group, $field, $obj, $value, $pretty=null) {
 		if (!isset(self::$validators[$group][$field])) { return true; }
 		$id = spl_object_hash($obj);

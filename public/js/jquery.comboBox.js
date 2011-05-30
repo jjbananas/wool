@@ -320,10 +320,10 @@
 	$.fn.comboBox.defaults = {
 		buttonLabelEl: null,
 		clickAwayClose: true,
-		clickAwayCancel: true,
+		clickAwayCancel: false,
 		submitOnSelect: false,
 		closeOnSelect: true,
-		selectActiveOnClose: false
+		selectActiveOnClose: true
 	};
 
 })(jQuery);

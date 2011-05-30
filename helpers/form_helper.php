@@ -24,6 +24,27 @@ function element_tag_build($element, $attrs, $content) {
 	return "{$tag}{$content}</{$element}>";
 }
 
+$formValidators = array();
+
+function live_validators() {
+	global $formValidators;
+	return json_encode($formValidators);
+}
+
+function add_live_validators($obj, $table, $field) {
+	global $formValidators;
+	
+	$validators = WoolTable::validators($obj, $field);
+	$formValidators["{$table}[{$field}]"] = array();
+	
+	foreach ($validators as $name=>$validator) {
+		$params = WoolValidation::liveValidation($name, $validator);
+		if ($params) {
+			$formValidators["{$table}[{$field}]"] = array_merge($formValidators["{$table}[{$field}]"], $params);
+		}
+	}
+}
+
 function add_error_classes($obj, $field) {
 	$classes = array();
 
@@ -75,6 +96,8 @@ function label($obj, $objName, $field, $attrs = array()) {
 }
 
 function text_field($obj, $objName, $field, $attrs = array()) {
+	add_live_validators($obj, $objName, $field);
+	
 	return tag_build('input', array_merge(array(
 			'type' => 'text',
 			'id' => "{$objName}_{$field}",

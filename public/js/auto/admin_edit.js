@@ -93,13 +93,7 @@ jQuery(function() {
 		var form = $("form.tableEdit");
 		form.validate({
 			wrapper: 'div class="msgBox msgError msgFieldError"',
-			rules: {
-				"item[title]": {
-					required: true,
-					email: true,
-					minlength: 20
-				}
-			}
+			rules: validators
 		});
 	})();
 });

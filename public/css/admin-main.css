@@ -875,6 +875,7 @@ input.icon {
 .comboBox .btn {
 	background: #ffffff url(../images/icons/drop-arrow.png) right no-repeat;
 	padding-right: 24px;
+	cursor: pointer;
 }
 
 .comboBox .combo {

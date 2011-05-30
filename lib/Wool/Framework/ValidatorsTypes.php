@@ -8,6 +8,10 @@ class IntValidator extends Validator {
 	public static function errorMessage($field, $pretty, $value, $valParams) {
 		return "{$pretty} must be a numeric value.";
 	}
+	
+	public static function liveValidation($params) {
+		return array("digits"=>true);
+	}
 }
 
 class StringValidator extends Validator {
