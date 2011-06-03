@@ -1,0 +1,22 @@
+#pageHeader h1 {
+	color: #ffffff;
+	line-height: 59px;
+	margin: 0;
+	padding: 0 15px;
+}
+
+.stacktrace {
+	margin-top: 20px;
+}
+
+.stacktrace li {
+	padding: 10px 5px;
+}
+
+.stacktrace li:nth-child(2n) {
+	background-color: #fcfcfc;
+}
+
+.stacktrace span {
+	display: block;
+}
