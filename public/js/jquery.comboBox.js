@@ -19,7 +19,7 @@
 				<ul class="options">
 					<li>Tax free</li>
 					<li>Some other</li>
-					<li>BT Internet</li>
+					<li>And one more</li>
 				</ul>
 				
 				<ul class="fixed">
@@ -179,6 +179,10 @@
 			}
 			
 			function close(cancel) {
+				if (!dropdown.is(":visible")) {
+					return;
+				}
+				
 				dropdown.hide();
 				
 				if (cancel) {
