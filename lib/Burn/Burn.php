@@ -71,10 +71,12 @@ class Burn {
 		}
 		
 		// Work out relative paths.
+		$currentPath = $files["path"][0];
+		
 		foreach ($files["path"] as &$path) {
-			$path = str_replace($files["path"][0] . "/", "", $path);
+			$path = str_replace($currentPath . "/", "", $path);
+			$path = str_replace($currentPath, "", $path);
 		}
-		$files["path"][0] = "";
 		
 		$lastModifiedSource = lastModifiedTime(array_merge($files['conf'], $files['source']));
 
