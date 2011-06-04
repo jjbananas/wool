@@ -294,6 +294,19 @@ class Schema {
 			+ self::primaryColumns($table);
 	}
 	
+	// Columns small enough to be used in summary situations, ie data grids.
+	public static function summaryColumns($table) {
+		$cols = array();
+		
+		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
+			if ($col["length"] <= 256) {
+				$cols[] = $colName;
+			}
+		}
+		
+		return $cols;
+	}
+	
 	
 	public static function keyCondition($table, $key, $localNamespace=null, $foreignNamespace=null) {
 		if (!isset(self::$schema[$table]["keys"][$key])) {

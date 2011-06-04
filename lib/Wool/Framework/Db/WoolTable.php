@@ -244,9 +244,16 @@ SQL
 		return new RowSet("select * from {$table} {$where}", $params);
 	}
 	
-	public static function queryJoined($table) {
+	public static function queryJoined($table, $selectColumns=array()) {
 		$selects = array();
-		$selects[] = "t.*";
+		
+		if ($selectColumns) {
+			foreach ($selectColumns as $selectColumn) {
+				$selects[] = "t.{$selectColumn}";
+			}
+		} else {
+			$selects[] = "t.*";
+		}
 		
 		$joins = Schema::keyJoins($table);
 		foreach ($joins as $select=>$join) {

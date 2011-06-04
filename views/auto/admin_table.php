@@ -248,4 +248,3 @@
 </div>
 
 <?php $self->renderPartial('column_edit') ?>
-<?php $self->renderPartial('filter_save') ?>

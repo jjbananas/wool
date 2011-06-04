@@ -52,6 +52,11 @@ class Boot {
 	}
 	
 	private static function renderErrorPage($viewVars=array()) {
+		// Clear out all output buffers.
+		while (ob_get_level()) {
+			ob_end_clean();
+		}
+		
 		extract($viewVars);
 		
 		ob_start();

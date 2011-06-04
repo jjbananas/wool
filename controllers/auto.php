@@ -12,7 +12,7 @@ class AutoController extends Controller {
 	
 	private function data() {
 		$this->table = param('table');
-		$this->allColumns = Schema::columns($this->table);
+		$this->allColumns = Schema::summaryColumns($this->table);
 		$this->columns = array();
 		foreach ($this->allColumns as $col) {
 			$this->columns[$col] = self::COL_NORMAL;
@@ -29,7 +29,7 @@ class AutoController extends Controller {
 		$search = param('search');
 		$this->data = new WoolAutoGrid($this->table);
 		$this->data->setPerPage(25);
-		
+
 		if (isset($_SESSION['grids'][$this->table]['cols'])) {
 			$this->columns = array();
 			foreach ($_SESSION['grids'][$this->table]['cols'] as $col=>$val) {

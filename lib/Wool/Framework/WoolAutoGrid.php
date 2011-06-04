@@ -7,7 +7,7 @@ class WoolAutoGrid extends WoolGrid {
 	public function __construct($table) {
 		$this->table = $table;
 		
-		parent::__construct($table, WoolTable::queryJoined($this->table));
+		parent::__construct($table, WoolTable::queryJoined($this->table, Schema::summaryColumns($this->table)));
 		
 		$this->cacheFilters();
 		
