@@ -20,6 +20,14 @@
 }
 
 
+/* Layout toolbar
+*/
+
+.layoutToolbar img {
+	display: inline;
+}
+
+
 /* Layout structure builder
 */
 

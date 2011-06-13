@@ -1,6 +1,7 @@
 <?php
 	$self->js("/components/jsTree/jquery.jstree.js");
 	$self->js("/js/auto/admin_edit.js");
+	$self->js("/js/jquery.positionMatch.js");
 	$self->css("/components/jsTree/themes/default/style.css");
 ?>
 <div class="pad">

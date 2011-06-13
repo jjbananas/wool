@@ -228,9 +228,17 @@ jQuery(function($) {
 					}
 				});
 				
+				var checked = checkbox.is(":checked");
+				
 				jQuery.each(group, function(i, el) {
-					$(el).find("td.rowSelect input").attr("checked", checkbox.attr("checked")).change();
-					$(el).toggleClass("selected", checkbox.is(":checked"));
+					var cb = $(el).find("td.rowSelect input");
+					if (checked) {
+						cb.attr("checked", "checked");
+					} else {
+						cb.removeAttr("checked");
+					}
+					cb.change();
+					$(el).toggleClass("selected", checked);
 				});
 			}
 			
@@ -238,7 +246,7 @@ jQuery(function($) {
 		});
 		
 		// Dynamic insert of new rows.
-		var rowForm = $(".rowForm", grid);
+		var rowForm = $(".rowForm");
 		var newRow = $(".newRow", grid);
 		newRow.click(function(e) {
 			if (!rowForm.length) {
@@ -248,17 +256,21 @@ jQuery(function($) {
 				return true;
 			}
 			
+			rowForm.trigger("matchPositions");
+			
 			e.preventDefault();
 			
-			newRow.hide();
+			newRow.css("visibility", "hidden");
 			rowForm.show().find("input:not([type=hidden]):first").select();
 		});
 		
-		rowForm.submit(function(e) {
+		rowForm.live("submit", function(e) {
 			e.preventDefault();
 			var form = $(e.target);
 
 			var insRow = $('<tr><td colspan="0">Saving...</td></tr>');
+			newRow.closest("tfoot").prepend(insRow);
+			rowForm.trigger("matchPositions");
 			
 			jQuery.ajax({
 				url: form.attr("action"),
@@ -267,21 +279,25 @@ jQuery(function($) {
 				dataType: "json",
 				success: function(res) {
 					if (res.success == true) {
-						insRow.replaceWith(res.html);
-						rowForm.show().find("input:not([type=hidden]):first").select();
+						insRow.remove();
+						grid.find("tbody").append(res.html);
 					} else {
 						insRow.find("td").html(res.html).find("form").show();
 						WOOL.msgBox.add(res.msg, 5000);
 					}
+					
+					rowForm.trigger("matchPositions");
 				},
 				error: function(res, status) {
 					WOOL.msgBox.add(status, 5000);
 				}
 			});
 			
-			rowForm.closest("tfoot").prepend(insRow);
 			form.get(0).reset();
+			rowForm.show().find("input:not([type=hidden]):first").focus().select();
 		});
+		
+		rowForm.positionMatch({matchedElement: newRow, startPositioned: false});
 		
 		// Double-click to edit items
 		var editBox = $("#colunmEdit");

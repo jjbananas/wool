@@ -262,7 +262,7 @@ textarea:focus {
 
 .filter .filterControls {
 	float: right;
-	width: 50%;
+	width: 30%;
 	text-align: right;
 	padding: 4px;
 	line-height: 25px;
@@ -432,7 +432,11 @@ textarea:focus {
 	cursor: pointer;
 }
 
-.dataGrid .rowForm {
+.dataGrid .gridButtons {
+	padding: 10px 5px;
+}
+
+.rowForm {
 	display: none;
 }
 

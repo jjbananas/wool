@@ -1,3 +1,5 @@
+var WOOL = WOOL || {};
+
 jQuery(function($) {
 	var container = $(".layoutPanel");
 	
@@ -439,4 +441,19 @@ jQuery(function($) {
 	generateHtml($(".layoutCanvas .area:first", structure), "body");
 	unusedWidgets();
 	areas = $(".area", structure);
+	
+	
+	// Widget API
+	WOOL.widgetApi = {
+		log: function(msg) {
+			console.log(msg);
+		}
+	};
+	
+	$("#editWidget").fancybox({
+		width: "90%",
+		height: "100%",
+		type: "iframe",
+		modal: false
+	});
 });

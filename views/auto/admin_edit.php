@@ -1,3 +1,6 @@
+<?php
+	$self->js("/js/jquery.positionMatch.js");
+?>
 <div class="pad">
 	<ol class="breadcrumbs">
 		<li><?php echo linkTo("Home", array("action"=>"index")) ?></li>

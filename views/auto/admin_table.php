@@ -1,6 +1,8 @@
 <?php
 	$self->js('/components/fancybox/jquery.fancybox-1.3.4.js');
 	$self->css('/components/fancybox/jquery.fancybox-1.3.4.css');
+	
+	$self->js("/js/jquery.positionMatch.js");
 ?>
 <div class="pad">
 	<ol class="breadcrumbs">
@@ -125,16 +127,10 @@
 					<table>
 						<tr class="duplicate">
 							<td>
-								<select name="cols[{num}][sort]" disabled="disabled">
-									<option value="productId">Product Id</option>
-									<option value="price">Price</option>
-								</select>
+								<?php echo select_box_tag("cols[1][sort]", $columnOptions, null, array(), array("disabled"=>"disabled")) ?>
 							</td>
 							<td>
-								<select name="cols[{num}][dir]" disabled="disabled">
-									<option>asc</option>
-									<option>desc</option>
-								</select>
+								<?php echo select_box_tag("cols[{num}][dir]", sqlOrderOptions(), null, array(), array("disabled"=>"disabled")) ?>
 							</td>
 							<td>
 								<a href="#" class="delRow">Del</a>
@@ -145,19 +141,11 @@
 						<tr>
 							<td>
 								<?php 
-								echo select_box_tag("cols[1][sort]", array(
-									"productId"=>"Product Id",
-									"price"=>"Price"
-								), $column);
+								echo select_box_tag("cols[1][sort]", $columnOptions, $column);
 								?>
 							</td>
 							<td>
-								<?php 
-								echo select_box_tag("cols[1][dir]", array(
-									"asc"=>"asc",
-									"desc"=>"desc"
-								), $dir);
-								?>
+								<?php echo select_box_tag("cols[1][dir]", sqlOrderOptions(), $dir) ?>
 							</td>
 							<td>
 								<a href="#" class="delRow">Del</a>
@@ -185,59 +173,65 @@
 	</div>
 	
 	<div class="pod">
-		<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-headerUpdate="<?php echo routeUri(array("controller"=>"api", "action"=>"headerUpdate")) ?>" data-dragRows="<?php echo routeUri(array("controller"=>"api", "action"=>"rowOrder")) ?>">
-			<thead>
-				<tr>
-					<th></th>
-					<?php foreach ($columns as $column=>$sort) { ?>
-					<th class="dragable <?php echo gridHeaderClass($table, $column, $sortColumns) ?>" data-column="<?php echo $column ?>"><span><?php echo Schema::columnName($table, $column) ?></span></th>
-					<?php } ?>
-					<th width="1"></th>
-				</tr>
-			</thead>
-			
-			<tbody>
-				<?php if (!count($data)) { ?>
-				<tr>
-					<td colspan="999">No items found.</td>
-				</tr>
-				<?php } ?>
-				<?php $self->renderPartials("row", $data, "item", array("table"=>$table, "columns"=>$columns)) ?>
-			</tbody>
-			
-			<tfoot>
-				<?php /*
-				<tr class="totals">
-					<td>Totals:</td>
-					<?php foreach ($columns as $column) { ?>
-					<td><?php echo arraySumInner($data, $column) ?></td>
-					<?php } ?>
-					<td></td>
-				</tr>
-				<tr class="totals">
-					<td>Average:</td>
-					<?php foreach ($columns as $column) { ?>
-					<td><?php echo arrayAvgInner($data, $column) ?></td>
-					<?php } ?>
-					<td></td>
-				</tr>
-				*/ ?>
+		<form method="post" action="<?php echo routeUri(array("action"=>"gridAction", "table"=>$table)) ?>">
+			<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-headerUpdate="<?php echo routeUri(array("controller"=>"api", "action"=>"headerUpdate")) ?>" data-dragRows="<?php echo routeUri(array("controller"=>"api", "action"=>"rowOrder")) ?>">
+				<thead>
+					<tr>
+						<th></th>
+						<?php foreach ($columns as $column=>$sort) { ?>
+						<th class="dragable <?php echo gridHeaderClass($table, $column, $sortColumns) ?>" data-column="<?php echo $column ?>"><span><?php echo Schema::columnName($table, $column) ?></span></th>
+						<?php } ?>
+						<th width="1"></th>
+					</tr>
+				</thead>
 				
-				<tr>
-					<td colspan="999">
-						<div class="newRow">
-						<?php echo linkTo("New " . Schema::shortName($table), array("action"=>"edit", "table"=>$table), 'class="icon iconAddItem"') ?>
-						</div>
-						
-						<?php
-						if ($self->canRenderPartial($table . "_row_form")) {
-							$self->renderPartial($table . "_row_form");
-						}
-						?>
-					</td>
-				</tr>
-			</tfoot>
-		</table>
+				<tbody>
+					<?php if (!count($data)) { ?>
+					<tr>
+						<td colspan="999">No items found.</td>
+					</tr>
+					<?php } ?>
+					<?php $self->renderPartials("row", $data, "item", array("table"=>$table, "columns"=>$columns)) ?>
+				</tbody>
+				
+				<tfoot>
+					<?php /*
+					<tr class="totals">
+						<td>Totals:</td>
+						<?php foreach ($columns as $column) { ?>
+						<td><?php echo arraySumInner($data, $column) ?></td>
+						<?php } ?>
+						<td></td>
+					</tr>
+					<tr class="totals">
+						<td>Average:</td>
+						<?php foreach ($columns as $column) { ?>
+						<td><?php echo arrayAvgInner($data, $column) ?></td>
+						<?php } ?>
+						<td></td>
+					</tr>
+					*/ ?>
+					
+					
+					<tr>
+						<td colspan="999">
+							<div class="newRow">
+							<?php echo linkTo("New " . Schema::shortName($table), array("action"=>"edit", "table"=>$table), 'class="icon iconAddItem"') ?>
+							</div>
+							
+						</td>
+					</tr>
+					
+					<tr>
+						<td colspan="999">
+							<div class="gridButtons">
+								<input type="submit" class="btnLink btnLinkLight btnLinkThin icon iconDelete" name="delete" value="Delete" />
+							</div>
+						</td>
+					</tr>
+				</tfoot>
+			</table>
+		</form>
 		
 		<div class="foot">
 			<div class="pod podNested pad">
@@ -247,4 +241,9 @@
 	</div>
 </div>
 
+<?php
+if ($self->canRenderPartial($table . "_row_form")) {
+	$self->renderPartial($table . "_row_form");
+}
+?>
 <?php $self->renderPartial('column_edit') ?>

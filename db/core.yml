@@ -129,4 +129,25 @@ image:
         
         hash:
             type: binary(20)
-        
+
+
+image_collection:
+    columns:
+        imageCollectionId:
+            type: primary
+            
+        title:
+            type: varchar(50)
+            
+
+image_in_collection:
+    columns:
+        image:
+            type: key
+            update: cascade
+            delete: cascade
+            
+        image_collection:
+            type: key
+            update: cascade
+            delete: cascade

@@ -285,7 +285,7 @@ function select_box($obj, $objName, $field, $options, $ignoreValues = false, $cl
 HTML;
 }
 
-function select_box_tag($name, $options, $selected=null, $ignoreValues = false) {
+function select_box_tag($name, $options, $selected=null, $ignoreValues = false, $attrs=array()) {
 	$optionHTML = '';
 	$selected = param($name, $selected);
 
@@ -301,7 +301,7 @@ function select_box_tag($name, $options, $selected=null, $ignoreValues = false) 
 		}
 		$optionHTML .= "<option{$value}{$selAttr}>{$text}</option>\n";
 	}
-	return element_tag_build('select', array('id'=>$name, 'name'=>$name), $optionHTML);
+	return element_tag_build('select', array_merge($attrs, array('id'=>$name, 'name'=>$name)), $optionHTML);
 }
 
 function auto_field($obj, $table, $column) {

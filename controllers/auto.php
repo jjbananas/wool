@@ -26,9 +26,10 @@ class AutoController extends Controller {
 	function adminTable() {
 		$this->data();
 		
-		$search = param('search');
 		$this->data = new WoolAutoGrid($this->table);
 		$this->data->setPerPage(25);
+		
+		$this->item = WoolTable::fetch($this->table, "id", "item");
 
 		if (isset($_SESSION['grids'][$this->table]['cols'])) {
 			$this->columns = array();
@@ -37,6 +38,12 @@ class AutoController extends Controller {
 					$this->columns[$col] = $val;
 				}
 			}
+		}
+		
+		$this->columnOptions = array();
+		
+		foreach ($this->allColumns as $column) {
+			$this->columnOptions[$column] = Schema::columnName($this->table, $column);
 		}
 		
 		$this->sortColumns = coal($_SESSION['grids'][$this->table]['sort'], array());
@@ -68,6 +75,21 @@ SQL
 			if (WoolTable::save($this->item)) {
 				$this->redirectTo(array("action"=>"table", "table"=>$this->table));
 			}
+		}
+	}
+	
+	function adminGridAction() {
+		if (!Request::isPost()) {
+			return;
+		}
+		
+		$this->table = param('table');
+		
+		if (param('delete')) {
+			foreach (param('item', array()) as $id=>$_) {
+				WoolTable::delete($this->table, $id);
+			}
+			$this->redirectTo(array("action"=>"table", "table"=>$this->table));
 		}
 	}
 	
@@ -202,8 +224,6 @@ SQL
 		
 		$_SESSION['grids'][$table]['sort'] = array();
 		
-		debug($cols);
-		
 		foreach ($cols as $col) {
 			if (!in_array($col["sort"], $allowedCols)) {
 				continue;
@@ -230,7 +250,7 @@ SQL
 			$json['html'] = $this->renderToString("row_partial", null, null);
 		} else {
 			$json['success'] = false;
-			$json['html'] = $this->renderToString("users_row_form_partial", null, null);
+			$json['html'] = $this->renderToString($this->table . "_row_form_partial", null, null);
 		}
 		
 		$this->renderJson($json);
@@ -244,7 +264,7 @@ SQL
 		$table = param('table');
 		$column = param('column');
 		$value = param('value');
-		$unique = "userId";
+		$unique = Schema::uniqueColumn($table);
 		$uniqueVal = param('unique');
 		
 		$json = array();
@@ -253,6 +273,7 @@ SQL
 			$json['success'] = WoolDb::update($table, array($column=>$value), array("{$unique} = ?"=>$uniqueVal));
 			$json['value'] = $value;
 		} else {
+			$json['msg'] = "Update failed.";
 			$json['success'] = false;
 		}
 		

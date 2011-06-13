@@ -14,7 +14,7 @@ jQuery(function() {
 			
 			jQuery.post(grid.attr("action"), grid.serialize(), function(data) {
 				grid.find(".results").html(data);
-				positionSelectionGrid();
+				grid.trigger("matchPositions");
 			});
 		});
 		
@@ -39,15 +39,7 @@ jQuery(function() {
 			}
 		});
 		
-		function positionSelectionGrid() {
-			grid.width(spacer.width());
-			spacer.height(grid.height());
-			var pos = spacer.position();
-			grid.css({
-				top: pos.top,
-				left: pos.left
-			});
-		}
+		grid.positionMatch({matchedElement: spacer});
 		
 		function closeSelectionGrid() {
 			selected = null;
@@ -56,8 +48,6 @@ jQuery(function() {
 			grid.hide();
 			derived.show();
 		}
-		
-		$(window).resize(positionSelectionGrid);
 		
 		foreigners.each(function() {
 			var el = $(this);
@@ -83,7 +73,7 @@ jQuery(function() {
 				derived.hide();
 				grid.show();
 				spacer.show();
-				positionSelectionGrid();
+				grid.trigger("matchPositions");
 				grid.find("input").select();
 			});
 		});

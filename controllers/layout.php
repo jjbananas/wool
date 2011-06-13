@@ -1,5 +1,7 @@
 <?php
 
+require_once("Widgets/Widget.php");
+
 class Page {
 	public function __construct($controller, $uri) {
 		$this->controller = $controller;
@@ -33,8 +35,8 @@ class Page {
 			return '';
 		}
 		
-		$widget = new $className($this->controller, $pageWidget, $this->widgetParams->byGroup("widgetId", $pageWidget->widgetId));
-		return $widget->render($pageWidget->view);
+		$widget = new $className($pageWidget->type, $this->controller, $pageWidget, $this->widgetParams->byGroup("widgetId", $pageWidget->widgetId));
+		return $widget->render();
 	}
 	
 	public function widgetJson() {
@@ -144,106 +146,6 @@ class Page {
 		}
 	}
 }
-
-class Widget {
-	protected $controller;
-	protected $pageWidget;
-	private $params;
-	
-	private static $types = array();
-	
-	public function __construct($controller, $pageWidget, $params) {
-		$this->controller = $controller;
-		$this->pageWidget = $pageWidget;
-		$this->params = $params;
-	}
-	
-	public function param($name, $default) {
-		if ($this->params->by("name", $name)) {
-			return $this->params->by("name", $name)->value;
-		}
-		
-		return $default;
-	}
-	
-	public function renderPartial($view, $vars) {
-		$this->controller->renderPartial("/layout/widget", array("widgetView"=>$view, "widgetVars"=>$vars));
-	}
-	
-	public static function defineTypes() {
-		$types = array("BannerWidget", "ProductCollectionWidget");
-		
-		foreach ($types as $type) {
-			$def = call_user_func(array($type, "define"));
-			self::$types[$def["id"]] = $def;
-		}
-	}
-	
-	public static function getTypes() {
-		return self::$types;
-	}
-	
-	public static function typeDefJson() {
-		return json_encode(self::$types);
-	}
-}
-
-Widget::defineTypes();
-
-class BannerWidget extends Widget {
-	public static function define() {
-		return array(
-			"id" => "banner",
-			"name" => "Banner",
-			"views" => array("default"),
-			"params" => array(
-				"collection" => array(
-					"name" => "Image Collection",
-					"default" => "1"
-				)
-			)
-		);
-	}
-	
-	public function render() {
-		return "<div>banner goes here</div>";
-	}
-}
-
-class ProductCollectionWidget extends Widget {
-	public static function define() {
-		return array(
-			"id" => "productcollection",
-			"name" => "Product Collection",
-			"views" => array("default"),
-			"params" => array(
-				"category" => array(
-					"name" => "Category",
-					"default" => "1"
-				),
-				"something" => array(
-					"name" => "Something",
-					"default" => "Yo"
-				)
-			)
-		);
-	}
-	
-	public function render() {
-		$products = new RowSet(<<<SQL
-select p.*
-from product p
-join product_in_category pic on pic.productId = p.productId
-where pic.categoryId = ?
-SQL
-		, $this->param("category", 0));
-		
-		$this->renderPartial("/product/widget/{$this->pageWidget->view}", array("products"=>$products));
-		
-		echo $this->param('something', '');
-	}
-}
-
 
 function processLayout($level, $layout, $layers=array()) {
 	$keywords = array("sizeType", "size", "direction");

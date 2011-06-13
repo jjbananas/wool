@@ -8,6 +8,10 @@ function matchSqlOrder($dir, $default=null) {
 	), $default);
 }
 
+function sqlOrderOptions($longNames=false) {
+	return $longNames ? array("asc"=>"Ascending", "Descending") : array("asc"=>"Asc", "desc"=>"Desc");
+}
+
 // Match the MySQL now() function.
 function now() {
 	return sqlDate(time());

@@ -1,0 +1,1 @@
+<?phpclass ContactFormWidget extends Widget {	public static function define() {		return array(			"id" => "contactform",			"controller" => "contactform",			"name" => "Contact Form",			"views" => array("default"),			"params" => array()		);	}		public function action() {		if ($this->submitted()) {		}	}}

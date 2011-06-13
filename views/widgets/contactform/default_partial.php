@@ -1,0 +1,1 @@
+<form>	<input type="hidden" name="widgetSubmit" value="<?php echo $widgetName ?>" />		<p>This is a contact form</p>		<label>Your Name</label>	<input type="text" />		<label>Message</label>	<textarea></textarea>		<input type="submit" value="Send" /></form>

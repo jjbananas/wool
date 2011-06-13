@@ -1,5 +1,7 @@
 <?php
 	$self->js("/js/jquery.json-2.2.js");
+	$self->js('/components/fancybox/jquery.fancybox-1.3.4.js');
+	$self->css('/components/fancybox/jquery.fancybox-1.3.4.css');
 ?>
 <div class="pad">
 	<ol class="breadcrumbs">
@@ -63,12 +65,7 @@
 							
 							<div class="input">
 								<label for="widget">Widget</label>
-								<select type="text" name="widget" id="widget">
-									<option value="layout">Layout</option>
-									<option value="content">Content</option>
-									<option value="productcollection">Product Collection</option>
-									<option value="banner">Banner</option>
-								</select>
+								<?php echo select_box_tag("widget", Widget::widgetOptions()) ?>
 							</div>
 						</div>
 					</div>
@@ -84,6 +81,10 @@
 								<select type="text" name="widgetView" id="widgetView">
 									<option>default</option>
 								</select>
+							</div>
+							
+							<div class="input">
+								<?php echo linkTo('Edit Widget', array("controller"=>"widget", "action"=>"index"), 'id="editWidget" class="btnLink icon iconEdit"') ?>
 							</div>
 							
 							<div class="widgetCustom">
@@ -105,11 +106,13 @@
 				
 				<div class="pad layoutPanel">
 					<div class="layoutToolbar">
-						<a href="#" class="inside">Inside</a>
-						<a href="#" class="outside">Outside</a>
-						<a href="#" class="before">Before</a>
-						<a href="#" class="after">After</a>
-						<a href="#" class="remove">Remove</a>
+						<a href="#" class="inside"><img src="<?php echo publicUri("/images/icons/layout_inside.png") ?>" alt="Inside" title="Inside" /></a>
+						<a href="#" class="outside"><img src="<?php echo publicUri("/images/icons/layout_outside.png") ?>" alt="Outside" title="Outside" /></a>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="#" class="before"><img src="<?php echo publicUri("/images/icons/layout_before.png") ?>" alt="Before" title="Before" /></a>
+						<a href="#" class="after"><img src="<?php echo publicUri("/images/icons/layout_after.png") ?>" alt="After" title="After" /></a>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="#" class="remove"><img src="<?php echo publicUri("/images/icons/layout_remove.png") ?>" alt="Remove" title="Remove" /></a>
 					</div>
 					
 					<div class="layoutBreadcrumbs">
