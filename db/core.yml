@@ -121,6 +121,9 @@ image:
         
         hash:
             type: binary(20)
+            
+    index:
+        a: [title]
 
 
 image_collection:

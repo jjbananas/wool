@@ -29,6 +29,7 @@ jQuery(function() {
 		}
 		
 		if (selected && a.attr("href") == "#use") {
+			e.preventDefault();
 			selected.find("a").html(a.closest("tr").find("span").text());
 			selected.find("span").html(a.attr("data-id"));
 			selected.find("input").val(a.attr("data-id"));

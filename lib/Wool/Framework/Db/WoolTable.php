@@ -179,7 +179,8 @@ SQL
 			'int' => 'int', 'tinyint' => 'int', 'char' => 'string',
 			'varchar' => 'string', 'text' => 'string', 'mediumtext' => 'string',
 			'enum' => 'enum', 'decimal' => 'int', 'date' => 'date',
-			'datetime' => 'datetime', 'float' => 'int', 'double' => 'int'
+			'datetime' => 'datetime', 'float' => 'int', 'double' => 'int',
+			'binary' => 'null'
 		);
 		
 		foreach (Schema::allColumns($table) as $column => $col) {

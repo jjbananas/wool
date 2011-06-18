@@ -442,5 +442,6 @@ jQuery(function($) {
 	//$("input[type=date]").daterangepicker();
 	
 	
-	$(".comboBox").comboBox({buttonLabelEl: ".btn .label"});
+	$(".filterOptions .comboBox").comboBox({buttonLabelEl: ".btn .label"});
+	$(".filterControls .comboBox").comboBox({submitOnSelect: true});
 });

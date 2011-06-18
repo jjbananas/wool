@@ -1,5 +1,12 @@
 <?php
 
+// Null validator which always passes.
+class NullValidator extends Validator {
+	public static function validate($value, $params=array()) {
+		return true;
+	}
+}
+
 class IntValidator extends Validator {
 	public static function validate($value, $params=array()) {
 		return is_numeric($value) && (!$params['unsigned'] || ($params['unsigned'] && $value >= 0));

@@ -11,7 +11,7 @@
 	<div class="results">
 		<table>
 			<tr>
-				<td>No matches found</td>
+				<td>Please search for an entry</td>
 			</tr>
 		</table>
 	</div>

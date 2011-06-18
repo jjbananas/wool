@@ -235,7 +235,7 @@
 					close(false);
 				}
 				
-				if (opts.buttonLabelEl) {
+				if (opts.buttonLabelEl && input.val()) {
 					buttonLabelEl.html(input.val());
 				}
 				
@@ -287,7 +287,11 @@
 				return false;
 			}
 			
-			button.click(toggle);
+			if (button.attr("tabindex") === undefined) {
+				button.click(toggle);
+			} else {
+				button.focus(toggle);
+			}
 			
 			dropdown.click(function(e) {
 				var item = $(e.target).closest("li");

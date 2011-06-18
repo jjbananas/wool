@@ -3,15 +3,15 @@
 		<a href="<?php echo Request::uri(array("{$table}_clear"=>"true")) ?>" class="icon iconReset">Clear Search</a>
 		<form>
 			<div class="comboBox">
-				<span class="btn btnLink btnLinkThin">Saved Searches</span>
+				<span class="btn btnLink btnLinkThin" tabindex="0">Saved Searches</span>
 				
 				<div class="combo">
-					<input type="text" />
+					<input type="text" name="<?php echo $table . "_load" ?>" autocomplete="off" />
 					
 					<ul class="options">
-						<li>Tax free</li>
-						<li>Some other</li>
-						<li>BT Internet</li>
+						<?php foreach ($data->savedFilterOptions() as $option) { ?>
+						<li><?php echo $option ?></li>
+						<?php } ?>
 					</ul>
 				</div>
 			</div>
@@ -24,15 +24,15 @@
 		Search: <?php echo text_field_tag("{$table}_filter", $data->filterParam(), array('class'=>"mainFilter")) ?>
 		
 		<div class="comboBox">
-			<span class="btn btnLink btnLinkThin"><span class="label">Save Search</span></span>
+			<span class="btn btnLink btnLinkThin" tabindex="0"><span class="label">Save Search</span></span>
 			
 			<div class="combo">
-				<input type="text" name="<?php echo $table . "_save" ?>" data-action="" autocomplete="off" />
+				<input type="text" name="<?php echo $table . "_save" ?>" autocomplete="off" />
 				
 				<ul class="options">
-					<li>Tax free</li>
-					<li>Some other</li>
-					<li>BT Internet</li>
+					<?php foreach ($data->savedFilterOptions() as $option) { ?>
+					<li><?php echo $option ?></li>
+					<?php } ?>
 				</ul>
 				
 				<ul class="fixed">

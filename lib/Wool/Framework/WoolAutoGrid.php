@@ -23,8 +23,6 @@ class WoolAutoGrid extends WoolGrid {
 		$this->cacheFilters();
 		
 		$this->filter(Schema::searchColumns($table));
-		
-		//debug($_SESSION);
 	}
 	
 	private function cacheColumns() {
@@ -138,13 +136,24 @@ class WoolAutoGrid extends WoolGrid {
 	
 	private function cacheFilters() {
 		if (param("{$this->table}_clear")) {
-			$_SESSION['grids'][$this->table] = array();
+			$_SESSION['grids'][$this->table]['filter'] = array();
+			return;
+		}
+		
+		$load = param("{$this->table}_load");
+		if ($load && isset($_SESSION['grids'][$this->table]['filters'][$load])) {
+			$_SESSION['grids'][$this->table]['filter'] = $_SESSION['grids'][$this->table]['filters'][$load];
 			return;
 		}
 		
 		$filter = param("{$this->table}_filter");
 		if (!is_null($filter)) {
 			$_SESSION['grids'][$this->table]['filter'] = $filter;
+			
+			$save = param("{$this->table}_save");
+			if ($save) {
+				$_SESSION['grids'][$this->table]['filters'][$save] = $filter;
+			}
 		}
 	}
 	
@@ -154,6 +163,13 @@ class WoolAutoGrid extends WoolGrid {
 	
 	public function filterParam() {
 		return coal($_SESSION['grids'][$this->table]['filter'], null);
+	}
+	
+	public function savedFilterOptions() {
+		return
+			isset($_SESSION['grids'][$this->table]['filters'])
+			? array_keys($_SESSION['grids'][$this->table]['filters'])
+			: array();
 	}
 	
 	protected function filterWildcard($filter) {

@@ -101,8 +101,6 @@ SQL
 	}
 	
 	function adminTree() {
-		$this->data();
-		
 		$this->tree = new RowSet(<<<SQL
 select pageDirectoryId id, parentId parentId, title title
 from page_directory
@@ -122,12 +120,16 @@ SQL
 	}
 	
 	function adminJoin() {
+		$this->table = param('table');
 		$this->foreign = param('foreign');
+
 		$isJoin = Schema::isJoinTable($this->foreign);
 		
 		if ($isJoin) {
 			$this->foreign = array_shift(Schema::referencedTables($this->foreign, $this->table));
 		}
+		
+		$this->addAutoMedia($this->foreign, "index");
 		
 		if (Request::isPost()) {
 			if ($isJoin) {
@@ -145,7 +147,8 @@ SQL
 	}
 	
 	function adminKeySearch() {
-		$this->data();
+		$this->table = param('table');
+		
 		$class = Schema::tableClass($this->table);
 		if (method_exists($class, "keySearch")) {
 			$this->matches = call_user_func(array($class, "keySearch"), param('search'));
@@ -214,7 +217,7 @@ SQL
 			return;
 		}
 		
-		$this->data();
+		$this->table = param('table');
 		$this->item = WoolTable::fetch($this->table, "id", "item");
 		$json = array();
 		
@@ -224,7 +227,7 @@ SQL
 			$json['html'] = $this->renderToString("row_partial", null, null);
 		} else {
 			$json['success'] = false;
-			$json['html'] = $this->renderToString($this->table . "_row_form_partial", null, null);
+			$json['html'] = $this->renderToString("/{$this->table}/auto_row_form_partial", null, null);
 		}
 		
 		$this->renderJson($json);
