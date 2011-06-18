@@ -7,20 +7,11 @@ class Page {
 		$this->controller = $controller;
 		
 		$this->row = WoolDb::fetchRow("select * from page where uri = ?", $uri);
-		$this->content = new RowSet("select * from page_content where pageId = ?", $this->row->pageId);
 		$this->widgets = new RowSet("select * from page_widget where pageId = ?", $this->row->pageId);
 		$this->widgetParams = new RowSet(
 			"select * from page_widget_param where widgetId in :widgets",
 			array("widgets"=>pluck($this->widgets, "widgetId"))
 		);
-	}
-	
-	public function contentFor($area) {
-		if (!$this->content->by("area", $area)) {
-			return '';
-		}
-		
-		return $this->content->by("area", $area)->content;
 	}
 	
 	public function widgetFor($area) {
@@ -41,15 +32,6 @@ class Page {
 	
 	public function widgetJson() {
 		$json = new StdClass;
-		
-		foreach ($this->content as $content) {
-			$item = new StdClass;
-			$item->type = "content";
-			$item->content = $content->content;
-			
-			$name = $content->area;
-			$json->$name = $item;
-		}
 		
 		foreach ($this->widgets as $widget) {
 			$item = new StdClass;
@@ -72,26 +54,6 @@ class Page {
 	// Create or replace widgets for a specific page.
 	public function widgetsFromJson($json) {
 		foreach ($json as $area=>$widget) {
-			if ($widget["type"] == "content") {
-				if ($this->content->by("area", $area)) {
-					$row = $this->content->by("area", $area);
-				} else {
-					$row = WoolTable::blank("page_content");
-				}
-				
-				$row->pageId = $this->row->pageId;
-				$row->area = $area;
-				$row->content = tidy_repair_string($widget["content"], array(
-					"show-body-only" => true,
-					"doctype" => "-//W3C//DTD XHTML 1.0 Transitional//EN",
-					"output-xhtml" => true
-				));
-				
-				WoolTable::save($row);
-				
-				continue;
-			}
-			
 			$types = Widget::getTypes();
 			
 			if (!isset($types[$widget["type"]])) {
@@ -133,12 +95,6 @@ class Page {
 		}
 		
 		// Remove any widgets not sent.
-		foreach ($this->content as $content) {
-			if (!isset($json[$content->area])) {
-				WoolTable::delete("page_content", $content->pageContentId);
-			}
-		}
-		
 		foreach ($this->widgets as $widget) {
 			if (!isset($json[$widget->area])) {
 				WoolTable::delete("page_widget", $widget->widgetId);

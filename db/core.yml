@@ -35,14 +35,6 @@ page_content:
         pageContentId:
             type: primary
             
-        page:
-            type: key
-            update: cascade
-            delete: cascade
-            
-        area:
-            type: varchar(30)
-            
         content:
             type: text
 

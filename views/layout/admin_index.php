@@ -1,5 +1,5 @@
 <?php
-	$self->js("/js/jquery.json-2.2.js");
+	$self->js("/js/json2.js");
 	$self->js('/components/fancybox/jquery.fancybox-1.3.4.js');
 	$self->css('/components/fancybox/jquery.fancybox-1.3.4.css');
 ?>
@@ -84,10 +84,7 @@
 							</div>
 							
 							<div class="input">
-								<?php echo linkTo('Edit Widget', array("controller"=>"widget", "action"=>"index"), 'id="editWidget" class="btnLink icon iconEdit"') ?>
-							</div>
-							
-							<div class="widgetCustom">
+								<?php echo linkTo('Edit Widget', array("controller"=>"widget", "action"=>"index", "page"=>1), 'id="editWidget" class="btnLink icon iconEdit"') ?>
 							</div>
 						</div>
 					</div>

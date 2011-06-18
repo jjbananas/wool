@@ -397,8 +397,14 @@ textarea:focus {
 	padding-right: 14px;
 }
 
-.dataGrid td.rowSelect {
+.dataGrid .rowSelect {
 	width: 2ex;
+	padding: 4px;
+}
+
+.dataGrid .rowJoined {
+	width: 16px;
+	padding: 4px;
 }
 
 .dataGrid tr.hover td {
@@ -415,9 +421,33 @@ textarea:focus {
 	background-color: #ededed;
 }
 
-.dataGrid tr.selected td {
+.dataGrid tr.highlight td,
+.dataGrid tr.highlight td.hover {
+	background-color: #f4fcf2;
+}
+
+.dataGrid tr.highlight.hover td.hover {
+	background-color: #f2fcf6;
+}
+
+.dataGrid tr.selected td,
+.dataGrid tr.selected td.hover {
 	background-color: #f2f7fc;
 }
+
+.dataGrid tr.selected.hover td.hover {
+	background-color: #edf0fc;
+}
+
+.dataGrid tr.highlight.selected td,
+.dataGrid tr.highlight.selected td.hover {
+	background-color: #dae8da;
+}
+
+.dataGrid tr.highlight.selected.hover td.hover {
+	background-color: #dae8da;
+}
+
 
 .dataGridMover {
 	position: absolute;
@@ -587,6 +617,9 @@ input.icon {
 .iconDelete {
 	background-image: url(../images/icons/page_delete.png);
 }
+.iconDetach {
+	background-image: url(../images/icons/table_remove.png);
+}
 .iconEdit {
 	background-image: url(../images/icons/page_white_edit.png);
 }
@@ -595,6 +628,9 @@ input.icon {
 }
 .iconHistory {
 	background-image: url(../images/icons/time.png);
+}
+.iconJoin {
+	background-image: url(../images/icons/table_relationship.png);
 }
 .iconKeyLink {
 	background-image: url(../images/icons/database_link.png);

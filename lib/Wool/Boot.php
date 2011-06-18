@@ -74,7 +74,6 @@ class Boot {
 		// Remove functions inside the error handler itself.
 		if ($shift) {
 			array_shift($backtrace);
-			array_shift($backtrace);
 		}
 			
 		foreach($backtrace as &$l){

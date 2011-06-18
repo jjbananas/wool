@@ -142,6 +142,56 @@ SQL
 		}
 	}
 	
+	function adminJoin() {
+		$this->data();
+		
+		$this->foreign = param('foreign');
+		$isJoin = Schema::isJoinTable($this->foreign);
+		
+		if ($isJoin) {
+			$this->foreign = array_shift(Schema::referencedTables($this->foreign, $this->table));
+		}
+		
+		if (Request::isPost()) {
+			if ($isJoin) {
+				$ids = array_keys(param('item', array()));
+				WoolDb::update($this->foreign, array(), );
+			} else {
+				foreach (param('item', array()) as $id=>$_) {
+				}
+			}
+			$this->redirectTo(Request::uri());
+		}
+		
+		$this->data = new WoolAutoGrid($this->foreign);
+		$this->data->setPerPage(25);
+		
+		$this->item = WoolTable::fetch($this->foreign, "id", "item");
+
+		if (isset($_SESSION['grids'][$this->foreign]['cols'])) {
+			$this->columns = array();
+			foreach ($_SESSION['grids'][$this->foreign]['cols'] as $col=>$val) {
+				if ($val) {
+					$this->columns[$col] = $val;
+				}
+			}
+		}
+		
+		$this->allColumns = Schema::summaryColumns($this->foreign);
+		$this->columns = array();
+		foreach ($this->allColumns as $col) {
+			$this->columns[$col] = self::COL_NORMAL;
+		}
+		
+		$this->columnOptions = array();
+		
+		foreach ($this->allColumns as $column) {
+			$this->columnOptions[$column] = Schema::columnName($this->foreign, $column);
+		}
+		
+		$this->sortColumns = coal($_SESSION['grids'][$this->foreign]['sort'], array());
+	}
+	
 	function adminKeySearch() {
 		$this->data();
 		$class = Schema::tableClass($this->table);

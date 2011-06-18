@@ -10,7 +10,7 @@
 	<body>
 		<div id="pageHeader">
 			<div class="buttons">
-				<a href="#" class="iconLarge iconMainMenu">Close</a>
+				<a href="#" class="iconLarge iconMainMenu closePanel">Close</a>
 			</div>
 		</div>
 		

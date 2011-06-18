@@ -12,8 +12,17 @@ class ImportMySql {
 		foreach ($new as $name=>$table) {
 			$newTable = !isset($old[$name]);
 			
-			$out = '';
 			$lines = array();
+			
+			// Columns
+			$oldColumns = isset($old[$name]["columns"]) ? $old[$name]["columns"] : array();
+			
+			foreach ($oldColumns as $colName=>$column) {
+				if (!isset($new[$name]["columns"][$colName])) {
+					$lines[] = "drop column {$colName}";
+				}
+			}
+			
 			foreach ($table["columns"] as $colName=>$column) {
 				if ($newTable) {
 					$update = null;
@@ -107,6 +116,8 @@ class ImportMySql {
 			}
 			
 			// Table
+			$out = '';
+			
 			if ($newTable) {
 				$out .= "create table `{$name}` (\n";
 				$out .= join(",\n", $lines);

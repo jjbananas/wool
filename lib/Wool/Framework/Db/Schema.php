@@ -124,6 +124,36 @@ class Schema {
 		return !self::isSystemTable($table);
 	}
 	
+	public static function isJoinTable($table) {
+		if (!isset(self::$schema[$table])) {
+			return false;
+		}
+		
+		// Two primary keys plus the auto-increment column.
+		if (count(self::$schema[$table]["columns"]) != 3) {
+			return false;
+		}
+		
+		// Two primary keys expected.
+		if (count(self::$schema[$table]["keys"]) != 2) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public static function referencedTables($table, $ignore=null) {
+		$tables = array();
+		
+		foreach (self::$schema[$table]["keys"] as $key) {
+			if ($ignore && $key["references"] != $ignore) {
+				$tables[] = $key["references"];
+			}
+		}
+		
+		return $tables;
+	}
+	
 	public static function displayName($table) {
 		return coal(self::$schema[$table]["info"]["name"], $table);
 	}
@@ -212,7 +242,14 @@ class Schema {
 	}
 	
 	public static function columnName($table, $column) {
-		return coal(self::$schema[$table]["columns"][$column]["name"], $column);
+		return
+			isset(self::$schema[$table]["columns"][$column]["name"])
+			? self::$schema[$table]["columns"][$column]["name"]
+			: $column;
+	}
+	
+	public static function go() {
+		debug(self::$schema["image"]["columns"],1);
 	}
 	
 	public static function derivedColumns($table) {

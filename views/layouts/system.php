@@ -4,7 +4,7 @@
 	<head>
 		<title>Wool Framework Error Trace</title>
 		
-		<link rel="stylesheet" href="<?php echo $GLOBALS['BASE_PATH'] . "/public/css/system.css" ?>" />
+		<link rel="stylesheet" href="<?php echo $GLOBALS['BASE_URI'] . "/css/system.css" ?>" />
 	</head>
 	
 	<body>
@@ -19,7 +19,7 @@
 		</div>
 		
 		<div id="pageJavascripts">
-			<script src="<?php echo $GLOBALS['BASE_PATH'] . "/public/js/system.js" ?>"></script>
+			<script src="<?php echo $GLOBALS['BASE_URI'] . "/js/system.js" ?>"></script>
 		</div>
 	</body>
 </html>

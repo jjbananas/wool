@@ -56,8 +56,18 @@
 
 .layoutCanvas .content {
 	background-image: url(../../images/icons/content.png);
-	background-position: center 20px;
-	background-repeat: no-repeat;
+}
+
+.layoutCanvas .contactform {
+	background-image: url(../../images/icons/contact_email.png);
+}
+
+.layoutCanvas .banner {
+	background-image: url(../../images/icons/artwork.png);
+}
+
+.layoutCanvas .productcollection {
+	background-image: url(../../images/icons/box_open.png);
 }
 
 .layoutCanvas .even {

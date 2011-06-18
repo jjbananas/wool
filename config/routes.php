@@ -18,7 +18,12 @@ Route::add("@portal/blog/:year", array("controller"=>"blog", "action"=>"year"));
 Route::add("@portal/user/@action", array("controller"=>"user"));
 Route::add("@portal/user/:name", array("controller"=>"user", "action"=>"view"));
 
+// Widgets
+Route::add("@portal/widget/:page/:type/:area/:config", array("controller"=>"widget", "action"=>"index"));
+Route::add("@portal/widget/:page/:type/:area", array("controller"=>"widget", "action"=>"index"));
+
 // Auto-backend
+Route::add("@portal/auto/:table/join/:id/:foreign", array("controller"=>"auto", "action"=>"join"));
 Route::add("@portal/auto/:table/@action/:id", array("controller"=>"auto"));
 Route::add("@portal/auto/:table/@action", array("controller"=>"auto"));
 Route::add("@portal/auto/:table", array("controller"=>"auto", "action"=>"table"));

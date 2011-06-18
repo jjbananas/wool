@@ -31,11 +31,8 @@ jQuery(function($) {
 			var child = $("<div>").addClass("area").addClass(targetEl.hasClass("even") ? "odd" : "even");
 			
 			if (currentWidgets[name]) {
-				if (currentWidgets[name].type == "content") {
-					child.addClass("content");
-				} else {
-					child.addClass("widget");
-				}
+				child.addClass("widget");
+				child.addClass(currentWidgets[name].type);
 			}
 			
 			child.attr("id", "layout-" + name);
@@ -173,34 +170,6 @@ jQuery(function($) {
 			crumbList.append(item);	
 	}
 	
-	function createWidgetConfigInput(label, input, target) {
-		var newInput = $("<div>").addClass("input");
-		newInput.append($("<label>").html(label));
-		newInput.append(input);
-		
-		target.append(newInput);
-	}
-	
-	var widgetCustom = $(".widgetCustom");
-	
-	function createWidgetConfigPanel(area) {
-		var widget = currentWidgets[area];
-		widgetCustom.empty();
-		
-		$("#widgetView").val(widget.view);
-		
-		if (widget.type == "content") {
-			var input = $("<textarea>").val(widget.content).attr({name: "content"});
-			createWidgetConfigInput("Content", input, widgetCustom);
-		} else {
-			_.each(widget.params, function(param, paramName) {
-				var input = $("<input>").attr({type: "text", name: paramName});
-				input.val(param);
-				createWidgetConfigInput(widgetTypes[widget.type]["params"][paramName]["name"], input, widgetCustom);
-			});
-		}
-	}
-	
 	function newName() {
 		var i = 1;
 		while (true) {
@@ -324,9 +293,6 @@ jQuery(function($) {
 		var parentEl = activeEl.parent().closest(".area");
 		var parentLabel = parentEl.find(".label:first").text();
 		
-		console.log($(this).val());
-		console.log(activeLabel);
-		
 		def[$(this).val()] = def[activeLabel];
 		delete def[activeLabel];
 		
@@ -366,6 +332,8 @@ jQuery(function($) {
 		generateHtml(activeEl, activeLabel);
 	});
 	
+	var baseWidgetEdit = $("#editWidget").attr("href");
+	
 	$("#widget").change(function(e) {
 		var area = $("#area").val();
 		var type = $(this).val();
@@ -377,27 +345,20 @@ jQuery(function($) {
 		
 		$("#widget-config").show();
 		
-		if (!currentWidgets[area] || type != currentWidgets[area].type) {
-			if (type == "content") {
-				currentWidgets[area] = {
-					type: type,
-					content: ""
-				};
-			} else {
-				var params = {};
-				_.each(widgetTypes[type].params, function(value, key) {
-					params[key] = value.default;
-				});
-				
-				currentWidgets[area] = {
-					type: type,
-					view: widgetTypes[type].views[0],
-					params: params
-				};
-			}
-		}
+		$("#editWidget").attr("href", baseWidgetEdit + "/" + type + "/" + area);
 		
-		createWidgetConfigPanel(area);
+		if (!currentWidgets[area] || type != currentWidgets[area].type) {
+			var params = {};
+			_.each(widgetTypes[type].params, function(value, key) {
+				params[key] = value.default;
+			});
+			
+			currentWidgets[area] = {
+				type: type,
+				view: widgetTypes[type].views[0],
+				params: params
+			};
+		}
 	});
 	
 	
@@ -405,11 +366,7 @@ jQuery(function($) {
 		var area = $("#area").val();
 		var input = $(this);
 		
-		if (currentWidgets[area].type == "content") {
-			currentWidgets[area].content = input.val();
-		} else {
-			currentWidgets[area].params[input.attr("name")] = input.val();
-		}
+		currentWidgets[area].params[input.attr("name")] = input.val();
 	});
 	
 	
@@ -422,8 +379,8 @@ jQuery(function($) {
 			type: "post",
 			data: {
 				page: 1,
-				layout: jQuery.toJSON(def),
-				widgets: jQuery.toJSON(currentWidgets)
+				layout: JSON.stringify(def),
+				widgets: JSON.stringify(currentWidgets)
 			},
 			success: function() {
 				WOOL.msgBox.update(alert, "Changes saved!", 3000);
@@ -447,6 +404,16 @@ jQuery(function($) {
 	WOOL.widgetApi = {
 		log: function(msg) {
 			console.log(msg);
+		},
+		closePanel: function() {
+			$.fancybox.close();
+		},
+		update: function(vals) {
+			var area = $("#area").val();
+			
+			_.each(vals, function(val) {
+				currentWidgets[area].params[val.name] = val.value;
+			});
 		}
 	};
 	
@@ -454,6 +421,6 @@ jQuery(function($) {
 		width: "90%",
 		height: "100%",
 		type: "iframe",
-		modal: false
+		modal: true
 	});
 });

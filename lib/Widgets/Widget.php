@@ -80,6 +80,19 @@ class Widget {
 		return $options;
 	}
 	
+	public static function adminDispatch($con, $type, $pageId, $area, $action=null) {
+		if (!isset(self::$types[$type])) {
+			trigger_error("Missing widget type", E_USER_ERROR);
+		}
+		
+		$className = $type . "Widget";
+		$pageWidget = WoolDb::fetchRow("select * from page_widget where pageId = ? and area = ?", array($pageId, $area));
+		$params = new RowSet("select * from page_widget_param where widgetId = ?", $pageWidget->widgetId);
+		
+		$widget = new $className($type, $con, $pageWidget, $params);
+		$widget->adminRender();
+	}
+	
 	public function submitted() {
 		return param("widgetSubmit") == $this->pageWidget->area;
 	}
@@ -90,6 +103,10 @@ class Widget {
 	public function render() {
 		$this->action();
 		$this->renderPartial("/widgets/{$this->definition["controller"]}/{$this->pageWidget->view}", $this->viewVars);
+	}
+	
+	public function adminRender() {
+		$this->controller->render("/widgets/{$this->definition["controller"]}/config");
 	}
 }
 
