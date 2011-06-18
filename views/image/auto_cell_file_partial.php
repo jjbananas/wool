@@ -1,0 +1,1 @@
+<img src="<?php echo routeUri(array("portal"=>"default", "controller"=>"image", "action"=>"thumbnail", "uri"=>"sx-158__" . $item->file)) ?>" />

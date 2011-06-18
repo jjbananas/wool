@@ -131,13 +131,13 @@ SQL
 	public function css($path, $type=self::MEDIA_NORMAL) {
 		$files = Burn::expandDebugFileList($path);
 		foreach ($files as $file) {
-			$this->css[$type][] = sprintf('<link rel="stylesheet" type="text/css" href="%s" />', baseUri($file));
+			$this->css[$type][$file] = sprintf('<link rel="stylesheet" type="text/css" href="%s" />', baseUri($file));
 		}
 	}
 	public function js($path, $type=self::MEDIA_NORMAL) {
 		$files = Burn::expandDebugFileList($path);
 		foreach ($files as $file) {
-			$this->js[$type][] = sprintf('<script src="%s"></script>', baseUri($file));
+			$this->js[$type][$file] = sprintf('<script src="%s"></script>', baseUri($file));
 		}
 	}
 	public function meta($type, $content) {
@@ -165,7 +165,7 @@ SQL
 		$this->addAvailableMedia($renderedView);
 	}
 	
-	private function addAvailableMedia($path) {
+	protected function addAvailableMedia($path) {
 		if (file_exists(publicPath("/css/" . $path . ".css"))
 			|| file_exists(publicPath("/css/" . $path . ".conf"))) 
 		{

@@ -130,7 +130,7 @@ jQuery(function($) {
 							table: grid.attr("data-gridTable"),
 							cols: $("th.dragable", grid).map(function() {
 								return $(this).attr('data-column');
-							})
+							}).toArray()
 						},
 						dataType: "json",
 						success: function(res) {

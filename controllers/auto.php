@@ -3,20 +3,15 @@
 require_once('Wool/App/Product.php');
 
 class AutoController extends Controller {
-	const COL_HIDDEN = 0;
-	const COL_NORMAL = 1;
-	
 	function startUp() {
 		$this->addHelper('grid');
 	}
 	
-	private function data() {
-		$this->table = param('table');
-		$this->allColumns = Schema::summaryColumns($this->table);
-		$this->columns = array();
-		foreach ($this->allColumns as $col) {
-			$this->columns[$col] = self::COL_NORMAL;
-		}
+	private function addAutoMedia($table, $action) {
+		$this->addAvailableMedia($table . '/common');
+		$this->addAvailableMedia($table . '/' . $this->portalName);
+		$this->addAvailableMedia($table . '/common_' . $action);
+		$this->addAvailableMedia($table . '/' . $this->portalName . '_' . $action);
 	}
 	
 	function adminIndex() {
@@ -24,29 +19,13 @@ class AutoController extends Controller {
 	}
 	
 	function adminTable() {
-		$this->data();
+		$this->table = param('table');
+		$this->addAutoMedia($this->table, "index");
 		
-		$this->data = new WoolAutoGrid($this->table);
-		$this->data->setPerPage(25);
+		$this->grid = new WoolAutoGrid($this->table);
+		$this->grid->setPerPage(25);
 		
 		$this->item = WoolTable::fetch($this->table, "id", "item");
-
-		if (isset($_SESSION['grids'][$this->table]['cols'])) {
-			$this->columns = array();
-			foreach ($_SESSION['grids'][$this->table]['cols'] as $col=>$val) {
-				if ($val) {
-					$this->columns[$col] = $val;
-				}
-			}
-		}
-		
-		$this->columnOptions = array();
-		
-		foreach ($this->allColumns as $column) {
-			$this->columnOptions[$column] = Schema::columnName($this->table, $column);
-		}
-		
-		$this->sortColumns = coal($_SESSION['grids'][$this->table]['sort'], array());
 	}
 	
 	function adminEdit() {
@@ -60,7 +39,7 @@ class AutoController extends Controller {
 		if ($this->item->$u) {
 			foreach (Schema::inboundKeys($this->table) as $key) {
 				foreach (Schema::columns($key) as $col) {
-					$this->foreign[$key]["columns"][$col] = self::COL_NORMAL;
+					$this->foreign[$key]["columns"][$col] = 1;
 				}
 				$condition = Schema::primaryCondition($key, $this->table, $this->item, "f");
 				$this->foreign[$key]["data"] = new WoolGrid($key, <<<SQL
@@ -143,8 +122,6 @@ SQL
 	}
 	
 	function adminJoin() {
-		$this->data();
-		
 		$this->foreign = param('foreign');
 		$isJoin = Schema::isJoinTable($this->foreign);
 		
@@ -155,7 +132,7 @@ SQL
 		if (Request::isPost()) {
 			if ($isJoin) {
 				$ids = array_keys(param('item', array()));
-				WoolDb::update($this->foreign, array(), );
+				//WoolDb::update($this->foreign, array(), );
 			} else {
 				foreach (param('item', array()) as $id=>$_) {
 				}
@@ -163,33 +140,8 @@ SQL
 			$this->redirectTo(Request::uri());
 		}
 		
-		$this->data = new WoolAutoGrid($this->foreign);
-		$this->data->setPerPage(25);
-		
-		$this->item = WoolTable::fetch($this->foreign, "id", "item");
-
-		if (isset($_SESSION['grids'][$this->foreign]['cols'])) {
-			$this->columns = array();
-			foreach ($_SESSION['grids'][$this->foreign]['cols'] as $col=>$val) {
-				if ($val) {
-					$this->columns[$col] = $val;
-				}
-			}
-		}
-		
-		$this->allColumns = Schema::summaryColumns($this->foreign);
-		$this->columns = array();
-		foreach ($this->allColumns as $col) {
-			$this->columns[$col] = self::COL_NORMAL;
-		}
-		
-		$this->columnOptions = array();
-		
-		foreach ($this->allColumns as $column) {
-			$this->columnOptions[$column] = Schema::columnName($this->foreign, $column);
-		}
-		
-		$this->sortColumns = coal($_SESSION['grids'][$this->foreign]['sort'], array());
+		$this->grid = new WoolAutoGrid($this->foreign);
+		$this->grid->setPerPage(25);
 	}
 	
 	function adminKeySearch() {
@@ -214,28 +166,13 @@ SQL
 		}
 		
 		$table = param('table');
-		$grid = isset($_SESSION['grids'][$table]['cols']) ? $_SESSION['grids'][$table]['cols'] : array();
-		$new = array();
+		$grid = new WoolAutoGrid($table);
+		$grid->setColumnPositions(param('cols', array()));
 		
-		foreach (param('cols', array()) as $col) {
-			$new[$col] = isset($grid[$col]) ? $grid[$col] : self::COL_NORMAL;
-		}
-		
-		foreach (Schema::columns($table) as $col) {
-			if (!isset($new[$col])) {
-				$new[$col] = isset($grid[$col]) ? $grid[$col] : self::COL_NORMAL;
-			}
-		}
-		
-		$_SESSION['grids'][$table]['cols'] = $new;
-		
-		$this->renderJson(array(
-			"success" => true
-		));
+		$this->renderJson(array("success" => true));
 	}
 	
 	function adminReset() {
-		$this->data();
 		$_SESSION['grids'][$this->table]['cols'] = null;
 		$_SESSION['grids'][$this->table]['sort'] = null;
 		$this->redirectTo(array("action"=>"table", "table"=>$this->table));
@@ -247,17 +184,8 @@ SQL
 		}
 		
 		$table = param('table');
-		$visible = param('cols', array());
-		
-		foreach (Schema::columns($table) as $col) {
-			if (!isset($_SESSION['grids'][$table]['cols'][$col])) {
-				$_SESSION['grids'][$table]['cols'][$col] = self::COL_NORMAL;
-			}
-		}
-		
-		foreach ($_SESSION['grids'][$table]['cols'] as $col=>$val) {
-			$_SESSION['grids'][$table]['cols'][$col] = isset($visible[$col]) ? self::COL_NORMAL : self::COL_HIDDEN;
-		}
+		$grid = new WoolAutoGrid($table);
+		$grid->setVisibleColumns(array_keys(param('cols', array())));
 		
 		$this->redirectTo(array("action"=>"index", "table"=>$table));
 	}
@@ -268,19 +196,15 @@ SQL
 		}
 		
 		$table = param('table');
-		$cols = param('cols', array());
+		$grid = new WoolAutoGrid($table);
 		
-		$allowedCols = Schema::columns($table);
+		$sorts = array();
 		
-		$_SESSION['grids'][$table]['sort'] = array();
-		
-		foreach ($cols as $col) {
-			if (!in_array($col["sort"], $allowedCols)) {
-				continue;
-			}
-			
-			$_SESSION['grids'][$table]['sort'][$col["sort"]] = matchSqlOrder($col["dir"]);
+		foreach (param('cols', array()) as $num=>$vals) {
+			$sorts[$vals["sort"]] = ($vals["dir"] == "asc" ? WoolAutoGrid::COL_ASC : WoolAutoGrid::COL_DESC);
 		}
+		
+		$grid->setColumnSorts($sorts);
 		
 		$this->redirectTo(array("action"=>"index", "table"=>$table));
 	}
