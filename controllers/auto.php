@@ -38,14 +38,8 @@ class AutoController extends Controller {
 		$u = Schema::uniqueColumn($this->table);
 		if ($this->item->$u) {
 			foreach (Schema::inboundKeys($this->table) as $key) {
-				foreach (Schema::columns($key) as $col) {
-					$this->foreign[$key]["columns"][$col] = 1;
-				}
-				$condition = Schema::primaryCondition($key, $this->table, $this->item, "f");
-				$this->foreign[$key]["data"] = new WoolGrid($key, <<<SQL
-select * from {$key} f where {$condition}
-SQL
-				);
+				$condition = Schema::primaryCondition($key, $this->table, $this->item, "t");
+				$this->foreign[$key] = new WoolAutoGrid($key, $condition);
 			}
 		}
 		

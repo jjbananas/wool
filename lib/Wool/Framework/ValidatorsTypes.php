@@ -53,9 +53,6 @@ class DatetimeValidator extends Validator {
 
 class EnumValidator extends Validator {
 	public static function validate($value, $params=array()) {
-		debug($value);
-		debug($params);
-		
 		return in_array($value, $params['length']);
 	}
 	
@@ -65,6 +62,7 @@ class EnumValidator extends Validator {
 }
 
 
+WoolValidation::registerValidator("null", "NullValidator");
 WoolValidation::registerValidator("int", "IntValidator");
 WoolValidation::registerValidator("string", "StringValidator");
 WoolValidation::registerValidator("date", "DateValidator");

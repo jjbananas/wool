@@ -60,6 +60,7 @@ if ($self->canRenderPartial("/{$table}/auto_grid")) {
 					</td>
 				</tr>
 				
+				<?php if (count($grid)) { ?>
 				<tr>
 					<td colspan="999">
 						<div class="gridButtons">
@@ -67,15 +68,18 @@ if ($self->canRenderPartial("/{$table}/auto_grid")) {
 						</div>
 					</td>
 				</tr>
+				<?php } ?>
 			</tfoot>
 		</table>
 	</form>
 	
+	<?php if ($grid->totalPages() > 0) { ?>
 	<div class="foot">
 		<div class="pod podNested pad">
 			<?php $self->renderPartial('/grid/nav', array("pager"=>$grid)) ?>
 		</div>
 	</div>
+	<?php } ?>
 </div>
 <?php
 }

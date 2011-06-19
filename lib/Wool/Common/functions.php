@@ -157,3 +157,8 @@ function byteUnits($bytes) {
 	elseif ($bytes < 1099511627776) return round($bytes / 1073741824, 2).' GB';
 	else return round($bytes / 1099511627776, 2).' TB';
 }
+
+// Inverse of standard PHP bin2hex.
+function hex2bin($hex) {
+	return pack("H*", $hex);
+}

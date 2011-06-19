@@ -245,8 +245,9 @@ SQL
 		return new RowSet("select * from {$table} {$where}", $params);
 	}
 	
-	public static function queryJoined($table, $selectColumns=array()) {
+	public static function queryJoined($table, $selectColumns=array(), $where=null) {
 		$selects = array();
+		$where = $where ? "where {$where}" : "";
 		
 		if ($selectColumns) {
 			foreach ($selectColumns as $selectColumn) {
@@ -264,7 +265,7 @@ SQL
 		$selects = join(", ", $selects);
 		$joins = join("\n", $joins);
 		
-		return "select {$selects} from {$table} t {$joins}";
+		return "select {$selects} from {$table} t {$joins} {$where}";
 	}
 	
 	private static function fetchJoined($table, $id) {

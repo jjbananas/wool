@@ -167,6 +167,7 @@ class ImageController extends AppController {
 				
 				$dbImage = WoolTable::fetch("image", null, "image");
 				$dbImage->title = $params["title"];
+				$dbImage->hash = hex2bin($params["hash"]);
 				$dbImage->file = date('/Y/m/') . basename($file);
 				WoolTable::save($dbImage);
 			}
@@ -178,7 +179,6 @@ class ImageController extends AppController {
 	}
 	
 	function adminPreSave() {
-		$json = array("success"=>true);
 		$json["files"] = $this->uploadSourceFiles();
 		$this->renderJson($json);
 	}
@@ -191,11 +191,20 @@ class ImageController extends AppController {
 		foreach ($_FILES as $id=>$file) {
 			$id = substr($id, 6);
 			$sha = sha1_file($file["tmp_name"]);
-			$shaPath = $path . "/" . str_insert("/", substr($sha, 0, 4), 2);
+			$shaPath = $path . "/" . str_insert("/", str_insert("/", $sha, 4), 2);
 			
 			mkdir_recursive($shaPath);
-			move_uploaded_file($file["tmp_name"], $shaPath . "/" . substr($sha, 4) . "." . fileExtension($file["name"]));
-			$files[$id] = $sha;
+			$dest = $shaPath . "/" . $file["name"];
+			
+			// This should probably use move_uploaded_file but it breaks file
+			// permissions on Windows. In any case we are sure that this was an
+			// uploaded file.
+			if (copy($file["tmp_name"], $dest)) {
+				$files[$id]["success"] = true;
+				$files[$id]["hash"] = $sha;
+			} else {
+				$files[$id]["success"] = false;
+			}
 		}
 		
 		return $files;
@@ -203,8 +212,8 @@ class ImageController extends AppController {
 	
 	private function locateSourceFile($hash) {
 		$path = publicPath("/uploads/images/source");
-		$shaPath = $path . "/" . str_insert("/", substr($hash, 0, 4), 2);
-		$files = glob($shaPath . "/" . substr($hash, 4) . ".*");
+		$shaPath = $path . "/" . str_insert("/", str_insert("/", $hash, 4), 2);
+		$files = glob($shaPath . "/" . "*");
 		
 		if (!$files || count($files) != 1) {
 			return null;

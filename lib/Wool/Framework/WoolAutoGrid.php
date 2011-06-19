@@ -13,11 +13,11 @@ class WoolAutoGrid extends WoolGrid {
 	private $sortColumns;
 	private $columnNames;
 	
-	public function __construct($table) {
+	public function __construct($table, $where=null) {
 		$this->table = $table;
 		$this->allColumns = Schema::summaryColumns($this->table);
 
-		parent::__construct($table, WoolTable::queryJoined($this->table, Schema::summaryColumns($this->table)));
+		parent::__construct($table, WoolTable::queryJoined($this->table, $this->allColumns, $where));
 		
 		$this->cacheColumns();
 		$this->cacheFilters();
