@@ -147,7 +147,7 @@ function processLayout($level, $layout, $layers=array()) {
 	return $merged;
 }
 
-class LayoutController extends Controller {
+class PageController extends Controller {
 	function index() {
 		$this->page = new Page($this, Request::path(true));
 		$this->layoutAreas = processLayout("body", json_decode($this->page->row->layout));
@@ -155,8 +155,8 @@ class LayoutController extends Controller {
 		$this->meta("description", $this->page->row->metaDesc);
 	}
 	
-	function adminIndex() {
-		$this->page = new Page($this, '/layout');
+	function adminLayout() {
+		$this->page = new Page($this, param('uri'));
 	}
 	
 	function adminSetLayout() {

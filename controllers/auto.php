@@ -218,6 +218,7 @@ SQL
 		}
 		
 		$this->table = param('table');
+		$this->grid = new WoolAutoGrid($this->table);
 		$this->item = WoolTable::fetch($this->table, "id", "item");
 		$json = array();
 		

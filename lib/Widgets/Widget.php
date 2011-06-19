@@ -40,7 +40,7 @@ class Widget {
 	}
 	
 	public function renderPartial($view, $vars) {
-		$this->controller->renderPartial("/layout/widget", array("widgetView"=>$view, "widgetVars"=>$vars));
+		$this->controller->renderPartial("/page/widget", array("widgetView"=>$view, "widgetVars"=>$vars));
 	}
 	
 	public static function defineTypes() {

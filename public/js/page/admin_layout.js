@@ -375,7 +375,7 @@ jQuery(function($) {
 		var alert = WOOL.msgBox.add("Saving...");
 		
 		jQuery.ajax({
-			url: "/shaded/admin/layout/setLayout",
+			url: "/shaded/admin/page/setLayout",
 			type: "post",
 			data: {
 				page: 1,
