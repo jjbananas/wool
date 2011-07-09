@@ -32,7 +32,7 @@
 */
 
 #header {
-	background-color: #282828;
+	background-color: [foreground:#282828];
 }
 
 #header .userStatus {
@@ -52,7 +52,7 @@
 }
 
 #header .nav {
-	background-color: #780000;
+	background-color: [background:#780000];
 	border-bottom: 1px solid #600b0b;
 }
 
@@ -107,7 +107,7 @@
 
 #footer .header {
 	height: 30px;
-	background-color: #580000;
+	background-color: [background:#580000];
 	margin-bottom: 20px;
 	padding: 10px 0;
 }
@@ -190,7 +190,7 @@
 }
 
 #footerCopyright {
-	background-color: #282828;
+	background-color: [foreground:#282828];
 	color: #e8e8e8;
 	text-align: right;
 	margin-top: 10px;

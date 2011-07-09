@@ -1,0 +1,2 @@
+<input type="submit" class="btnLink btnLinkLight btnLinkThin icon iconJoin" name="join" value="Join" />
+<input type="submit" class="btnLink btnLinkLight btnLinkThin icon iconDetach" name="detach" value="Detach" />

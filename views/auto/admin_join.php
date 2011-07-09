@@ -24,7 +24,7 @@
 	
 	<?php $self->renderPartial("column_tools", array("table"=>$foreign, "grid"=>$grid)) ?>
 	
-	<?php $self->renderPartial("grid", array("table"=>$foreign, "grid"=>$grid)) ?>
+	<?php $self->renderPartial("grid", array("table"=>$foreign, "grid"=>$grid, "buttonPartial"=>"join_buttons")) ?>
 </div>
 
 <?php

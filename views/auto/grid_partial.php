@@ -9,7 +9,9 @@ if ($self->canRenderPartial("/{$table}/auto_grid")) {
 			<thead>
 				<tr>
 					<th class="rowSelect"><input type="checkbox" class="checkAll" /></th>
+					<?php if ($grid->showJoins()) { ?>
 					<th class="rowJoined"><img src="<?php echo publicUri("/images/icons/table_relationship.png") ?>" alt="Joined" /></th>
+					<?php } ?>
 					<?php foreach ($grid->visibleColumns() as $column=>$sort) { ?>
 					<th class="dragable <?php echo gridHeaderClass($table, $column, $grid->sortColumns()) ?>" data-column="<?php echo $column ?>"><span><?php echo Schema::columnName($table, $column) ?></span></th>
 					<?php } ?>
@@ -64,7 +66,11 @@ if ($self->canRenderPartial("/{$table}/auto_grid")) {
 				<tr>
 					<td colspan="999">
 						<div class="gridButtons">
+							<?php if (isset($buttonPartial)) { ?>
+							<?php $self->renderPartial($buttonPartial, array()) ?>
+							<?php } else { ?>
 							<input type="submit" class="btnLink btnLinkLight btnLinkThin icon iconDelete" name="delete" value="Delete" />
+							<?php } ?>
 						</div>
 					</td>
 				</tr>

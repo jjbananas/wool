@@ -33,7 +33,7 @@ class WoolGrid implements IteratorAggregate, Countable, ArrayAccess {
 	// Get total number of rows across all pages.
 	public function totalRows() {
 		if (!$this->count) {
-			$this->count = WoolDb::fetchOne($this->countSql(), $this->sql->params());
+			$this->count = $this->sql->count();
 		}
 		
 		return $this->count;
@@ -107,10 +107,6 @@ class WoolGrid implements IteratorAggregate, Countable, ArrayAccess {
 	
 	public function orderDir($dir) {
 		$this->dir = coal($dir, $this->dir);
-	}
-	
-	private function countSql() {
-		return preg_replace('/select.*?from/ius', "select count(*) from", $this->sql->toString(), 1);
 	}
 	
 	protected function orderBySql() {

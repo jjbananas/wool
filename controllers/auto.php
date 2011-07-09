@@ -136,7 +136,7 @@ SQL
 			$this->redirectTo(Request::uri());
 		}
 		
-		$this->grid = new WoolAutoGrid($this->foreign);
+		$this->grid = new WoolAutoGrid($this->foreign, null, param('foreign'), id_param('id'), $isJoin ? $this->table : null);
 		$this->grid->setPerPage(25);
 	}
 	

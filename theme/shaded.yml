@@ -1,0 +1,11 @@
+name: Shaded
+description: The standard theme.
+    
+params:
+    background:
+        type: color
+        name: Background
+        
+    foreground:
+        type: color
+        name: Foreground

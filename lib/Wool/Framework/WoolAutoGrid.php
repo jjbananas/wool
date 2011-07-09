@@ -13,11 +13,24 @@ class WoolAutoGrid extends WoolGrid {
 	private $sortColumns;
 	private $columnNames;
 	
-	public function __construct($table, $where=null) {
+	private $showJoins = false;
+	
+	public function __construct($table, $where=null, $showJoins=false, $joinId=null, $joinTable=null) {
+		$this->showJoins = !!$showJoins;
+		
 		$this->table = $table;
 		$this->allColumns = Schema::summaryColumns($this->table);
-
+		
 		parent::__construct($table, WoolTable::queryJoined($this->table, $this->allColumns, $where));
+		
+		if ($showJoins) {
+			$joinCond = Schema::joinCondition($showJoins, $this->table, "js", "t");
+			$unique = Schema::uniqueColumn($joinTable ? $joinTable : $table);
+			
+			$this->sql->andSelect("if(js.{$unique} is null, false, true) isJoined");
+			$this->sql->leftJoin("{$showJoins} js on {$joinCond} and js.{$unique} = {$joinId}");
+			$this->sql->orderBy("isJoined", "desc");
+		}
 		
 		$this->cacheColumns();
 		$this->cacheFilters();
@@ -188,5 +201,9 @@ class WoolAutoGrid extends WoolGrid {
 	
 	public static function dirToSql($dir) {
 		return $dir == self::COL_DESC ? "desc" : "asc";
+	}
+	
+	public function showJoins() {
+		return $this->showJoins;
 	}
 }

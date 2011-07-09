@@ -268,9 +268,19 @@ SQL
 		return "select {$selects} from {$table} t {$joins} {$where}";
 	}
 	
+	public static function fetchRow($sql, $params=array()) {
+		$args = func_get_args();
+		$row = WoolDb::fetchRow($sql, $params);
+		if (!$row) {
+			return WoolTable::blankFromSql($sql);
+		}
+		WoolTable::setQueryMeta($row, new SqlMeta($sql));
+		return $row;
+	}
+	
 	private static function fetchJoined($table, $id) {
 		$where = self::uniqueWhereClause($table, $id);
-		return WoolDb::fetchRow(self::queryJoined($table) . " where {$where}");
+		return self::fetchRow(self::queryJoined($table) . " where {$where}");
 	}
 	
 	public static function fromArray($obj, $merge=null, $mergeGrp="default") {
@@ -446,14 +456,19 @@ SQL
 				}
 				
 				// Send off to Zend_Db to do the save.
-				if ($s['insert']) {
-					self::triggerEvent("preInsert", $s['obj'], $table);
-					WoolDb::insert($srcTable, $s['values']);
-					$s['obj']->$s['increment'] = WoolDb::lastInsertId();
-				}
-				else {
-					self::triggerEvent("preUpdate", $s['obj'], $table);
-					WoolDb::update($srcTable, $s['values'], $s['primaries']);
+				try {
+					if ($s['insert']) {
+						self::triggerEvent("preInsert", $s['obj'], $table);
+						WoolDb::insert($srcTable, $s['values']);
+						$s['obj']->$s['increment'] = WoolDb::lastInsertId();
+					}
+					else {
+						self::triggerEvent("preUpdate", $s['obj'], $table);
+						WoolDb::update($srcTable, $s['values'], $s['primaries']);
+					}
+				} catch (PDOException $e) {
+					WoolErrors::add($s['obj'], "database", "The database rejected the save. It had this to say: {$e->errorInfo[2]}");
+					return false;
 				}
 				
 				self::triggerEvent("postSave", $s['obj'], $table);

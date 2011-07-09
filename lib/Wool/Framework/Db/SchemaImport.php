@@ -1,7 +1,6 @@
 <?php
 
 require_once('spyc/spyc.php');
-require_once('Zend/Db/Adapter/Pdo/Mysql.php');
 require_once('Wool/Framework/Db/SqlTypes.php');
 require_once('Wool/Framework/Db/Schema.php');
 require_once('Wool/Framework/Db/ImportSql.php');
@@ -228,7 +227,7 @@ class SchemaImport {
 			$local = "{$prefix}{$primary}";
 			$locals[$local] = $primary;
 			$colDef = Schema::column($colName, $primary);
-			$colDef["primary"] = false;
+			$colDef["primary"] = isset($col["primary"]) ? $col["primary"] : false;
 			$colDef["increment"] = false;
 			Schema::addColumn($tblName, $local, $colDef);
 		}

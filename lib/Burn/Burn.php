@@ -1,12 +1,14 @@
 <?php
 
-require_once('Zend/Json.php');
 require_once('Burn/JSMin.php');
 require_once('Burn/CssCompressor.php');
 
 define('SLASH', DIRECTORY_SEPARATOR);
 
 class Burn {
+	private static $vars = array();
+	private static $varsModified = 0;
+	
 	// Takes a file and returns all files that are referenced within, or the file
 	// itself if it is the end of the line.
 	private static function expandFileList($filePath) {
@@ -36,7 +38,7 @@ class Burn {
 			$files['path'][] = $path;
 		} else {
 			$conf = file_get_contents($confFile);
-			$conf = Zend_Json::decode($conf);
+			$conf = json_decode($conf, true);
 
 			foreach ($conf['files'] as $file) {
 				$files = array_merge_recursive($files, self::expandFileList($path . '/' . $file));
@@ -78,7 +80,10 @@ class Burn {
 			$path = str_replace($currentPath, "", $path);
 		}
 		
+		self::loadVariables();
+		
 		$lastModifiedSource = lastModifiedTime(array_merge($files['conf'], $files['source']));
+		$lastModifiedSource = max($lastModifiedSource, self::$varsModified);
 
 		// Output
 		if ($extension == 'css') {
@@ -86,28 +91,57 @@ class Burn {
 		} else {
 			header("Content-type: application/x-javascript");
 		}
-
+		
 		$modifiedSince = isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) : -1;
-
-		if ($lastModifiedSource <= $modifiedSince) {
+		$noneMatch = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH'])) : "";
+		$etag = md5($lastModifiedSource.$filename);
+		
+		header("Cache-Control: public");
+		header("ETag: {$etag}");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $lastModifiedSource) . " GMT");
+		
+		if ($lastModifiedSource <= $modifiedSince || $noneMatch == $etag) {
 			header("HTTP/1.1 304 Not Modified", true, 304);
 			exit;
 		}
+		header("Expires: " . gmdate("D, d M Y H:i:s", time()+86400) . " GMT");
 		
 		if (DEVELOPER) {
 			$output = self::updateDebug($debugFile, $lastModifiedSource, $files['source'], $extension, $files['path']);
-			header("Last-modified: " . gmdate("D, d M Y H:i:s",lastModifiedTime($debugFile)) . " GMT"); 
-			echo $output;
 		} else {
 			$output = self::updateMinified($minFile, $lastModifiedSource, $files['source'], $extension, $files['path']);
-			header("Last-modified: " . gmdate("D, d M Y H:i:s",lastModifiedTime($minFile)) . " GMT"); 
-			echo $output;
 		}
+		
+		echo $output;
 	}
 	
 	private static function convertUrls($contents, $file, $relPath) {
 		$regex = "/url\([\"\']?([^\"\'\)]+)[\"\']?\)/";
 		return $relPath ? preg_replace($regex, "url('{$relPath}/$1')", $contents) : $contents;
+	}
+	
+	private static function loadVariables() {
+		$file = $GLOBALS['BASE_PATH'] . '/var/burn/variables.php';
+		
+		if (!file_exists($file)) {
+			return;
+		}
+		
+		self::$vars = require($file);
+		self::$varsModified = lastModifiedTime($file);
+	}
+	
+	private static function insertVariables($contents) {
+		if (!self::$vars) {
+			return $contents;
+		}
+		
+		$regex = "/\[([^\s]+):([^\s]+)\]/";
+		return preg_replace_callback($regex, array("self", "insertVariableCallback"), $contents);
+	}
+	
+	public static function insertVariableCallback($matches) {
+		return isset(self::$vars[$matches[1]]) ? self::$vars[$matches[1]] : $matches[2];
 	}
 	
 	private static function minify($files, $extension, $relPath) {
@@ -116,6 +150,7 @@ class Burn {
 			if ($extension == 'css') {
 				$contents = file_get_contents($file);
 				$contents = self::convertUrls($contents, $file, $relPath[$num]);
+				$contents = self::insertVariables($contents);
 				$min[] = CssCompressor::process($contents);
 			} else {
 				$min[] = JSMin::minify(file_get_contents($file));
@@ -132,6 +167,7 @@ class Burn {
 			
 			if ($extension == "css") {
 				$contents = self::convertUrls($contents, $file, $relPath[$num]);
+				$contents = self::insertVariables($contents);
 			}
 
 			$debug[] = $contents;

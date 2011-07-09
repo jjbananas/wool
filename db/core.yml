@@ -146,3 +146,27 @@ image_in_collection:
             type: key
             update: cascade
             delete: cascade
+
+theme:
+    columns:
+        themeId:
+            type: primary
+        
+        name:
+            type: varchar(50)
+
+theme_param:
+    columns:
+        theme:
+            type: key
+            update: cascade
+            delete: cascade
+            primary: true
+            
+        reference:
+            type: varchar(50)
+            primary: true
+            
+        value:
+            type: varchar(50)
+            

@@ -19,19 +19,14 @@
 			<div class="body splitBody">
 				<div class="s1of2">
 					<div class="editPanel">
+						<?php foreach ($def["params"] as $name=>$def) { ?>
 						<div class="input">
-							<label for="foreground">Foreground</label>
+							<label for="<?php echo $name ?>"><?php echo $def["name"] ?></label>
 							<?php
-								echo color_field_tag("foreground");
+								echo color_field_tag($name, $params->valueBy("reference", $name, "value"));
 							?>
 						</div>
-						
-						<div class="input">
-							<label for="background">Background</label>
-							<?php
-								echo color_field_tag("background");
-							?>
-						</div>
+						<?php } ?>
 					</div>
 				</div>
 				

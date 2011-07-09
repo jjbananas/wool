@@ -1,6 +1,12 @@
-<tr data-unique="<?php $u = Schema::uniqueColumn($table); echo $item->$u ?>" <?php echo isset($selected) ? 'class="selected"' : '' ?>>
+<tr data-unique="<?php $u = Schema::uniqueColumn($table); echo $item->$u ?>" <?php echo isset($selected) ? 'class="selected"' : '' ?> <?php echo isset($item->isJoined) && $item->isJoined ? 'class="highlight"' : '' ?>>
 	<td class="rowSelect"><input type="checkbox" name="item[<?php echo $item->$u ?>]" <?php echo checked(isset($selected)) ?> /></td>
-	<td class="rowJoined"><img src="<?php echo publicUri("/images/icons/table_relationship.png") ?>" alt="Joined" /></td>
+	<?php if ($grid->showJoins()) { ?>
+	<td class="rowJoined">
+		<?php if ($item->isJoined) { ?>
+		<img src="<?php echo publicUri("/images/icons/table_relationship.png") ?>" alt="Joined" />
+		<?php } ?>
+	</td>
+	<?php } ?>
 	<?php foreach ($grid->visibleColumns() as $column=>$sort) { ?>
 	<?php if ($self->canRenderPartial("/{$table}/auto_cell_{$column}")) { ?>
 	<td><?php $self->renderPartial("/{$table}/auto_cell_{$column}", array("table"=>$table, "grid"=>$grid, "item"=>$item, "sort"=>$sort)) ?></td>

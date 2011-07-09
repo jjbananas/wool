@@ -28,6 +28,15 @@ class Sql {
 		return $this->sql;
 	}
 	
+	// Attempt to show the string with parameters in place.
+	public function debugString() {
+		$string = $this->toString();
+		foreach ($this->params() as $param) {
+			$string = preg_replace('/\?/', $param, $string, 1);
+		}
+		return $string;
+	}
+	
 	public function params() {
 		if ($this->params) {
 			return $this->params;
@@ -46,6 +55,32 @@ class Sql {
 	
 	public function rowSet() {
 		return new RowSet($this->toString(), $this->params());
+	}
+	
+	public function fetchRow() {
+		return WoolTable::fetchRow($this->toString(), $this->params());
+	}
+	
+	public function count() {
+		$this->split();
+		
+		$countSql = "select count(*)\n";
+		
+		foreach (array("from", "where", "group by", "having") as $part) {
+			if (isset($this->parts[$part]) && $this->parts[$part]) {
+				$countSql .= $this->parts[$part] . "\n" ;
+			}
+		}
+		
+		$params = array();
+		
+		foreach (array("from", "where", "group by", "having") as $part) {
+			if (isset($this->partParams[$part]) && $this->partParams[$part]) {
+				$params = array_merge($params, $this->partParams[$part]);
+			}
+		}
+		
+		return WoolDb::fetchOne($countSql, $params);
 	}
 	
 	public function __call($name, $params) {

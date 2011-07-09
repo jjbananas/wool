@@ -387,16 +387,9 @@ SQL;
 	}
 	
 	private static function compareExistingTrigger($time, $event, $tblName, $trigger) {
-		$db = new Zend_Db_Adapter_Pdo_Mysql(array(
-				'host'     => $GLOBALS['DB_HOST'],
-				'username' => $GLOBALS['DB_USERNAME'],
-				'password' => $GLOBALS['DB_PASSWORD'],
-				'dbname'   => 'information_schema'
-		));
+		WoolDb::connect($GLOBALS['DB_HOST'], 'information_schema', $GLOBALS['DB_USERNAME'], $GLOBALS['DB_PASSWORD'], 'schema');
 
-		$db->setFetchMode(Zend_Db::FETCH_OBJ);
-		
-		$current = $db->fetchOne(<<<SQL
+		$current = WoolDb::fetchOne(<<<SQL
 select ACTION_STATEMENT
 from TRIGGERS t
 where
@@ -406,6 +399,8 @@ where
 	and t.EVENT_OBJECT_TABLE = ?
 SQL
 		, array($GLOBALS['DB_NAME'], $time, $event, $tblName));
+		
+		WoolDb::switchConnection("default");
 		
 		return $current == $trigger;
 	}

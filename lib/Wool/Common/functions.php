@@ -162,3 +162,16 @@ function byteUnits($bytes) {
 function hex2bin($hex) {
 	return pack("H*", $hex);
 }
+
+// Just like array_merge_recursive but maintains keys in child arrays.
+function array_merge_recursive_keys($out, $arr) {
+	foreach ($arr as $key=>$value) {
+		if (is_array($value)) {
+			$out[$key] = array_merge_recursive_keys($out[$key], $value);
+		} else {
+			$out[$key] = $value;
+		}
+	}
+
+	return $out;
+}

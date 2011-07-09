@@ -45,7 +45,7 @@ class Schema {
 	}
 	
 	public static function applyMixin($table, $mixin) {
-		self::$schema[$table] = array_merge_recursive(self::$schema[$table], self::$mixins[$mixin]);
+		self::$schema[$table] = array_merge_recursive_keys(self::$schema[$table], self::$mixins[$mixin]);
 	}
 	
 	public function addColumn($table, $name, $def) {
@@ -248,10 +248,6 @@ class Schema {
 			: $column;
 	}
 	
-	public static function go() {
-		debug(self::$schema["image"]["columns"],1);
-	}
-	
 	public static function derivedColumns($table) {
 		$cols = array();
 		
@@ -336,9 +332,15 @@ class Schema {
 		$cols = array();
 		
 		foreach (self::$schema[$table]["columns"] as $colName=>$col) {
-			if ($col["length"] <= 256) {
-				$cols[] = $colName;
+			if ($col["length"] > 256) {
+				continue;
 			}
+			
+			if ($col["type"] == "binary") {
+				continue;
+			}
+			
+			$cols[] = $colName;
 		}
 		
 		return $cols;
@@ -388,6 +390,17 @@ class Schema {
 			$cond[] = "{$n}{$local} = {$item->$foreign}";
 		}
 		return join(" and ", $cond);
+	}
+	
+	public static function joinCondition($src, $dest, $srcAlias="js", $destAlias="jd") {
+		$key = self::$schema[$src]["keys"][$dest];
+		$join = array();
+		
+		foreach ($key["columns"] as $local=>$foreign) {
+			$join[] = "{$srcAlias}.{$local} = {$destAlias}.{$foreign}";
+		}
+		
+		return join(" and ", $join);
 	}
 	
 	public static function keyJoins($table) {

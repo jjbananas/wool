@@ -1,8 +1,6 @@
 <?php
 
 require_once('spyc/spyc.php');
-require_once('Zend/Db.php');
-require_once('Zend/Db/Adapter/Pdo/Mysql.php');
 require_once('Wool/Framework/Db/WoolTable.php');
 require_once('Wool/Framework/Db/SqlParser.php');
 require_once('Wool/Framework/Db/Sql.php');
@@ -11,20 +9,100 @@ require_once('Wool/Framework/Db/Transaction.php');
 require_once('Wool/Framework/Db/RowSet.php');
 require_once('Wool/Framework/validation.php');
 
+// A simple layer above PDO with some useful additions.
 class WoolDb {
-	private static $db;
+	private static $pdo;
+	private static $fetchMode = PDO::FETCH_OBJ;
 	
-	public static function connect() {
-		self::$db = new Zend_Db_Adapter_Pdo_Mysql(array(
-				'host'     => $GLOBALS['DB_HOST'],
-				'username' => $GLOBALS['DB_USERNAME'],
-				'password' => $GLOBALS['DB_PASSWORD'],
-				'dbname'   => $GLOBALS['DB_NAME'],
-				'profiler' => DEVELOPER
-		));
-
-		self::$db->setFetchMode(Zend_Db::FETCH_OBJ);
+	private static $connections = array();
+	
+	public static function connect($host, $db, $user, $pass, $uniqueId="default") {
+		self::$pdo = new PDO("mysql:host={$host};dbname={$db}", $user, $pass);
+		self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		self::$connections[$uniqueId] = self::$pdo;
 	}
+	
+	public static function switchConnection($uniqueId) {
+		if (!isset(self::$connections[$uniqueId])) {
+			trigger_error("Attempting to switch to in-active database connection: '{$uniqueId}'", E_USER_ERROR);
+			return;
+		}
+		
+		self::$pdo = self::$connections[$uniqueId];
+	}
+	
+	//
+	// Transactions
+	//
+	public static function beginTransaction() {
+		return self::$pdo->beginTransaction();
+	}
+	
+	public static function commit() {
+		return self::$pdo->commit();
+	}
+	
+	public static function rollBack() {
+		return self::$pdo->rollBack();
+	}
+	
+	public static function inTransaction() {
+		return self::$pdo->inTransaction();
+	}
+	
+	//
+	// Error codes
+	//
+	public static function errorCode() {
+		return self::$pdo->errorCode();
+	}
+	
+	public static function errorInfo() {
+		return self::$pdo->errorInfo();
+	}
+	
+	//
+	// Queries
+	//
+	
+	// Issue a non-select statement to the database, return the number of affected
+	// rows.
+	public static function exec($statement) {
+		return self::$pdo->exec($statement);
+	}
+	
+	// Query the database and return a PDOStatement object for the result set.
+	public static function query(/*...*/) {
+		$args = func_get_args();
+		return call_user_func_array(array(self::$pdo, 'query'), $args);
+	}
+	
+	// Prepare a statement to be queried on the database. Call execute on the
+	// resultant PDOStatement object to bind parameters and perform the query.
+	public static function prepare(/*...*/) {
+		$args = func_get_args();
+		return call_user_func_array(array(self::$pdo, 'prepare'), $args);
+	}
+	
+	public static function lastInsertId($name=null) {
+		return self::$pdo->lastInsertId($name);
+	}
+	
+	// If for some reason you can't use paramaterized queries, use quote to escape
+	// and quote a given string.
+	public static function quote($string, $paramType=PDO::PARAM_STR) {
+		return self::$pdo->quote($string, $paramType);
+	}
+	
+	public static function quoteIdentifier($name) {
+		return "`{$name}`";
+	}
+	
+	
+	//
+	// Higher-level query builders
+	//
 	
 	// Join across allows us to easily build paramterized queries acting on an
 	// array of values.
@@ -57,34 +135,88 @@ class WoolDb {
 		return array('sql'=>$sql, 'params'=>$rp);
 	}
 	
-	public static function fetchRow($sql) {
-		$args = func_get_args();
-		$row = call_user_func_array(array('self', 'fetchRowStrict'), $args);
-		if (!$row) {
-			return WoolTable::blankFromSql($sql);
-		}
-		return $row;
+	public static function paramQuery($query, $params=array()) {
+		$params = is_array($params) ? $params : array($params);
+		$smnt = self::prepare($query);
+		$smnt->execute($params);
+		return $smnt;
 	}
 	
-	public static function fetchRowStrict($sql) {
-		$args = func_get_args();
-		$row = call_user_func_array(array(self::$db, 'fetchRow'), $args);
-		if (!$row) {
-			return false;
+	// Insert a row given a table name and an array of column:value pairs.
+	public static function insert($table, $data) {
+		$table = self::quoteIdentifier($table);
+		$columns = join(",", array_keys($data));
+		$marks = join(",", array_fill(0, count($data), "?"));
+		$values = join(",", $data);
+		$query = "insert into {$table} ({$columns}) values ({$marks})";
+		
+		$smnt = self::paramQuery($query, array_values($data));
+		$count = $smnt->rowCount();
+		$smnt->closeCursor();
+		
+		return $count;
+	}
+	
+	// Update a row given a table name, column:value data pairs, and column:value
+	// where conditions.
+	public static function update($table, $data, $where) {
+		$table = self::quoteIdentifier($table);
+		$params = array();
+		
+		$updates = array();
+		foreach ($data as $column=>$value) {
+			$updates[] = self::quoteIdentifier($column) . "=?";
+			$params[] = $value;
 		}
-		WoolTable::setQueryMeta($row, new SqlMeta($sql));
-		return $row;
+		$updates = join(",", $updates);
+		
+		$wheres = array();
+		foreach ($where as $column=>$value) {
+			$wheres[] = $column . "=?";
+			$params[] = $value;
+		}
+		$wheres = join(" and ", $wheres);
+		
+		$query = "update {$table} set {$updates} where {$wheres}";
+		
+		$smnt = self::paramQuery($query, array_values($params));
+		$count = $smnt->rowCount();
+		$smnt->closeCursor();
+		
+		return $count;
+	}
+	
+	// Delete a row given a table name and an array of column:value where
+	// conditions.
+	public static function delete($table, $where) {
+		$table = self::quoteIdentifier($table);
+		$params = array();
+		
+		$wheres = array();
+		foreach ($data as $column=>$value) {
+			$wheres[] = $column . "=?";
+			$params[] = $value;
+		}
+		$wheres = join(" and ", $wheres);
+		
+		$query = "delete from {$table} where {$wheres}";
+		
+		$smnt = self::paramQuery($query, array_values($params));
+		$count = $smnt->rowCount();
+		$smnt->closeCursor();
+		
+		return $count;
 	}
 	
 	// Upsert. In other words, insert if unique keys are not present otherwise
 	// update the matching record.
 	public static function upsert($table, $data=array()) {
 		$fields = join(', ', array_keys($data));
-		$values = join(', ', $data);
+		$marks = join(",", array_fill(0, count($data), "?"));
 		
 		$updates = array();
 		foreach ($data as $column=>$value) {
-			$updates[] = "{$column}={$value}";
+			$updates[] = "{$column}=values({$column})";
 		}
 		$updates = join(",\n", $updates);
 		
@@ -92,87 +224,74 @@ class WoolDb {
 insert into {$table}
 ({$fields})
 values
-({$values})
+({$marks})
 on duplicate key update
 {$updates}
 SQL;
 
 		// execute the statement and return the number of affected rows
-		$stmt = self::query($sql, array_values($data));
+		$stmt = self::paramQuery($sql, array_values($data));
 		$result = $stmt->rowCount();
 		return $result;
 	}
 	
-	// Overload static calls and dispatch them off to the real zend database.
-	public static function __callStatic($name, $args) {
-		if (method_exists(self::$db, $name)) {
-			return call_user_func_array(array(self::$db, $name), $args);
-		}
+	
+	//
+	// Higher-level querying
+	//
+	
+	// Fetch everything from a single table. Obvious performace issues apply, so
+	// make sure this is what you want.
+	public static function fetchTable($table, $fetchMode=null) {
+		$fetchMode = $fetchMode ? $fetchMode : self::$fetchMode;
+		$table = self::quoteIdentifier($table);
 		
-		trigger_error("Call to undefined method WoolDb::{$name}", E_USER_ERROR);
+		$smnt = self::query("select * from {$table}");
+		return $smnt->fetchAll($fetchMode);
 	}
 	
-	/*
-		All of the follwoing do nothing except pass through the call to Zend.
-		__callStatic would work in their place, but only on PHP 5.3+
-	*/
-	public static function query(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'query'), $args);
+	// Fetch all results from a query.
+	public static function fetchAll($query, $params=array(), $fetchMode=null) {
+		$params = is_array($params) ? $params : array($params);
+		$fetchMode = $fetchMode ? $fetchMode : self::$fetchMode;
+		$smnt = self::paramQuery($query, $params);
+		return $smnt->fetchAll($fetchMode);
 	}
-	public static function exec(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'exec'), $args);
+	
+	// Fetch the first returned row in the result set.
+	public static function fetchRow($query, $params=array(), $fetchMode=null) {
+		$params = is_array($params) ? $params : array($params);
+		$fetchMode = $fetchMode ? $fetchMode : self::$fetchMode;
+		$smnt = self::paramQuery($query, $params);
+		return $smnt->fetch($fetchMode);
 	}
-	public static function delete(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'delete'), $args);
+	
+	// Fetch a column from the result set as an array of values.
+	public static function fetchCol($query, $params=array(), $column=0) {
+		$params = is_array($params) ? $params : array($params);
+		$smnt = self::paramQuery($query, $params);
+		return $smnt->fetchAll(PDO::FETCH_COLUMN, $column);
 	}
-	public static function insert(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'insert'), $args);
+	
+	// Fetch the first returned row in the result set.
+	public static function fetchPairs($query, $params=array()) {
+ 		$params = is_array($params) ? $params : array($params);
+		$smnt = self::paramQuery($query, $params);
+		
+		$data = array();
+		while ($row = $smnt->fetch(PDO::FETCH_NUM)) {
+			$data[$row[0]] = $row[1];
+		}
+		return $data;
 	}
-	public static function update(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'update'), $args);
+	
+	// Fetch a single column from the first row in the result set.
+	public static function fetchOne($query, $params=array(), $column=0) {
+		$params = is_array($params) ? $params : array($params);
+		
+ 		$smnt = self::paramQuery($query, $params);
+		$value = $smnt->fetchColumn($column);
+		$smnt->closeCursor();
+		return $value;
 	}
-	public static function quote(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'quote'), $args);
-	}
-	public static function lastInsertId(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'lastInsertId'), $args);
-	}
-	public static function fetchOne(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'fetchOne'), $args);
-	}
-	public static function fetchAll(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'fetchAll'), $args);
-	}
-	public static function fetchCol(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'fetchCol'), $args);
-	}
-	public static function getProfiler(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'getProfiler'), $args);
-	}
-	public static function beginTransaction(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'beginTransaction'), $args);
-	}
-	public static function commit(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'commit'), $args);
-	}
-	public static function rollback(/*...*/) {
-		$args = func_get_args();
-		return call_user_func_array(array(self::$db, 'rollback'), $args);
-	}
-
 }
-
-WoolDb::connect();

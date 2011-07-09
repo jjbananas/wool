@@ -121,6 +121,11 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 		return coal($group[$value], array());
 	}
 	
+	public function valueBy($column, $value, $field) {
+		$row = $this->by($column, $value);
+		return $row ? $row->$field : null;
+	}
+	
 	// Create groups on the column(s) provided.
 	public function groupBy(/*...*/) {
 		$groups = func_get_args();
@@ -144,6 +149,7 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 			$this->indices[$column] = array();
 			
 			foreach ($this->rows as &$row) {
+				if (isset($this->indices[$column][$row->$column])) { continue; }
 				$this->indices[$column][$row->$column] = &$row;
 			}
 		}
