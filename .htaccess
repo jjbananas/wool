@@ -1,20 +1,25 @@
 <IfModule mod_rewrite.c>
 	RewriteEngine On
+
+	# JS and CSS files always go through the Burn library and stop there.
 	RewriteRule ^(.+)/([^\.]+)\.(js|css)$ lib/Burn/proxy.php?path=$1&file=$2&ext=$3 [L]
-	RewriteRule ^track.gif$ track.php [L]
+	RewriteRule ^lib/Burn/proxy.php?(.*)$ - [NC,L]
 	
-	RewriteCond public/%{REQUEST_FILENAME} -s [OR]
-	RewriteCond public/%{REQUEST_FILENAME} -l [OR]
-	RewriteCond public/%{REQUEST_FILENAME} -d [OR]
+	# First rewrite everything into the public directory.
 	RewriteCond %{REQUEST_URI} !public
-	RewriteCond %{REQUEST_URI} \.(ico|pdf|flv|jpg|jpeg|png|gif|js|css|swf|txt)$
-	RewriteRule ^(.*)$ public/$1 [NC,L]
-	
+	RewriteCond $1 !^$
+	RewriteRule ^(.*)$ public/$1 [NC]
+
+	# Stop rewriting for any files that exist.
 	RewriteCond %{REQUEST_FILENAME} -s [OR]
 	RewriteCond %{REQUEST_FILENAME} -l [OR]
-	RewriteCond %{REQUEST_FILENAME} -d [OR]
-	RewriteCond %{REQUEST_URI} public
+	RewriteCond %{REQUEST_FILENAME} -d
 	RewriteRule ^(.*)$ - [NC,L]
+
+	# Otherwise rewrite back to original url and serve through index.php.
+	RewriteRule ^public/(.*)$ $1 [NC]
+
+	RewriteCond $1 !^scripts
 	RewriteRule ^(.*)$ index.php [NC,L]
 </IfModule>
 
@@ -36,14 +41,4 @@
 	ExpiresByType application/x-shockwave-flash A86400
 	ExpiresByType application/pdf A86400
 	ExpiresByType video/x-flv A86400
-</IfModule>
-
-<IfModule mod_headers.c>
-	<FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|js|css|swf)$">
-		Header set Cache-Control "max-age=86400, public, must-revalidate"
-	</FilesMatch>
-	
-	<FilesMatch "\.(html|htm|php|xml|txt)$">
-		Header set Cache-Control "no-store, no-cache, must-revalidate"
-	</FilesMatch>
 </IfModule>

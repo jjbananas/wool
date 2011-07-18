@@ -7,6 +7,45 @@ channel:
             type: varchar(30)
 
             
+cron:
+    columns:
+        cronId:
+            type: primary
+
+        scheduledOn:
+            type: datetime
+            nullable: true
+
+        lastRunOn:
+            type: datetime
+            nullable: true
+
+        cronClass:
+            type: varchar(50)
+
+        cronFunction:
+            type: varchar(50)
+
+cron_log:
+    columns:
+        cronLogId:
+            type: primary
+
+        cron:
+            type: key
+            update: cascade
+            delete: cascade
+
+        runOn:
+            type: datetime
+
+        success:
+            type: bool
+
+        message:
+            type: text
+            nullable: true
+
 page:
     columns:
         pageId:
@@ -168,5 +207,25 @@ theme_param:
             primary: true
             
         value:
-            type: varchar(50)
+            type: varchar(255)
             
+
+
+grid_data:
+    columns:
+        gridDataId:
+            type: primary
+
+        users:
+            type: key
+            update: cascade
+            delete: cascade
+
+        reference:
+            type: varchar(50)
+
+        gridData:
+            type: text
+
+    index:
+        reference: [reference]

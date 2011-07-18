@@ -304,6 +304,10 @@ function select_box_tag($name, $options, $selected=null, $ignoreValues = false, 
 	return element_tag_build('select', array_merge($attrs, array('id'=>$name, 'name'=>$name)), $optionHTML);
 }
 
+function yesNoOptions() {
+	return array("1"=>"Yes", "0"=>"No");
+}
+
 function auto_field($obj, $table, $column) {
 	$types = array(
 		"text" => "text_area"
@@ -313,6 +317,10 @@ function auto_field($obj, $table, $column) {
 	
 	if ($type == "enum") {
 		return select_box($obj, "item", $column, Schema::enumOptions($table, $column), true);
+	}
+
+	if ($type == "bool") {
+		return select_box($obj, "item", $column, yesNoOptions());
 	}
 	
 	$inputType = coal($types[$type], "text_field");

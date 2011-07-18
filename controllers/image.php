@@ -226,7 +226,7 @@ class ImageController extends AppController {
 	public function adminCreate() {
 		$path = publicPath("/image-create/");
 		
-		$creator = new ImageCompositor($path . "image.yml", array("variables"=>array("foreground"=>"#00ff00")));
+		$creator = new ImageCompositor($path . "image.yml", array("variables"=>array("foreground"=>"#4D0808")));
 		$this->stopRender();
 	}
 }

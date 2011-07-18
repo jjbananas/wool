@@ -7,6 +7,20 @@ class NullValidator extends Validator {
 	}
 }
 
+class BoolValidator extends Validator {
+	public static function validate($value, $params=array()) {
+		return (
+			$value == 1 || $value == "true" || $value == true ||
+			$value == 0 || $value == "false" || $value == false
+		);
+	}
+	
+	public static function errorMessage($field, $pretty, $value, $valParams) {
+		return "{$pretty} must be a true or false.";
+	}
+
+}
+
 class IntValidator extends Validator {
 	public static function validate($value, $params=array()) {
 		return is_numeric($value) && (!$params['unsigned'] || ($params['unsigned'] && $value >= 0));
@@ -64,6 +78,7 @@ class EnumValidator extends Validator {
 
 WoolValidation::registerValidator("null", "NullValidator");
 WoolValidation::registerValidator("int", "IntValidator");
+WoolValidation::registerValidator("bool", "BoolValidator");
 WoolValidation::registerValidator("string", "StringValidator");
 WoolValidation::registerValidator("date", "DateValidator");
 WoolValidation::registerValidator("datetime", "DatetimeValidator");

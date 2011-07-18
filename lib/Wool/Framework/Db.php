@@ -138,7 +138,24 @@ class WoolDb {
 	public static function paramQuery($query, $params=array()) {
 		$params = is_array($params) ? $params : array($params);
 		$smnt = self::prepare($query);
-		$smnt->execute($params);
+
+		foreach ($params as $num=>&$param) {
+			$type = PDO::PARAM_STR;
+
+			if (is_bool($param)) {
+				$type = PDO::PARAM_BOOL;
+			}
+			else if (is_null($param)) {
+				$type = PDO::PARAM_NULL;
+			}
+			else if (is_int($param)) {
+				$type = PDO::PARAM_INT;
+			}
+
+			$smnt->bindParam(is_numeric($num) ? $num+1 : $num, $param, $type);
+		}
+
+		$smnt->execute();
 		return $smnt;
 	}
 	

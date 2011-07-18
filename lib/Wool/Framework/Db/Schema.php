@@ -21,6 +21,10 @@ class Schema {
 		return file_put_contents_mkdir($GLOBALS['BASE_PATH'] . '/var/database/schema.php', "<?php\nreturn " . var_export(self::$schema, true) . ";\n");
 	}
 	
+	public function clear() {
+		self::$schema = array();
+	}
+	
 	public function debug() {
 		debug(self::$schema);
 	}

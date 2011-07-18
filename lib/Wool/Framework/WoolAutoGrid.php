@@ -101,6 +101,7 @@ class WoolAutoGrid extends WoolGrid {
 		}
 		
 		$_SESSION['grids'][$this->table]['cols'] = $cols;
+		$this->saveGridData();
 	}
 	
 	// Column:Name keys for all columns.
@@ -127,6 +128,7 @@ class WoolAutoGrid extends WoolGrid {
 		}
 		
 		$_SESSION['grids'][$this->table]['cols'] = $cols;
+		$this->saveGridData();
 	}
 	
 	public function setColumnPositions($columns) {
@@ -145,17 +147,24 @@ class WoolAutoGrid extends WoolGrid {
 		}
 		
 		$_SESSION['grids'][$this->table]['cols'] = $cols;
+		$this->saveGridData();
 	}
 	
 	private function cacheFilters() {
+		if (Session::loggedIn()) {
+			$_SESSION['grids'][$this->table] = GridData::byReference($this->table);
+		}
+
 		if (param("{$this->table}_clear")) {
 			$_SESSION['grids'][$this->table]['filter'] = array();
+			$this->saveGridData();
 			return;
 		}
 		
 		$load = param("{$this->table}_load");
 		if ($load && isset($_SESSION['grids'][$this->table]['filters'][$load])) {
 			$_SESSION['grids'][$this->table]['filter'] = $_SESSION['grids'][$this->table]['filters'][$load];
+			$this->saveGridData();
 			return;
 		}
 		
@@ -167,7 +176,21 @@ class WoolAutoGrid extends WoolGrid {
 			if ($save) {
 				$_SESSION['grids'][$this->table]['filters'][$save] = $filter;
 			}
+
+			$this->saveGridData();
 		}
+	}
+
+	private function saveGridData() {
+		if (!Session::loggedIn()) {
+			return;
+		}
+
+		if (!isset($_SESSION['grids'][$this->table])) {
+			return;
+		}
+
+		GridData::saveData(Session::user()->userId, $this->table, $_SESSION['grids'][$this->table]);
 	}
 	
 	public function isFiltering() {

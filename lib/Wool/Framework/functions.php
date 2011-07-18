@@ -32,6 +32,10 @@ function publicUri($path) {
 	return baseUri($path);
 }
 
+function privatePath($path) {
+	return $GLOBALS['BASE_PATH'] . '/private' . $path;
+}
+
 function varPath($path) {
 	return $GLOBALS['BASE_PATH'] . '/var' . $path;
 }

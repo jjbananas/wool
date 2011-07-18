@@ -7,9 +7,6 @@ require_once('Wool/Framework/Db.php');
 require_once('Wool/Framework/Db/SchemaImport.php');
 
 SchemaImport::load('../db');
-//debug(SchemaImport::generateTriggerSql(),1);
-//debug(SchemaImport::generateSql(),1);
-//Schema::debug();
 
 WoolDb::connect($GLOBALS['DB_HOST'], $GLOBALS['DB_NAME'], $GLOBALS['DB_USERNAME'], $GLOBALS['DB_PASSWORD']);
 

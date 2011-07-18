@@ -23,16 +23,20 @@ class ImportMySql {
 				}
 			}
 			
+			$lastColName = null;
+
 			foreach ($table["columns"] as $colName=>$column) {
 				if ($newTable) {
 					$update = null;
 				} else {
 					$update = isset($old[$name]["columns"][$colName]) ? "change" : "add";
 					if ($update == "change" && $column == $old[$name]["columns"][$colName]) {
+						$lastColName = $colName;
 						continue;
 					}
 				}
-				$lines[] = self::columnSql($colName, $column, $update);
+				$lines[] = self::columnSql($colName, $column, $update, ($newTable ? null : $lastColName));
+				$lastColName = $colName;
 			}
 			
 			$primary = Schema::primaryColumns($name);
@@ -101,7 +105,8 @@ class ImportMySql {
 				}
 				
 				$lines[] = sprintf(
-					"constraint `%s` foreign key (%s) references `%s` (%s) on update %s on delete %s",
+					"%s constraint `%s` foreign key (%s) references `%s` (%s) on update %s on delete %s",
+					$newTable ? "" : "add",
 					$key['name'],
 					join(", ", array_keys($key['columns'])),
 					$key['references'],
@@ -419,7 +424,7 @@ SQL
 		return $primaries;
 	}
 
-	private static function columnSql($name, $column, $update=null) {
+	private static function columnSql($name, $column, $update=null, $after=null) {
 		$out = array();
 		
 		if ($update) {
@@ -438,6 +443,10 @@ SQL
 		}
 		if ($column['increment']) {
 			$out[] = 'auto_increment';
+		}
+
+		if ($after) {
+			$out[] = "after {$after}";
 		}
 		
 		return join(" ", $out);

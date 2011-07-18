@@ -1,0 +1,13 @@
+name: Order Complete
+templates:
+    -
+        name: Customer Email
+        reference: customer
+        sendTarget: email
+        personalised: true
+
+    -
+        name: Sales Team Email
+        reference: sales
+        sendTarget: email
+        personalised: false

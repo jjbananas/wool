@@ -87,3 +87,18 @@ function weeksBetween($start, $end) {
 function mkdate($m,$d,$y) {
 	return mktime(0,0,0, $m,$d,$y);
 }
+
+function mkdate_relative($m=0,$d=0,$y=0, $h=0,$min=0,$s=0) {
+	return mktime($h, $min, $s, date("n")+$m,date("j")+$d,date("Y")+$y);
+}
+
+function mktime_relative($h=0,$m=0,$s=0, $mon=0,$d=0,$y=0) {
+	return mktime(
+		date("H") + $h,
+		date("i") + $m,
+		date("s") + $s,
+		date("n") + $mon,
+		date("j") + $d,
+		date("Y") + $y
+	);
+}

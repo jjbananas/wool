@@ -87,11 +87,11 @@
 }
 
 #headerLogoRow {
-	background: url(../images/header-bg.png) right no-repeat;
+	background: url(../theme/shaded/images/header-bg.png) right no-repeat;
 }
 
 #mainLogo {
-	background: url(../images/logos/shaded-main.png) 20px center no-repeat;
+	background: url([logo:../theme/shaded/images/logos/shaded-main.png]) 20px center no-repeat;
 	text-indent: -999em;
 	height: 86px;
 }

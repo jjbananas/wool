@@ -166,7 +166,7 @@ function hex2bin($hex) {
 // Just like array_merge_recursive but maintains keys in child arrays.
 function array_merge_recursive_keys($out, $arr) {
 	foreach ($arr as $key=>$value) {
-		if (is_array($value)) {
+		if (is_array($value) && isset($out[$key])) {
 			$out[$key] = array_merge_recursive_keys($out[$key], $value);
 		} else {
 			$out[$key] = $value;

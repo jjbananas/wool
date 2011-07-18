@@ -79,6 +79,10 @@ class RequiredValidator extends Validator {
 	// Defaults to accept anything greater than 1 since an empty string would be
 	// accepted anyway.
 	public static function validate($value, $params=array()) {
+		if ($value === true || $value === false) {
+			return true;
+		}
+
 		$min = coal($params['min'], 1);
 		return strlen($value) >= $min;
 	}

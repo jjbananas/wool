@@ -34,4 +34,6 @@ Route::add("@portal/@controller/:id/@action");
 Route::add("@portal/@controller/@action");
 Route::add("@portal/@controller");
 
+Route::add("admin/:table", array("portal"=>"admin", "controller"=>"auto", "action"=>"table"));
+
 Route::add("", array("controller"=>"page", "action"=>"index"));

@@ -10,7 +10,7 @@
 </div>
 
 <div class="pad">
-	<form method="post">
+	<form method="post" enctype="multipart/form-data">
 		<div class="pod">
 			<div class="head">
 				<h2 class="icon iconEdit">Theme Configuration</h2>
@@ -23,7 +23,14 @@
 						<div class="input">
 							<label for="<?php echo $name ?>"><?php echo $def["name"] ?></label>
 							<?php
-								echo color_field_tag($name, $params->valueBy("reference", $name, "value"));
+								if ($def["type"] == "color") {
+									echo color_field_tag($name, $params->valueBy("reference", $name, "value"));
+								} else {
+									echo file_field_tag($name, $params->valueBy("reference", $name, "value"));
+									if ($params->valueBy("reference", $name, "value")) {
+										echo '<br /><small>Current File: <a href="' . $params->valueBy("reference", $name, "value") . '" target="_blank">' . $params->valueBy("reference", $name, "value") . "</a></small>";
+									}
+								}
 							?>
 						</div>
 						<?php } ?>

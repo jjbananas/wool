@@ -180,7 +180,7 @@ SQL
 			'varchar' => 'string', 'text' => 'string', 'mediumtext' => 'string',
 			'enum' => 'enum', 'decimal' => 'int', 'date' => 'date',
 			'datetime' => 'datetime', 'float' => 'int', 'double' => 'int',
-			'binary' => 'null'
+			'binary' => 'null', 'bool' => 'bool'
 		);
 		
 		foreach (Schema::allColumns($table) as $column => $col) {
@@ -384,7 +384,7 @@ SQL
 						}
 						
 						if (isset($obj->$alias)) {
-							$store[$table]['primaries']["{$colName} = ?"] = $obj->$alias;
+							$store[$table]['primaries'][$colName] = $obj->$alias;
 						}
 					}
 					

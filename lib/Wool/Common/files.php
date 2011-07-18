@@ -30,6 +30,45 @@ function file_put_contents_mkdir($file, $contents){
 	return file_put_contents($file, $contents);
 }
 
+function fileNameOnly($filename) {
+	return pathinfo($filename, PATHINFO_FILENAME);
+}
+
 function fileExtension($filename) {
 	return pathinfo($filename, PATHINFO_EXTENSION);
+}
+
+// Basically the same as PHP's copy but will append an auto-incrementing number
+// to the end if the file exists. Returns the new path on success or false on
+// failure.
+function copyUnique($src, $dest) {
+	if (!file_exists($dest)) {
+		return copy($src, $dest) ? $dest : false;
+	}
+
+	$path = dirname($dest) . "/";
+	$name = fileNameOnly($dest);
+	$ext = "." . fileExtension($dest);
+
+	$pos = strrpos($name, "_");
+	$num = 1;
+
+	if ($pos !== false) {
+		$num = substr($name, $pos);
+
+		if (is_numeric($num)) {
+			$name = substr($name, 0, $pos);
+		} else {
+			$num = 1;
+		}
+	}
+
+	$dest = $path . $name . "_" . $num . $ext;
+
+	while (file_exists($dest)) {
+		$num++;
+		$dest = $path . $name . "_" . $num . $ext;
+	}
+
+	return copy($src, $dest) ? $dest : false;
 }

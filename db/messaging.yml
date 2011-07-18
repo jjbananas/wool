@@ -1,0 +1,114 @@
+message_type:
+    columns:
+        messageTypeId:
+            type: primary
+
+        name:
+            type: varchar(50)
+
+        reference:
+            type: varchar(50)
+
+        customCampaign:
+            type: bool
+            default: true
+
+    index:
+        unique reference: [reference]
+
+# A message template is either a pre-defined template from something like an
+# order email or a custom template for a campaign.
+message_template:
+    columns:
+        messageTemplateId:
+            type: primary
+
+        message_type:
+            type: key
+            update: cascade
+            delete: cascade
+
+        name:
+            type: varchar(50)
+
+        sendTarget:
+            type: enum
+            length: ['email', 'sms', 'alert', 'twitter', 'facebook', 'mailchimp']
+
+        content:
+            type: text
+
+        contentPlain:
+            type: text
+            nullable: true
+
+        personalised:
+            type: bool
+            default: false
+
+message_template_user:
+    columns:
+        message_template:
+            type: key
+            primary: true
+            update: cascade
+            delete: cascade
+
+        users:
+            type: key
+            primary: true
+            update: cascade
+            delete: cascade
+
+        unsubscribed:
+            type: bool
+            default: false
+
+message:
+    columns:
+        messageId:
+            type: primary
+
+        message_template:
+            type: key
+            update: cascade
+            delete: cascade
+
+        content:
+            type: message_template.content
+
+        contentPlain:
+            type: message_template.contentPlain
+
+        uri:
+            type: uri
+
+message_user:
+    columns:
+        message:
+            type: key
+            primary: true
+            update: cascade
+            delete: cascade
+
+        users:
+            type: key
+            primary: true
+            update: cascade
+            delete: cascade
+
+        # Can be an email or a phone number etc.
+        address:
+            type: varchar(255)
+
+        scheduledOn:
+            type: datetime
+            #default: now()
+
+        sentOn:
+            type: datetime
+            nullable: true
+
+        failed:
+            type: bool
+            default: false

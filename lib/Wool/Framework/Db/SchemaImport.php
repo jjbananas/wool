@@ -35,6 +35,8 @@ class SchemaImport {
 
 	
 	public static function load($name) {
+		Schema::clear();
+		
 		if (is_dir($name)) {
 			$names = glob($name . "/*.yml");
 		} else {
