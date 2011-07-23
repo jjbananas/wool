@@ -10,7 +10,7 @@ class Schema {
 	// Start up from a pre-existing cache.
 	public function loadFromCache() {
 		if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php')) {
-			require_once('Wool/Db/SchemaExport.php');
+			require_once('Wool/Framework/Db/SchemaExport.php');
 			exportSchema($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
 		}
 

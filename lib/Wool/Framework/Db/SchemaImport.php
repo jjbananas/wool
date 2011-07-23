@@ -91,6 +91,12 @@ class SchemaImport {
 		}
 		
 		$result["type"] = $matches[1];
+		$result["length"] = SqlTypes::defaultLength($result["type"]);
+
+		if (SqlTypes::isNumeric($result["type"])) {
+			$result["scale"] = 0;
+		}
+
 		if (isset($matches[3])) {
 			$result["length"] = $matches[3];
 		}
@@ -386,12 +392,16 @@ class SchemaImport {
 		
 		if (!Schema::uniqueColumn($tblName)) {
 			$colName = self::tableToCamelCase($tblName) . "Id";
+			$primaries = Schema::primaryColumns($tblName);
 			
 			Schema::addColumn($tblName, $colName, self::mergeColumnDef(
 				self::$columnTypes["default"],
 				$colName,
 				array(
-					"increment" => true
+					"increment" => true,
+					"type" => "int",
+					"length" => 10,
+					"primary" => !$primaries
 				)
 			));
 			

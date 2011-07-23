@@ -4,7 +4,7 @@
 class SqlTypes {
 	private static $types = array(
 		"binary" => array(
-			"text" => false,
+			"text" => true,
 			"numeric" => false,
 			"date" => false
 		),
@@ -18,7 +18,8 @@ class SqlTypes {
 		"text" => array(
 			"text" => true,
 			"numeric" => false,
-			"date" => false
+			"date" => false,
+			"defaultLength" => 65535
 		),
 		
 		"bool" => array(
@@ -27,10 +28,17 @@ class SqlTypes {
 			"date" => false
 		),
 		
-		"int" => array(
+		"tinyint" => array(
 			"text" => false,
 			"numeric" => true,
 			"date" => false
+		),
+				
+		"int" => array(
+			"text" => false,
+			"numeric" => true,
+			"date" => false,
+			"defaultLength" => 10
 		),
 		
 		"decimal" => array(
@@ -54,7 +62,8 @@ class SqlTypes {
 		"float" => array(
 			"text" => false,
 			"numeric" => true,
-			"date" => false
+			"date" => false,
+			"defaultLength" => 12
 		)
 	);
 	
@@ -67,10 +76,14 @@ class SqlTypes {
 	}
 	
 	public static function isNumeric($type) {
-		return self::$types[$type]["text"];
+		return self::$types[$type]["numeric"];
 	}
 	
 	public static function isDate($type) {
 		return self::$types[$type]["date"];
+	}
+
+	public static function defaultLength($type) {
+		return isset(self::$types[$type]["defaultLength"]) ? self::$types[$type]["defaultLength"] : null;
 	}
 }

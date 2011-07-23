@@ -3,6 +3,19 @@
 class ImportMySql {
 	public static $triggers = array();
 
+	// Compares columns from a datbase point of view, ignoring non-database fields.
+	private static function compareColumns($col1, $col2) {
+		$compare = array("type", "length", "scale", "default", "nullable", "primary", "increment", "unsigned");
+
+		foreach ($compare as $field) {
+			if ($col1[$field] != $col2[$field]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public static function generateSql() {
 		$old = Schema::cachedSchema();
 		$new = Schema::fullSchema();
@@ -30,7 +43,7 @@ class ImportMySql {
 					$update = null;
 				} else {
 					$update = isset($old[$name]["columns"][$colName]) ? "change" : "add";
-					if ($update == "change" && $column == $old[$name]["columns"][$colName]) {
+					if ($update == "change" && self::compareColumns($column, $old[$name]["columns"][$colName])) {
 						$lastColName = $colName;
 						continue;
 					}
