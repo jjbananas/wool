@@ -23,6 +23,16 @@
 		<div id="editHeaderWrapper">
 			<div id="editHeader">
 				<div id="editContainer" class="editContainer">
+					<div class="simpledit-button bold" data-action="bold"><span class="buttonWrap"><a class="buttonImg" href="#"></a></span></div>
+					<div class="simpledit-button italic" data-action="italic"><span class="buttonWrap"><a class="buttonImg" href="#"></a></span></div>
+					<div class="simpledit-button underline" data-action="underline"><span class="buttonWrap"><a class="buttonImg" href="#"></a></span></div>
+					<div class="simpledit-divider"></div>
+					<div class="simpledit-button ol" data-action="ol"><span class="buttonWrap"><a class="buttonImg" href="#"></a></span></div>
+					<div class="simpledit-button ul" data-action="ul"><span class="buttonWrap"><a class="buttonImg" href="#"></a></span></div>
+					<div class="simpledit-divider"></div>
+					<div class="simpledit-button image" data-action="image"><span class="buttonWrap"><a class="buttonImg" href="#"></a></span></div>
+
+					<div class="clear"></div>
 				</div>
 			</div>
 		</div>

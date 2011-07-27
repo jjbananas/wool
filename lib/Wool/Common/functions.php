@@ -175,3 +175,14 @@ function array_merge_recursive_keys($out, $arr) {
 
 	return $out;
 }
+
+function file_exists_cached($filename) {
+	static $cache = array();
+
+	if (!isset($cache[$filename])) {
+		$cache[$filename] = file_exists($filename);
+	}
+
+	return $cache[$filename];
+
+}

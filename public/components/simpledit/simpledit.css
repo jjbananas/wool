@@ -14,3 +14,47 @@
 .simpledit-button.active {
 	color: #00ff00;
 }
+
+.simpledit-divider {
+	float: left;
+	width: 5px;
+	height: 32px;
+}
+
+/* Button images
+*/
+
+.simpledit-button {
+	float: left;
+	width: 32px;
+	height: 32px;
+	cursor: pointer;
+	margin-right: 1px;
+}
+
+.simpledit-button .buttonImg {
+	display: block;
+	width: 32px;
+	height: 32px;
+	background-image: url("mooIconsLarge.png");
+	background-repeat: no-repeat;
+}
+
+.simpledit-button.bold .buttonImg {
+	background-position: -64px 0;
+}
+.simpledit-button.italic .buttonImg {
+	background-position: -192px 0;
+}
+.simpledit-button.underline .buttonImg {
+	background-position: -576px 0;
+}
+.simpledit-button.ol .buttonImg {
+	background-position: -288px 0;
+}
+.simpledit-button.ul .buttonImg {
+	background-position: -544px 0;
+}
+.simpledit-button.image .buttonImg {
+	background-position: -608px 0;
+}

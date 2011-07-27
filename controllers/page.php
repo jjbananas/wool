@@ -29,6 +29,14 @@ class Page {
 		$widget = new $className($pageWidget->type, $this->controller, $pageWidget, $this->widgetParams->byGroup("widgetId", $pageWidget->widgetId));
 		return $widget->render();
 	}
+
+	public function editableWidget($area) {
+		if (!$this->widgets->by("area", $area)) {
+			return false;
+		}
+		
+		return $this->widgets->by("area", $area)->type == "content";
+	}
 	
 	public function widgetJson() {
 		$json = new StdClass;

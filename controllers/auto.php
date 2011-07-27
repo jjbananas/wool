@@ -78,23 +78,50 @@ class AutoController extends Controller {
 	}
 	
 	function adminHistory() {
-		$this->data();
+		$this->table = param('table');
+		$this->historyTable = "history_{$this->table}";
+
 		$this->item = WoolTable::fetch($this->table, "id");
-		$this->data = new WoolGrid("history_{$this->table}", <<<SQL
-select h.productId, h.changedOn, h.cause, new_price price, new_title title, taxId
-from history_product h
-join product s on s.productId = h.productId
-where h.productId = ?
-order by h.changedOn desc
-SQL
-		, $this->item->productId);
-		
+		$this->columns = Schema::historySummaryColumns($this->historyTable);
+
+		$this->data = new WoolGrid(
+			$this->historyTable,
+			WoolTable::queryJoined(
+				$this->historyTable,
+				$this->columns,
+				Schema::primaryCondition($this->historyTable, $this->table, $this->item, "t")
+			)
+		);
+	}
+
+	function adminRevert() {
+		$this->table = param('table');
+		$this->item = WoolTable::fetch($this->table, "id");
+		$this->columns = Schema::editableColumns($this->table);
+		$this->derivedColumns = Schema::derivedColumns($this->table);
+
+		$this->historyItem = WoolTable::fetch("history_{$this->table}", 1);
+
+		foreach ($this->item as $field=>&$value) {
+			$newField = "new_{$field}";
+
+			if (isset($this->historyItem->$newField)) {	
+				$value = $this->historyItem->$newField;
+			}
+		}
+
+		WoolTable::fromArray($this->item, "item");
+
 		if (Request::isPost()) {
-			
+			if (WoolTable::save($this->item)) {
+				$this->redirectTo(array("action"=>"table", "table"=>$this->table));
+			}
 		}
 	}
 	
 	function adminTree() {
+		$this->table = param('table');
+
 		$this->tree = new RowSet(<<<SQL
 select pageDirectoryId id, parentId parentId, title title
 from page_directory
@@ -102,6 +129,7 @@ SQL
 		);
 		
 		$this->item = WoolTable::fetch("page_directory", "id");
+		$this->columns = Schema::summaryColumns($this->table);
 		$this->derivedColumns = Schema::derivedColumns($this->table);
 		
 		if (Request::isAjax()) {

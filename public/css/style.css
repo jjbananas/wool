@@ -2,17 +2,16 @@
 */
 
 #editHeaderWrapper {
-	height: 80px;
 }
 
 #editHeader {
-	height: 80px;
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	background-color: #292b2c;
 	border-bottom: 1px solid #ffffff;
+	z-index: 99;
 }
 
 #editHeader .editContainer {

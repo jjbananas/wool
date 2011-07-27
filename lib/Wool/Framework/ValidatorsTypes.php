@@ -35,6 +35,20 @@ class IntValidator extends Validator {
 	}
 }
 
+class DecimalValidator extends Validator {
+	public static function validate($value, $params=array()) {
+		return is_numeric($value) && (!$params['unsigned'] || ($params['unsigned'] && $value >= 0));
+	}
+	
+	public static function errorMessage($field, $pretty, $value, $valParams) {
+		return "{$pretty} must be a decimal number.";
+	}
+	
+	public static function liveValidation($params) {
+		return array("number"=>true);
+	}
+}
+
 class StringValidator extends Validator {
 	public static function validate($value, $params=array()) {
 		return is_string($value);
@@ -78,6 +92,7 @@ class EnumValidator extends Validator {
 
 WoolValidation::registerValidator("null", "NullValidator");
 WoolValidation::registerValidator("int", "IntValidator");
+WoolValidation::registerValidator("decimal", "DecimalValidator");
 WoolValidation::registerValidator("bool", "BoolValidator");
 WoolValidation::registerValidator("string", "StringValidator");
 WoolValidation::registerValidator("date", "DateValidator");

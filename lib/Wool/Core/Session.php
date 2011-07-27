@@ -31,7 +31,7 @@ class Session {
 			return false;
 		}
 		
-		$user = WoolDb::fetchRow(<<<SQL
+		$user = WoolTable::fetchRow(<<<SQL
 select u.*
 from users u
 where u.email = ? and u.password = ?

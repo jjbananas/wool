@@ -349,6 +349,22 @@ class Schema {
 		
 		return $cols;
 	}
+
+	// Summary columns excluding old_ or diff_ columns for history tables.
+	public static function historySummaryColumns($table) {
+		$summaryColumns = self::summaryColumns($table);
+		$historyColumns = array();
+
+		foreach ($summaryColumns as $col) {
+			if (strpos($col, "diff_") === 0 || strpos($col, "old_") === 0) {
+				continue;
+			}
+
+			$historyColumns[] = $col;
+		}
+
+		return $historyColumns;
+	}
 	
 	
 	public static function keyCondition($table, $key, $localNamespace=null, $foreignNamespace=null) {

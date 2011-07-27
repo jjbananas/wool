@@ -29,7 +29,7 @@ class SqlLexer {
 	static $operators = array('.', ',', '!', '!=', '=', '<', '>', '<=', '>=', '*', '(', ')', '/', '-', 'like', 'rlike', 'not');
 	static $keywords = array(
 		'and', 'as', 'asc', 'between', 'by', 'count', 'desc', 'from', 'inner',
-		'group', 'in', 'is', 'join', 'left', 'limit', 'max', 'null',
+		'group', 'having', 'in', 'is', 'join', 'left', 'limit', 'max', 'null',
 		'offset', 'on', 'or', 'order', 'right', 'select', 'where'
 	);
 	
@@ -461,6 +461,8 @@ class SqlParser {
 				$this->tableFactor();
 				$this->expect(SQL_OPERATOR, ')');
 				$this->nextToken();
+			} else {
+				$this->tableAlias();
 			}
 		}
 		
@@ -490,12 +492,21 @@ class SqlParser {
 	}
 	
 	private function skipBracketedExpression() {
-		while ($this->token && ($this->type !== SQL_OPERATOR || $this->token !== ')')) {
-			if ($this->token == SQL_PLACEHOLDER) {
+		$depth = 1;
+		
+		while ($depth && $this->token) {
+			if ($this->type === SQL_OPERATOR && $this->token === ')') {
+				$depth--;
+			}
+			else if ($this->type == SQL_PLACEHOLDER) {
 				$this->parameterCount++;
+			}
+			else if ($this->token === '(') {
+				$depth++;
 			}
 			$this->nextToken();
 		}
+		
 		$this->nextToken();
 	}
 	
@@ -561,7 +572,7 @@ class SqlParser {
 		if ($this->accept(SQL_OPERATOR, 'not')) {
 			$this->predicate();
 		}
-		else if ($this->accept(SQL_OPERATOR)) {
+		else if ($this->token !== ')' && $this->token !== '(' && $this->accept(SQL_OPERATOR)) {
 			$this->conditionalExpr();
 		}
 		else if ($this->accept(SQL_KEYWORD, 'is')) {
@@ -604,6 +615,11 @@ class SqlParser {
 	private function conditionalExpr() {
 		if ($this->accept(SQL_STRING)) {
 		}
+		else if ($this->type === SQL_OPERATOR && $this->token === '-') {
+			$this->nextToken();
+			$this->expect(SQL_NUMBER);
+			$this->nextToken();
+		}
 		else if ($this->accept(SQL_NUMBER)) {
 		}
 		else if ($this->accept(SQL_PLACEHOLDER)) {
@@ -614,12 +630,16 @@ class SqlParser {
 		else if ($this->type === SQL_IDENTIFIER) {
 			$this->identifier();
 		}
+		else if ($this->type === SQL_OPERATOR && ($this->token === '!' || $this->token === 'not')) {
+			$this->nextToken();
+			$this->conditionalExpr();
+		}
 		else if ($this->type === SQL_OPERATOR && $this->token === '(') {
 			$this->nextToken();
-			$this->skipSubquery();
+			$this->skipBracketedExpression();
 		}
 		else {
-			$this->error("Missing conditional expression");
+			$this->error("Missing conditional expression, found: '{$this->token}'");
 		}
 	}
 	

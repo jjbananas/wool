@@ -154,12 +154,26 @@ class SchemaImport {
 		
 		// Copy primary columns.
 		$primaries = Schema::primaryColumns($tblName);
-		
+		$keyColumns = array();
+
 		foreach ($primaries as $primary) {
 			$def = Schema::column($tblName, $primary);
 			$def["increment"] = false;
 			Schema::addColumn($name, $primary, $def);
+			$keyColumns[$primary] = $primary;
 		}
+		
+		// Set foreign key constraints.
+		Schema::addKey($name, $tblName, array(
+			"name" => "FK__{$name}_{$tblName}",
+			"columns" => $keyColumns,
+			"references" => $tblName,
+			"update" => "cascade",
+			"delete" => "cascade"
+		));
+		
+		// Store inbound keys against the referenced table for faster lookup.
+		Schema::addInbound($tblName, $name);
 		
 		// Set up standard history columns.
 		Schema::addColumn($name, "changedOn", self::getColumnDef("changedOn", array(
@@ -464,6 +478,10 @@ class SchemaImport {
 		
 		if (!$mixin) {
 			self::checkTableRequirements($tblName);
+		}
+
+		if (Schema::tableHasHistory($tblName)) {
+			self::checkTableRequirements("history_{$tblName}");
 		}
 		
 		self::$loadState[$tblName] = self::LS_DONE;

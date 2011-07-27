@@ -245,7 +245,7 @@ SQL
 	
 	function canRenderPartial($view) {
 		$view = $this->viewFile($view);
-		return file_exists(basePath("/views/{$view}_partial.php"));
+		return file_exists_cached(basePath("/views/{$view}_partial.php"));
 	}
 	
 	// Change the layout template.

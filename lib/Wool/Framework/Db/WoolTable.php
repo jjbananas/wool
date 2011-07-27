@@ -178,7 +178,7 @@ SQL
 		$typeValidators = array(
 			'int' => 'int', 'tinyint' => 'int', 'char' => 'string',
 			'varchar' => 'string', 'text' => 'string', 'mediumtext' => 'string',
-			'enum' => 'enum', 'decimal' => 'int', 'date' => 'date',
+			'enum' => 'enum', 'decimal' => 'decimal', 'date' => 'date',
 			'datetime' => 'datetime', 'float' => 'int', 'double' => 'int',
 			'binary' => 'null', 'bool' => 'bool'
 		);
@@ -536,7 +536,7 @@ SQL
 	}
 	
 	// Build a where cause uniquely identifying a row by all its primary keys.
-	private static function primaryWhereClause($table, $id) {
+	public static function primaryWhereClause($table, $id) {
 		$primaries = Schema::primaryColumns($table);
 		$where = array();
 		
