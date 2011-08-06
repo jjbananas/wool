@@ -16,6 +16,24 @@ message_type:
     index:
         unique reference: [reference]
 
+# A message layout is similar to the layouts in the rest of the system. It
+# contains a standard header and footer for message templates to be inserted
+# into.
+message_layout:
+    columns:
+        messageLayoutId:
+            type: primary
+
+        name:
+            type: varchar(50)
+
+        content:
+            type: text
+
+        contentPlain:
+            type: text
+            nullable: true
+
 # A message template is either a pre-defined template from something like an
 # order email or a custom template for a campaign.
 message_template:
@@ -24,6 +42,11 @@ message_template:
             type: primary
 
         message_type:
+            type: key
+            update: cascade
+            delete: cascade
+
+        message_layout:
             type: key
             update: cascade
             delete: cascade
@@ -74,6 +97,9 @@ message:
             update: cascade
             delete: cascade
 
+        sendTarget:
+            type: message_template.sendTarget
+
         content:
             type: message_template.content
 
@@ -82,6 +108,7 @@ message:
 
         uri:
             type: uri
+            nullable: true
 
 message_user:
     columns:

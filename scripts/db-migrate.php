@@ -406,12 +406,6 @@ function run() {
 				} else {
 					strat_apply($versions, $migrations, $limit);
 				}
-				
-				if (param('gen')) {
-					if (!exportSchema($GLOBALS['BASE_PATH']  . "/var/database/schema.php")) {
-						printf("Unable to export schema to cache file.\n"); 
-					}
-				}
 			}
 		} else {
 			$func = "strat_{$strat}";
@@ -556,7 +550,6 @@ function run() {
 			<div class="padv" style="clear: left;">
 				<label for="limit">Apply to:</label> <input type="text" name="limit" value="" />
 				<label for="fake">Fake:</label> <input type="checkbox" name="fake" id="fake" <?php echo param('fake') ? 'checked' : '' ?> />
-				<label for="gen">Generate:</label> <input type="checkbox" name="gen" id="gen" value="1" <?php echo param('gen', param('strat') ? false : true) ? 'checked' : '' ?> />
 				<label for="create">Create Database:</label> <input type="checkbox" name="create" id="create" <?php echo param('create') ? 'checked' : '' ?> />
 
 				<input type="submit" value="Apply" />

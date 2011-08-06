@@ -11,10 +11,10 @@ class Schema {
 	public function loadFromCache() {
 		if (DEVELOPER && !file_exists($GLOBALS['BASE_PATH'] . '/var/database/schema.php')) {
 			require_once('Wool/Framework/Db/SchemaExport.php');
-			exportSchema($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
+			self::$schema = exportSchema($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
+		} else {
+			self::$schema = require($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
 		}
-
-		self::$schema = require($GLOBALS['BASE_PATH'] . '/var/database/schema.php');
 	}
 	
 	public function saveToCache() {
