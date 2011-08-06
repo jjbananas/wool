@@ -50,6 +50,11 @@ jQuery(function($) {
 		var lastSelectedRow = null;
 		
 		grid.mousedown(function(e) {
+			// Left click only for dragging.
+			if (e.button != 0) {
+				return;
+			}
+
 			var deadZone = 10;
 			var srcItem = $(e.target).closest("th, tr");
 			var startPos = {x: e.pageX, y: e.pageY};
