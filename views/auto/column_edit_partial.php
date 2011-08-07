@@ -1,8 +1,14 @@
 <div class="pod podOverlay" id="colunmEdit">
 	<form action="<?php echo routeUri(array("controller"=>"api", "action"=>"columnUpdate")) ?>" method="post">
 		<div class="body editPanel">
-			<label>Login URL</label>
-			<input type="text" name="value" />
+			<label></label>
+
+			<div class="text">
+				<input type="text" name="value" />
+			</div>
+			<div class="">
+				<textarea name="value"></textarea>
+			</div>
 		</div>
 		
 		<div class="foot">

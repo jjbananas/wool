@@ -2,6 +2,7 @@
 
 require_once('Wool/Core/User.php');
 require_once('Wool/App/Forum/Message.php');
+require_once('Wool/App/Message/Message.php');
 
 class UserController extends AppController {
 	function index() {
@@ -60,5 +61,43 @@ class UserController extends AppController {
 	
 	function adminView() {
 		$this->user = User::profileByName(urldecode(param('name')))->fetchRow();
+	}
+
+	function adminSubscriptions() {
+		$this->user = WoolTable::fetch("users", "id");
+		$this->subscriptions = WoolMessage::subscribable()->rowSet();
+
+		$this->current = new RowSet("select * from message_template_user where userId = ?", $this->user->userId);
+
+		if (Request::isPost()) {
+			$save = array();
+
+			foreach ($this->subscriptions as $sub) {
+				if (param(array("sub", $sub->messageTemplateId))) {
+					$cur = $this->current->by("messageTemplateId", $sub->messageTemplateId);
+
+					if (!$cur) {
+						$cur = WoolTable::blank("message_template_user");
+						$cur->messageTemplateId = $sub->messageTemplateId;
+						$cur->userId = $this->user->userId;
+						$cur->unsubscribed = false;
+					} else {
+						$cur->unsubscribed = false;
+					}
+
+					$save[] = $cur;
+				} else {
+					$cur = $this->current->by("messageTemplateId", $sub->messageTemplateId);
+					if ($cur) {
+						$cur->unsubscribed = true;
+						$save[] = $cur;
+					}
+				}
+			}
+
+			if (WoolTable::save($save)) {
+				$this->redirectTo(array("action"=>"view", "id"=>$this->user->userId));
+			}
+		}
 	}
 }

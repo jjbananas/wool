@@ -15,6 +15,7 @@ Route::add("@portal/blog/:year/:month", array("controller"=>"blog", "action"=>"m
 Route::add("@portal/blog/:year", array("controller"=>"blog", "action"=>"year"));
 
 // Users
+Route::add("@portal/user/:id/@action", array("controller"=>"user"));
 Route::add("@portal/user/@action", array("controller"=>"user"));
 Route::add("@portal/user/:name", array("controller"=>"user", "action"=>"view"));
 

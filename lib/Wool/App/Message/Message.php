@@ -20,6 +20,17 @@ class WoolMessage {
 		return Query("select * from message_layout where messageLayoutId in :ids", array("ids"=>$layoutIds));
 	}
 
+	public static function subscribable() {
+		return Query(<<<SQL
+select mt.messageTypeId, mt.reference, mt.name typeName, mt.customCampaign, tpl.messageTemplateId, tpl.name, tpl.sendTarget
+from message_type mt
+join message_template tpl on tpl.messageTypeId = mt.messageTypeId
+where mt.customCampaign = false or mt.subscription = true
+order by mt.reference desc
+SQL
+		);
+	}
+
 	public static function recipientsFor($templateIds) {
 		$templateIds = is_array($templateIds) ? $templateIds : array($templateIds);
 

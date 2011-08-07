@@ -120,6 +120,14 @@ class RowSet implements IteratorAggregate, Countable, ArrayAccess {
 		
 		return coal($group[$value], array());
 	}
+
+	public function value($column) {
+		if (!isset($this->rows[0])) {
+			return null;
+		}
+
+		return $this->rows[0]->$column;
+	}
 	
 	public function valueBy($column, $value, $field) {
 		$row = $this->by($column, $value);

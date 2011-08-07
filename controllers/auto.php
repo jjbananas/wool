@@ -129,7 +129,7 @@ SQL
 		);
 		
 		$this->item = WoolTable::fetch("page_directory", "id");
-		$this->columns = Schema::summaryColumns($this->table);
+		$this->columns = Schema::editableColumns($this->table);
 		$this->derivedColumns = Schema::derivedColumns($this->table);
 		
 		if (Request::isAjax()) {

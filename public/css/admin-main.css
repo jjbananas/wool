@@ -647,6 +647,9 @@ input.icon {
 .iconNext {
 	background-image: url(../images/icons/resultset_next.png);
 }
+.iconNote {
+	background-image: url(../images/icons/note.png);
+}
 .iconPrev {
 	background-image: url(../images/icons/resultset_previous.png);
 }
@@ -664,6 +667,9 @@ input.icon {
 }
 .iconSort {
 	background-image: url(../images/icons/table_sort.png);
+}
+.iconSubscription {
+	background-image: url(../images/icons/email_open.png);
 }
 .iconTable {
 	background-image: url(../images/icons/table.png);
@@ -955,3 +961,17 @@ input.icon {
 	border-top: 1px solid #e3e3e3;
 	margin-top: 6px;
 }
+
+
+/* Check list table
+*/
+
+.checkList td {
+	padding: 4px;
+	vertical-align: middle;
+}
+
+.checkList input {
+	vertical-align: middle;
+}
+

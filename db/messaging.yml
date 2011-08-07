@@ -13,6 +13,10 @@ message_type:
             type: bool
             default: true
 
+        subscription:
+            type: bool
+            default: false
+
     index:
         unique reference: [reference]
 
