@@ -7,7 +7,7 @@ column identity:
     type: int(10)
     increment: true
     unsigned: true
-	
+
 column primary:
     type: int(10)
     increment: true
@@ -26,21 +26,21 @@ column uri:
 column path:
     type: varchar(256)
 
-    
+
 mixin nestedset:
     columns:
         parentId:
             type: int
-            
+            system: true
+
         lft:
             type: int
-            
+            system: true
+
         rgt:
             type: int
-            
-        level:
-            type: int
-        
+            system: true
+
         rootId:
             type: int
-        
+            system: true

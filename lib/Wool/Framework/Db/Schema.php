@@ -119,6 +119,10 @@ class Schema {
 	public static function tableHasHistory($table) {
 		return isset(self::$schema[$table]["info"]["history"]);
 	}
+
+	public static function tableSequenced($table) {
+		return isset(self::$schema[$table]["info"]["sequenced"]);
+	}
 	
 	public static function isSystemTable($table) {
 		return isset(self::$schema[$table]["info"]["system"]);
@@ -207,6 +211,10 @@ class Schema {
 		}
 		
 		if ($col['derived']) {
+			return false;
+		}
+
+		if ($col['system']) {
 			return false;
 		}
 		

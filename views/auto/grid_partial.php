@@ -5,7 +5,7 @@ if ($self->canRenderPartial("/{$table}/auto_grid")) {
 ?>
 <div class="pod">
 	<form method="post" action="<?php echo routeUri(array("action"=>"gridAction", "table"=>$table)) ?>">
-		<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-headerUpdate="<?php echo routeUri(array("controller"=>"api", "action"=>"headerUpdate")) ?>" data-dragRows="<?php echo routeUri(array("controller"=>"api", "action"=>"rowOrder")) ?>">
+		<table class="dataGrid" data-gridTable="<?php echo $table ?>" data-headerUpdate="<?php echo routeUri(array("controller"=>"api", "action"=>"headerUpdate")) ?>" <?php echo Schema::tableSequenced($table) ? 'data-dragRows="' . routeUri(array("controller"=>"api", "action"=>"rowOrder")) . '"' : '' ?>>
 			<thead>
 				<tr>
 					<th class="rowSelect"><input type="checkbox" class="checkAll" /></th>

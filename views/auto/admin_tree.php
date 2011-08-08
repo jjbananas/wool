@@ -31,7 +31,7 @@
 		
 		<div class="body splitBody">
 			<div class="s1of2" style="overflow: auto;">
-				<div class="editPanel" id="jstree">
+				<div class="editPanel" id="jstree" data-move="<?php echo routeUri(array("controller"=>"api", "action"=>"moveNode")) ?>" data-delete="<?php echo routeUri(array("controller"=>"api", "action"=>"delete", "table"=>$table)) ?>">
 					<ul>
 						<?php $self->renderPartial("tree_branch", array("tree"=>$tree, "branch"=>$tree->byGroup("parentId", 0))) ?>
 					</ul>

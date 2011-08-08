@@ -1,6 +1,15 @@
 <?php
 
-require_once('Wool/App/Product.php');
+require_once("Wool/Common/NestedSet.php");
+
+$GLOBALS['DirectoryNestedSet'] = new NestedSet(array(
+	"table" => 'page_directory',
+	"root" => 'rootId',
+	"left" => 'lft',
+	"right" => 'rgt',
+	"unique" => 'pageDirectoryId',
+	"parent" => 'parentId'
+));
 
 class AutoController extends Controller {
 	function startUp() {
@@ -128,16 +137,21 @@ from page_directory
 SQL
 		);
 		
-		$this->item = WoolTable::fetch("page_directory", "id");
+		$this->item = WoolTable::fetch("page_directory", "id", "item");
 		$this->columns = Schema::editableColumns($this->table);
 		$this->derivedColumns = Schema::derivedColumns($this->table);
 		
 		if (Request::isAjax()) {
+			$success = true;
+
+			if (Request::isPost()) {
+				$success = $GLOBALS['DirectoryNestedSet']->insertLastChild($this->item, id_param("parentId"));
+			}
+
 			$this->renderJson(array(
-				"success" => true,
+				"success" => $success,
 				"item" => $this->item
 			));
-			return;
 		}
 	}
 	
@@ -292,6 +306,24 @@ SQL
 		
 		$this->renderJson(array(
 			'success' => true
+		));
+	}
+
+	function adminMoveNode() {
+		if (!$this->ensurePost()) {
+			return;
+		}
+
+		$table = param('table');
+		$position = param('position');
+		$relatedId = id_param('relatedId');
+
+		$item = WoolTable::fetch("page_directory", "id", "item");
+
+		$success = $GLOBALS['DirectoryNestedSet']->moveRelative($item, $relatedId, $position);
+
+		$this->renderJson(array(
+			'success' => $success
 		));
 	}
 	

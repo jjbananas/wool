@@ -29,6 +29,7 @@ class SchemaImport {
 			"increment" => false,
 			"unsigned" => false,
 			"derived" => false,
+			"system" => false,
 			"validators" => array()
 		)
 	);

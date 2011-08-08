@@ -2,6 +2,12 @@
 
 class NestedSet {
 	private $config = array();
+	private $positions = array(
+		"before" => "moveBefore",
+		"after" => "moveAfter",
+		"first" => "moveToFirstChild",
+		"last" => "moveToLastChild"
+	);
 	
 	public function __construct($config) {
 		$this->config = $config;
@@ -117,6 +123,12 @@ class NestedSet {
 		$trans->success();
 		return true;
 	}
+
+	public function moveRelative($obj, $id, $position) {
+		$position = matchIndex($position, $this->positions);
+		$func = $this->positions[$position];
+		return $this->$func($obj, $id);
+	}
 	
 	public function moveBefore($obj, $id) {
 		extract($this->config);
@@ -168,10 +180,10 @@ class NestedSet {
 		$node = $this->nestedData($id);
 		
 		if ($node->$left < $obj->$left) {
-			return $this->moveNodeLeft($obj, $node->$right, $node->$unique);
+			return $this->moveNode($obj, $node->$right, $node->$unique, true);
 		}
 		
-		return $this->moveNodeRight($obj, $node->$right-1, $node->$unique);
+		return $this->moveNode($obj, $node->$right-1, $node->$unique, false);
 	}
 	
 	public function removeNode($id) {
@@ -207,7 +219,7 @@ class NestedSet {
 		}
 
 		// Update parent relation.
-		WoolDb::update($table, array($parent=>$parentId), "{$unique} = {$obj->$unique}");
+		WoolDb::update($table, array($parent=>$parentId), array($unique=>$obj->$unique));
 		
 		$trans->success();
 		return true;
@@ -216,14 +228,14 @@ class NestedSet {
 	private function shiftNodes($lowest, $delta, $rootId) {
 		extract($this->config);
 
-		WoolDb::query(<<<SQL
+		WoolDb::paramQuery(<<<SQL
 update {$table}
 set {$left} = {$left} + {$delta}
 where {$root} = ? and {$left} >= ?
 SQL
 		, array($rootId, $lowest));
 		
-		WoolDb::query(<<<SQL
+		WoolDb::paramQuery(<<<SQL
 update {$table}
 set {$right} = {$right} + {$delta}
 where {$root} = ? and {$right} >= ?
@@ -234,14 +246,14 @@ SQL
 	private function shiftNodesRange($lowest, $highest, $delta, $rootId) {
 		extract($this->config);
 		
-		WoolDb::query(<<<SQL
+		WoolDb::paramQuery(<<<SQL
 update {$table}
 set {$left} = {$left} + {$delta}
 where {$root} = ? and {$left} >= ? and {$left} <= ?
 SQL
 		, array($rootId, $lowest, $highest));
 		
-		WoolDb::query(<<<SQL
+		WoolDb::paramQuery(<<<SQL
 update {$table}
 set {$right} = {$right} + {$delta}
 where {$root} = ? and {$right} >= ? and {$right} <= ?

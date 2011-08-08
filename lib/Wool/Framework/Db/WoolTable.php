@@ -532,7 +532,7 @@ SQL
 			return false;
 		}
 		
-		return WoolDb::query("delete from {$table} where {$unique} = ?", $id);
+		return WoolDb::paramQuery("delete from {$table} where {$unique} = ?", $id);
 	}
 	
 	// Build a where cause uniquely identifying a row by all its primary keys.
