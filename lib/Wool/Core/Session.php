@@ -15,7 +15,7 @@ class Session {
 		session_start();
 		
 		self::sessionStart();
-		self::$user = WoolTable::fetch("users", self::$session->userId);
+		self::$user = WoolTable::fetch("user", self::$session->userId);
 	}
 	
 	public static function loggedIn() {
@@ -33,7 +33,7 @@ class Session {
 		
 		$user = WoolTable::fetchRow(<<<SQL
 select u.*
-from users u
+from user u
 where u.email = ? and u.password = ?
 limit 1
 SQL

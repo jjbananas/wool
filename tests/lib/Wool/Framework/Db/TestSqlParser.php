@@ -12,22 +12,22 @@ class TestSqlParser extends UnitTestCase {
 	}
 	
 	function testSimpleTableAlias() {
-		$this->parse("select * from users u");
-		$this->assertSourceTable("users", "u");
+		$this->parse("select * from user u");
+		$this->assertSourceTable("user", "u");
 	}
 	
 	function testSimpleSelectFields() {
-		$this->parse("select name, password from users u");
+		$this->parse("select name, password from user u");
 		$this->assertSelect("name");
 		$this->assertSelect("password");
-		$this->assertSourceTable("users", "u");
+		$this->assertSourceTable("user", "u");
 	}
 	
 	function testSingleJoin() {
-		$this->parse("select name, password from users u join customers c");
+		$this->parse("select name, password from user u join customers c");
 		$this->assertSelect("name");
 		$this->assertSelect("password");
-		$this->assertSourceTable("users", "u");
+		$this->assertSourceTable("user", "u");
 		$this->assertSourceTable("customers", "c");
 	}
 	

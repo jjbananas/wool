@@ -216,7 +216,7 @@ grid_data:
         gridDataId:
             type: primary
 
-        users:
+        user:
             type: key
             update: cascade
             delete: cascade

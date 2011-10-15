@@ -19,7 +19,7 @@ class Article {
 select a.location, r.*, u.*
 from articles a
 join article_revisions r on r.articleId = a.articleId
-join users u on u.userId = r.authorId
+join user u on u.userId = r.authorId
 where a.location = ? and a.deleted = 'N'
 order by r.publishedOn desc
 limit 1
@@ -36,7 +36,7 @@ SQL
 select r.*, u.*
 from articles a
 join article_revisions r on r.articleId = a.articleId
-join users u on u.userId = r.authorId
+join user u on u.userId = r.authorId
 where a.location = ?
 order by r.publishedOn desc
 SQL

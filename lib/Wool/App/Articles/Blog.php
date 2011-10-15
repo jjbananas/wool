@@ -8,7 +8,7 @@ class Blog {
 select a.location, r.*, u.*
 from articles a
 join article_revisions r on r.articleId = a.articleId
-join users u on u.userId = r.authorId
+join user u on u.userId = r.authorId
 where
 	a.type = 'blog'
 	and r.publishedOn is not null
@@ -25,7 +25,7 @@ SQL
 select a.location, r.*, u.*
 from articles a
 join article_revisions r on r.articleId = a.articleId
-join users u on u.userId = r.authorId
+join user u on u.userId = r.authorId
 where a.type = 'blog' and r.publishedOn is not null
 group by a.articleId
 order by a.createdOn desc

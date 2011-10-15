@@ -37,7 +37,7 @@ SQL
 		return Query(<<<SQL
 select mtu.*, u.email
 from message_template_user mtu
-join users u on u.userId = mtu.userId
+join user u on u.userId = mtu.userId
 where mtu.messageTemplateId in :tids
 SQL
 		, array("tids"=>$templateIds));

@@ -211,7 +211,7 @@ access_roles_users:
             delete: cascade
 
 
-users:
+user:
     info:
         name: Users
         description: Each user has access to some part of the system, ranging from administrators to front-end customers.
@@ -290,7 +290,7 @@ sessions:
         phpSession:
             type: varchar(64)
         
-        users:
+        user:
             type: key
             update: cascade
             delete: cascade

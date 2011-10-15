@@ -20,7 +20,7 @@ class UserController extends AppController {
 			$this->redirectTo(array("action"=>"index"));
 		}
 		
-		$this->user = WoolTable::fetch("users", null, "user");
+		$this->user = WoolTable::fetch("user", null, "user");
 		
 		if (Request::isPost()) {
 			if (WoolTable::save($this->user)) {
@@ -64,7 +64,7 @@ class UserController extends AppController {
 	}
 
 	function adminSubscriptions() {
-		$this->user = WoolTable::fetch("users", "id");
+		$this->user = WoolTable::fetch("user", "id");
 		$this->subscriptions = WoolMessage::subscribable()->rowSet();
 
 		$this->current = new RowSet("select * from message_template_user where userId = ?", $this->user->userId);

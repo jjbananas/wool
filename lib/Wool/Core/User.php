@@ -9,7 +9,7 @@ class User {
 	public static function profileByName($name) {
 		return Query(<<<SQL
 select *
-from users
+from user
 where name = ?
 SQL
 		, $name);
