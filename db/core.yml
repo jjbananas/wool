@@ -2,11 +2,11 @@ channel:
     columns:
         channelId:
             type: primary
-        
+
         name:
             type: varchar(30)
 
-            
+
 cron:
     columns:
         cronId:
@@ -50,30 +50,30 @@ page:
     columns:
         pageId:
             type: primary
-            
+
         title:
             type: varchar(100)
-            
+
         uri:
             type: uri
-            
+
         metaTitle:
             type: varchar(100)
-            
+
         metaDesc:
             type: varchar(256)
-            
+
         metaKeywords:
             type: varchar(100)
-            
+
         layout:
             type: varchar(4096)
-            
+
 page_content:
     columns:
         pageContentId:
             type: primary
-            
+
         content:
             type: text
 
@@ -81,19 +81,19 @@ page_widget:
     columns:
         widgetId:
             type: primary
-            
+
         page:
             type: key
             update: cascade
             delete: cascade
-            
+
         type:
             type: varchar(30)
-            
+
         view:
             type: varchar(30)
             default: "default"
-            
+
         area:
             type: varchar(30)
 
@@ -101,33 +101,33 @@ page_widget_param:
     columns:
         widgetParamId:
             type: primary
-            
+
         page_widget:
             type: key
             update: cascade
             delete: cascade
-            
+
         name:
             type: varchar(30)
-            
+
         value:
             type: varchar(30)
-            
+
 page_directory:
     columns:
         pageDirectoryId:
             type: primary
-        
+
         title:
             type: page.title
             default: static(page.title)
-            
+
         page:
             type: key
             update: cascade
             delete: cascade
             nullable: true
-            
+
     mixin:
         nestedset:
 
@@ -135,32 +135,32 @@ uri_alias:
     columns:
         uri:
             type: uri
-            
+
         directTo:
             type: uri
-            
+
         generated:
             type: bool
-            
+
     index:
         a: [uri]
         b: [directTo]
 
-        
+
 image:
     columns:
         imageId:
             type: primary
-        
+
         title:
             type: varchar(50)
-            
+
         file:
             type: path
-        
+
         hash:
             type: binary(20)
-            
+
     index:
         a: [title]
 
@@ -169,10 +169,10 @@ image_collection:
     columns:
         imageCollectionId:
             type: primary
-            
+
         title:
             type: varchar(50)
-            
+
 
 image_in_collection:
     columns:
@@ -180,7 +180,7 @@ image_in_collection:
             type: key
             update: cascade
             delete: cascade
-            
+
         image_collection:
             type: key
             update: cascade
@@ -190,7 +190,7 @@ theme:
     columns:
         themeId:
             type: primary
-        
+
         name:
             type: varchar(50)
 
@@ -201,14 +201,13 @@ theme_param:
             update: cascade
             delete: cascade
             primary: true
-            
+
         reference:
             type: varchar(50)
             primary: true
-            
+
         value:
             type: varchar(255)
-            
 
 
 grid_data:
@@ -228,4 +227,4 @@ grid_data:
             type: text
 
     index:
-        reference: [reference]
+        unique reference: [userId, reference]

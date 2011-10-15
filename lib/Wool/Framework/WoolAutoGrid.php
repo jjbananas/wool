@@ -1,5 +1,6 @@
 <?php
 require_once('Wool/Framework/WoolGrid.php');
+require_once('Wool/Framework/Db/GridData.php');
 
 class WoolAutoGrid extends WoolGrid {
 	const COL_HIDDEN = 0;
@@ -152,7 +153,7 @@ class WoolAutoGrid extends WoolGrid {
 	
 	private function cacheFilters() {
 		if (Session::loggedIn()) {
-			$_SESSION['grids'][$this->table] = GridData::byReference($this->table);
+			$_SESSION['grids'][$this->table] = GridData::byReference(Session::user()->userId, $this->table);
 		}
 
 		if (param("{$this->table}_clear")) {

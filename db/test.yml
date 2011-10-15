@@ -1,15 +1,15 @@
 schema_data:
     info:
         system: true
-        
+
     columns:
         id:
             type: binary(20)
             primary: true
-        
+
         data:
             type: binary(20)
-            
+
         uniqueId:
             type: int
 
@@ -19,97 +19,97 @@ cart:
         name: Shopping Cart
         shortName: Cart
         description: A shopping cart line inserts a particular product within a cart.
-        
+
     columns:
         cartId:
             type: primary
-            
+
         shipping:
             type: money
             name: Shipping Cost
-            
+
         status:
             type: enum
             length: ["cart", "order"]
-    
+
     derived:
         subTotal:
             sum: cart_line.net
             name: Sub Total
-            
+
         net:
             fetch: shipping + subTotal
             name: Net
-            
+
         tax:
             sum: cart_line.tax
             name: Tax
-				
+
         total:
             fetch: net + tax
             name: Total
-            
-            
+
+
 cart_line:
     info:
         name: Cart Line
         description: A shopping cart line inserts a particular product within a cart.
-        
+
     columns:
         cartLineId:
             type: primary
-            
+
         quantity:
             type: int(10)
-            
+
         cart:
             type: key
             update: cascade
             delete: cascade
-			
+
         product:
             type: key
             update: cascade
             delete: cascade
-            
+
     derived:
         title:
             fetch: product.title
-            
+
         itemPrice:
             fetch: product.price
-            
+
         net:
             fetch: itemPrice * quantity
-        
+
         tax:
             fetch: net * product.tax.rate
-            
+
         total:
             fetch: net + tax
-            
-            
+
+
 product:
     columns:
         productId:
             type: primary
-            
+
         price:
             type: money
             history: old|new|diff
-            
+
         title:
             type: varchar(50)
             history: old|new
-        
+
         description:
             type: text
-            
+
         tax:
             type: key
             update: cascade
             delete: cascade
-            
+
     index:
         unique productId_price: [productId, price]
 
@@ -117,7 +117,7 @@ product_category:
     columns:
         categoryId:
             type: primary
-            
+
         name:
             type: varchar(50)
 
@@ -128,84 +128,86 @@ product_in_category:
             primary: true
             update: cascade
             delete: cascade
-            
+
         product:
             type: key
             primary: true
             update: cascade
             delete: cascade
-    
+
 tax:
     columns:
         taxId:
             type: primary
-            
+
         name:
             type: varchar(30)
-            
+
         rate:
             type: float
 
-            
+
 invoice:
     columns:
         invoiceId:
             type: primary
-    
+
         cart:
             type: key
             update: cascade
             delete: cascade
-        
+
     derived:
         net:
             sum: invoice_line.net
-            
+
         tax:
             sum: invoice_line.tax
-				
+
         total:
             fetch: net + tax
 
-            
+
 invoice_line:
     columns:
         invoiceLineId:
             type: primary
-            
+
         invoice:
             type: key
             update: cascade
             delete: cascade
-            
+
         cart_line:
             type: key
             update: cascade
             delete: cascade
-            
+
         quantity:
             type: int(10)
-            
+
     derived:
         itemPrice:
             fetch: cart_line.itemPrice
-            
+
         net:
             fetch: itemPrice * quantity
-        
+
         tax:
             fetch: quantity * (cart_line.tax / cart_line.quantity)
-            
+
         total:
             fetch: net + tax
 
-            
+
 access_roles_users:
     columns:
-        accessRoleId: 
-            type: primary
-        
-        users:
+        access_roles:
+            type: key
+            update: cascade
+            delete: cascade
+
+        user:
             type: key
             update: cascade
             delete: cascade
@@ -215,31 +217,31 @@ user:
     info:
         name: Users
         description: Each user has access to some part of the system, ranging from administrators to front-end customers.
-        
+
     columns:
         userId:
             type: primary
-            
+
         name:
             type: varchar(50)
             validation:
                 required:
-            
+
         email:
             type: email
             validation:
                 required:
                 nohtml:
                 email:
-            
+
         password:
             type: password
             default: abc123
-            
+
         avatar:
             type: varchar(50)
             default: /test
-            
+
     index:
         a: [name]
 
@@ -248,36 +250,37 @@ access_locations:
     columns:
         accessLocationId:
             type: primary
-            
+
         resource:
             type: varchar(150)
-            
+
         access_roles:
             type: key
+            nullable: true
             update: cascade
             delete: cascade
-            
+
         createdOn:
             type: datetime
-    
+
         modifiedOn:
             type: datetime
-    
+
     index:
         a: [resource]
 
-        
+
 access_roles:
     columns:
         accessRoleId:
             type: primary
-            
+
         roleName:
             type: varchar(50)
-            
+
         loginUrl:
             type: varchar(150)
-            
+
         deniedUrl:
             type: varchar(150)
 
@@ -286,21 +289,20 @@ sessions:
     columns:
         sessionId:
             type: primary
-            
+
         phpSession:
             type: varchar(64)
-        
+
         user:
             type: key
             update: cascade
             delete: cascade
-            
+
         ipAddress:
             type: int
-            
+
         token:
             type: int
-            
+
         createdOn:
             type: datetime
-            

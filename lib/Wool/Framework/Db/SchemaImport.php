@@ -251,6 +251,7 @@ class SchemaImport {
 			$locals[$local] = $primary;
 			$colDef = Schema::column($colName, $primary);
 			$colDef["primary"] = isset($col["primary"]) ? $col["primary"] : false;
+			$colDef["nullable"] = isset($col["nullable"]) ? $col["nullable"] : false;
 			$colDef["increment"] = false;
 			Schema::addColumn($tblName, $local, $colDef);
 		}

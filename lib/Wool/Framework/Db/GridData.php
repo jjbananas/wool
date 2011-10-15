@@ -1,12 +1,12 @@
 <?php
 
 class GridData extends WoolTable {
-	public static function saveData($uerId, $reference, $data) {
+	public static function saveData($userId, $reference, $data) {
 		$data = serialize($data);
-		WoolDb::upsert(array(
+		WoolDb::upsert("grid_data", array(
 			"userId" => $userId,
 			"reference" => $reference,
-			"data" => $data
+			"gridData" => $data
 		));
 	}
 
@@ -15,5 +15,3 @@ class GridData extends WoolTable {
 		return $data ? unserialize($data) : array();
 	}
 }
-
-WoolTable::registerTable("GridData", "grid_data");

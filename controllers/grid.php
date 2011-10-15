@@ -9,7 +9,7 @@ class GridController extends AppController {
 		}
 
 		if (Session::loggedIn()) {
-			$_SESSION['grids'][$this->table] = GridData::byReference($this->table);
+			$_SESSION['grids'][$this->table] = GridData::byReference(Session::user()->userId, $this->table);
 		}
 
 		if (!isset($_SESSION['grids'][$this->table]['filters'])) {

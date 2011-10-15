@@ -49,7 +49,7 @@ SQL
 	
 	public static function loginUser($uid) {
 		$sid = self::$session->sessionId;
-		WoolDb::update("sessions", array("userId"=>$uid), "sessionId = {$sid}");
+		WoolDb::update("sessions", array("userId"=>$uid), array("sessionId"=>$sid));
 	}
 	
 	public static function logout() {
@@ -58,7 +58,7 @@ SQL
 		}
 		
 		$sid = self::$session->sessionId;
-		WoolDb::update("sessions", array("userId"=>0), "sessionId = {$sid}");
+		WoolDb::update("sessions", array("userId"=>0), array("sessionId"=>$sid));
 	}
 	
 	private static function sessionStart() {
