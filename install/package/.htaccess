@@ -1,0 +1,44 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	# JS and CSS files always go through the Burn library and stop there.
+	RewriteRule ^(.+)/([^\.]+)\.(js|css)$ lib/Burn/proxy.php?path=$1&file=$2&ext=$3 [L]
+	RewriteRule ^lib/Burn/proxy.php?(.*)$ - [NC,L]
+	
+	# First rewrite everything into the public directory.
+	RewriteCond %{REQUEST_URI} !public
+	RewriteCond $1 !^$
+	RewriteRule ^(.*)$ public/$1 [NC]
+
+	# Stop rewriting for any files that exist.
+	RewriteCond %{REQUEST_FILENAME} -s [OR]
+	RewriteCond %{REQUEST_FILENAME} -l [OR]
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^(.*)$ - [NC,L]
+
+	# Otherwise rewrite back to original url and serve through index.php.
+	RewriteRule ^public/(.*)$ $1 [NC]
+
+	RewriteCond $1 !^scripts
+	RewriteRule ^(.*)$ index.php [NC,L]
+</IfModule>
+
+<IfModule mod_deflate.c>
+	AddOutputFilterByType DEFLATE text/html text/plain text/xml application/x-javascript text/javascript text/css
+</IfModule>
+
+<IfModule mod_expires.c>
+	ExpiresActive On
+	ExpiresDefault A0
+	ExpiresByType image/ico A86400
+	ExpiresByType image/gif A86400
+	ExpiresByType image/png A86400
+	ExpiresByType image/jpeg A86400
+	ExpiresByType image/x-icon A86400
+	ExpiresByType text/css A86400
+	ExpiresByType text/javascript A86400
+	ExpiresByType application/x-javascript A86400
+	ExpiresByType application/x-shockwave-flash A86400
+	ExpiresByType application/pdf A86400
+	ExpiresByType video/x-flv A86400
+</IfModule>
