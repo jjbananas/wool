@@ -72,3 +72,39 @@ function copyUnique($src, $dest) {
 
 	return copy($src, $dest) ? $dest : false;
 }
+
+// Copy one directory to another recursively, including all files. Existing
+// files will be overwritten.
+function copyRecursive($source, $dest, $fileMode=0777, $dirMode=0777) {
+	if (!is_dir($source)) {
+		return false;
+	}
+
+	mkdir_recursive($dest, $dirMode);
+	$dir = opendir($source);
+
+	while ($file = readdir($dir)) {
+		if ($file == "." || $file == "..") {
+			continue;
+		}
+
+		$s = $source . "/" . $file;
+		$d = $dest . "/" . $file;
+
+		if (is_dir($s)) {
+			if (!copyRecursive($s,$d, $fileMode, $dirMode)) {
+				return false;
+			}
+		} else {
+			if (!copy($s, $d)) {
+				return false;
+			}
+
+			chmod($d, $fileMode);
+		}
+	}
+
+	closedir($dir);
+
+	return true;
+}
