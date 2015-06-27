@@ -1,0 +1,34 @@
+blog_post:
+    columns:
+        postId:
+            type: primary
+
+        user:
+            type: key
+            update: cascade
+            delete: restrict
+            history: old|new
+
+        location:
+            type: path
+
+        title:
+            type: varchar(100)
+            history: old|new
+
+        content:
+            type: text
+            history: old|new
+
+        excerpt:
+            type: text
+            nullable: true
+            history: old|new
+
+        createdOn:
+            type: datetime
+
+        publishedOn:
+            type: datetime
+            nullable: true
+            history: old|new

@@ -6,7 +6,16 @@ class Page {
 	public function __construct($controller, $uri) {
 		$this->controller = $controller;
 		
-		$this->row = WoolTable::fetchRow("select * from page where uri = ?", $uri);
+		if (is_numeric($uri)) {
+			$this->row = WoolDb::fetchRow("select * from page where pageId = ?", $uri);
+		} else {
+			$this->row = WoolDb::fetchRow("select * from page where uri = ?", $uri);
+		}
+
+		if (!$this->row) {
+			return;
+		}
+
 		$this->widgets = new RowSet("select * from page_widget where pageId = ?", $this->row->pageId);
 		$this->widgetParams = new RowSet(
 			"select * from page_widget_param where widgetId in :widgets",
@@ -158,9 +167,14 @@ function processLayout($level, $layout, $layers=array()) {
 class PageController extends Controller {
 	function index() {
 		$this->page = new Page($this, Request::path(true));
-		$this->layoutAreas = processLayout("body", json_decode($this->page->row->layout));
-		
-		$this->meta("description", $this->page->row->metaDesc);
+
+		if ($this->page->row) {
+			$this->layoutAreas = processLayout("body", json_decode($this->page->row->layout));
+			
+			$this->meta("description", $this->page->row->metaDesc);
+		} else {
+			$this->render("/system/404");
+		}
 	}
 	
 	function adminLayout() {
@@ -172,9 +186,9 @@ class PageController extends Controller {
 		
 		$updateData = array();
 		$updateData["layout"] = param('layout');
-		WoolDb::update("page", $updateData, "pageId = " . id_param('page', 0));
+		WoolDb::update("page", $updateData, array("pageId" => id_param('page', 0)));
 		
-		$page = new Page($this, '/layout');
+		$page = new Page($this, id_param('page', 0));
 		$widgets = json_decode(param('widgets'), true);
 		$page->widgetsFromJson($widgets);
 		

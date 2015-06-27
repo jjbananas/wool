@@ -4,11 +4,6 @@
 // entire framework. All setup is done automatically at the bottom of the file.
 class Boot {
 	private static $fatalErrorMask = 0;
-	private static $errorLog;
-	
-	public static function errorLog() {
-		return self::$errorLog;
-	}
 	
 	public static function errorFatal($mask=null) {
 		if (!is_null($mask)) {
@@ -35,20 +30,6 @@ class Boot {
 			
 			self::errorFatal(E_ALL^E_NOTICE);
 		}
-	}
-	
-	private static function startErrorLog() {
-		$mail = new Zend_Mail();
-		$mail->setFrom($GLOBALS['EMAIL_ERRORS_FROM'])->addTo($GLOBALS['EMAIL_DEVELOPER_LOG']);
-
-		$writer = new Zend_Log_Writer_Mail($mail);
-
-		// Set subject text for use; summary of number of errors is appended to the
-		// subject line before sending the message.
-		$writer->setSubjectPrependText(sprintf("Error report: %s", isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : sprintf('php %s', implode(' ', $_SERVER['argv']))));
-
-		self::$errorLog = new Zend_Log;
-		self::$errorLog->addWriter($writer);
 	}
 	
 	private static function renderErrorPage($viewVars=array()) {
@@ -108,7 +89,6 @@ class Boot {
 		}
 		
 		file_put_contents($path . $hash, $content);
-		self::$errorLog->err($content);
 	}
 	
 	private static function errorBody($backtrace, $body='') {
@@ -168,7 +148,7 @@ class Boot {
 		$backtrace = self::prepareBacktrace(function_exists('debug_backtrace') ? debug_backtrace() : array(), true);
 		
 		// Display the first error with a nice error page.
-		if (ini_get('display_errors')) {
+		if (ini_get('display_errors') && PHP_SAPI !== "cli") {
 			$view = array();
 			
 			$view['error'] = $errorText;
@@ -182,12 +162,19 @@ class Boot {
 			$errorText .= self::errorBody($backtrace, $body);
 		}
 
+		// Display full error when running from command line
+		if (ini_get('display_errors') && PHP_SAPI === "cli") {
+			echo strip_tags($errorText);
+		}
+
 		// Log errors.
 		if (ini_get('log_errors')) {
 			self::writeLog(strip_tags($errorText));
 		}
 
-		if(self::$fatalErrorMask & $errno) die(self::errorMessage());
+		if(self::$fatalErrorMask & $errno) {
+			die(self::errorMessage());
+		}
 	}
 	
 	private static function errorMessage() {
@@ -202,10 +189,10 @@ class Boot {
 		$file = $e->getFile();
 		
 		$errorText = "<b>{$cls}{$code}:</b> <i>{$msg}</i> in {$file} on line {$line}\n";
-		$backtrace = self::prepareBacktrace(self::prepareBacktrace($e->getTrace()));
+		$backtrace = self::prepareBacktrace($e->getTrace());
 		
 		// Display the first error with a nice error page.
-		if (ini_get('display_errors')) {
+		if (ini_get('display_errors') && PHP_SAPI !== "cli") {
 			$view = array();
 			
 			$view['error'] = $errorText;
@@ -217,16 +204,17 @@ class Boot {
 
 		$errorText .= self::errorBody($backtrace);
 
-		// Display or log errors.
-		if (ini_get('display_errors')) {
-			echo $errorText;
+		// Display full error when running from command line
+		if (ini_get('display_errors') && PHP_SAPI === "cli") {
+			echo strip_tags($errorText);
 		}
 
+		// Log errors.
 		if (ini_get('log_errors')) {
 			self::writeLog(strip_tags($errorText));
 		}
 
-		echo self::errorMessage();
+		die(self::errorMessage());
 	}
 	
 	public static function setDirectories() {

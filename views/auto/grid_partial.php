@@ -35,24 +35,6 @@ if ($self->canRenderPartial("/{$table}/auto_grid")) {
 			</tbody>
 			
 			<tfoot>
-				<?php /*
-				<tr class="totals">
-					<td>Totals:</td>
-					<?php foreach ($grid->visibleColumns() as $column) { ?>
-					<td><?php echo arraySumInner($grid, $column) ?></td>
-					<?php } ?>
-					<td></td>
-				</tr>
-				<tr class="totals">
-					<td>Average:</td>
-					<?php foreach ($grid->visibleColumns() as $column) { ?>
-					<td><?php echo arrayAvgInner($grid, $column) ?></td>
-					<?php } ?>
-					<td></td>
-				</tr>
-				*/ ?>
-				
-				
 				<tr>
 					<td colspan="999">
 						<div class="newRow">

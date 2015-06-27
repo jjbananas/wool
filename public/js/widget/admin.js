@@ -7,9 +7,11 @@ jQuery(function($) {
 	});
 
 	var form = $("form.widgetConfig");
+/*
 	form.submit(function(e) {
 		e.preventDefault();
 		widgetApi.update(form.serializeArray());
 		widgetApi.closePanel();
 	});
+*/
 });

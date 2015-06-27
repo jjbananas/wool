@@ -28,26 +28,45 @@ cart:
             type: money
             name: Shipping Cost
 
+        shippingTaxRate:
+            type: float
+            validators:
+                range: {min: 0, max: 1}
+
         status:
             type: enum
             length: ["cart", "order"]
 
     derived:
-        subTotal:
+        linesSubTotal:
+            sum: cart_line.subTotal
+
+        linesDiscount:
+            sum: cart_line.discount
+
+        linesNet:
             sum: cart_line.net
-            name: Sub Total
+
+        linesTax:
+            sum: cart_line.tax
+
+        shippingTax:
+            fetch: shipping * shippingTaxRate
+
+        subTotal:
+            fetch: linesSubTotal + shipping
+
+        discount:
+            fetch: linesDiscount
 
         net:
-            fetch: shipping + subTotal
-            name: Net
+            fetch: subTotal - discount
 
         tax:
-            sum: cart_line.tax
-            name: Tax
+            fetch: linesTax + shippingTax
 
         total:
             fetch: net + tax
-            name: Total
 
 
 cart_line:
@@ -72,6 +91,18 @@ cart_line:
             update: cascade
             delete: cascade
 
+        discountRate:
+            type: float
+            default: 0
+            validators:
+                range: {min: 0, max: 1}
+
+        taxRate:
+            type: float
+            default: 0
+            validators:
+                range: {min: 0, max: 1}
+
     derived:
         title:
             fetch: product.title
@@ -79,11 +110,17 @@ cart_line:
         itemPrice:
             fetch: product.price
 
-        net:
+        subTotal:
             fetch: itemPrice * quantity
 
+        discount:
+            fetch: subTotal * discountRate
+
+        net:
+            fetch: subTotal - discount
+
         tax:
-            fetch: net * product.tax.rate
+            fetch: net * taxRate # product.tax.rate
 
         total:
             fetch: net + tax

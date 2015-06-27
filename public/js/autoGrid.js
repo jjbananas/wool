@@ -305,7 +305,7 @@ jQuery(function($) {
 		rowForm.positionMatch({matchedElement: newRow, startPositioned: false});
 		
 		// Double-click to edit items
-		var editBox = $("#colunmEdit");
+		var editBox = $("#columnEdit");
 		(function() {
 			editBox.css({
 				position: "absolute",

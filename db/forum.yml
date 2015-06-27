@@ -1,0 +1,51 @@
+forum_message:
+    columns:
+        id:
+            type: primary
+
+        attachedTo:
+            type: varchar(30)
+
+        attachId:
+            type: int
+            unsigned: true
+
+        user:
+            type: key
+            nullable: true
+            update: set null
+            delete: set null
+
+        parentId:
+            type: int
+            unsigned: true
+            default: 0
+
+        threadId:
+            type: int
+            unsigned: true
+
+        lft:
+            type: int
+            unsigned: true
+
+        rgt:
+            type: int
+            unsigned: true
+
+        message:
+            type: text
+
+        title:
+            type: varchar(100)
+
+        createdOn:
+            type: datetime
+
+        modifiedOn:
+            type: datetime
+
+        replyCount:
+            type: int
+            unsigned: true
+            default: 0

@@ -57,7 +57,7 @@
 								</select>
 								
 								<select id="gridSelect" class="sizeSelect hide">
-									<?php foreach (range(1,14) as $width) { ?>
+									<?php foreach (range(1,24) as $width) { ?>
 									<option value="<?php echo $width ?>"><?php echo $width ?></option>
 									<?php } ?>
 								</select>
@@ -142,7 +142,7 @@
 		</div>
 		
 		<div class="foot">
-			<?php echo linkTo("Save", array("action"=>"edit"), 'class="btnLink icon iconAddItem"') ?>
+			<?php echo linkTo("Save", array("action"=>"edit"), 'class="btnLink icon iconAddItem" data-page="' . $page->row->pageId . '"') ?>
 		</div>
 	</div>
 </div>

@@ -62,12 +62,15 @@ page:
 
         metaDesc:
             type: varchar(256)
+            attr:
+                multiline:
 
         metaKeywords:
             type: varchar(100)
 
         layout:
             type: varchar(4096)
+            system: true
 
 page_content:
     columns:

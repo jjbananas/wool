@@ -5,7 +5,7 @@
 	<ol class="breadcrumbs">
 		<li><?php echo linkTo("Home", array("action"=>"index")) ?></li>
 		<li><?php echo linkTo(Schema::displayName($table), array("action"=>"table", "table"=>$table)) ?></li>
-		<li>Add/Edit <?php echo Schema::displayName($table) ?> #<?php $u = Schema::uniqueColumn($table); echo $item->$u ?></li>
+		<li><?php echo addEditHeading($table, $item) ?></li>
 	</ol>
 </div>
 

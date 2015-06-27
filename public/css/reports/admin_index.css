@@ -1,0 +1,16 @@
+h2 {
+	display: inline;
+}
+
+.groupButtons {
+	display: inline;
+	padding: 0 10px;
+}
+
+.report a {
+	font-size: 120%;
+}
+
+.report .desc {
+	display: block;
+}

@@ -1,13 +1,12 @@
-<div class="pod podOverlay" id="colunmEdit">
+<div class="pod podOverlay" id="columnEdit">
 	<form action="<?php echo routeUri(array("controller"=>"api", "action"=>"columnUpdate")) ?>" method="post">
 		<div class="body editPanel">
-			<label></label>
+			<span class="labelLine"><label></label></span>
 
-			<div class="text">
-				<input type="text" name="value" />
-			</div>
-			<div class="">
-				<textarea name="value"></textarea>
+			<div class="inputTarget">
+				<div class="text">
+					<input type="text" name="value" />
+				</div>
 			</div>
 		</div>
 		

@@ -325,7 +325,7 @@ function auto_field($obj, $table, $column) {
 	
 	$inputType = coal($types[$type], "text_field");
 	
-	if (Schema::length($table, $column) > 100) {
+	if (Schema::getColumnAttr($table, $column, "multiline")) {
 		$inputType = "text_area";
 	}
 	

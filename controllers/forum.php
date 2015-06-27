@@ -15,7 +15,7 @@ class ForumController extends AppController {
 	}
 	
 	function create() {
-		$this->message = WoolTable::fetch("forum_messages", null, "message");
+		$this->message = WoolTable::fetch("forum_message", null, "message");
 		$this->message->userId = Session::user()->userId;
 		
 		if (Request::isPost()) {
@@ -30,10 +30,10 @@ class ForumController extends AppController {
 		$this->thread_num = 1;
 		$this->thread_total = 1;
 		
-		$this->message = WoolTable::fetch("forum_messages", "id");
+		$this->message = WoolTable::fetch("forum_message", "id");
 		
 		if (Request::isPost()) {
-			$this->reply = WoolTable::fetch("forum_messages", null, "message");
+			$this->reply = WoolTable::fetch("forum_message", null, "message");
 			$this->reply->userId = Session::user()->userId;
 			ForumMessage::replyTo($this->reply, $this->message);
 		}
@@ -46,7 +46,7 @@ class ForumController extends AppController {
 	}
 	
 	function delete() {
-		$this->message = WoolTable::fetch("forum_messages", "id");
+		$this->message = WoolTable::fetch("forum_message", "id");
 		
 		if (Request::isPost()) {
 			$GLOBALS['MessageNestedSet']->removeNode($this->message->id);

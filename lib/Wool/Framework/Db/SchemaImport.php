@@ -30,7 +30,8 @@ class SchemaImport {
 			"unsigned" => false,
 			"derived" => false,
 			"system" => false,
-			"validators" => array()
+			"validators" => array(),
+			"attrs" => array()
 		)
 	);
 
@@ -122,6 +123,12 @@ class SchemaImport {
 			$merge["validators"][$name] = ($params ? $params : array());
 		}
 	}
+
+	private static function getColumnAttrsDef(&$merge, $def) {
+		foreach ($def as $name=>$params) {
+			$merge["attrs"][$name] = ($params ? $params : true);
+		}
+	}
 	
 	private static function mergeColumnDef($merge, $colName, $col) {
 		$skip = array("history", "fetch", "sum");
@@ -131,6 +138,8 @@ class SchemaImport {
 				self::splitTypeDef($merge, $def);
 			} else if ($name == "validation") {
 				self::getColumnValidatorDef($merge, $def);
+			} else if ($name == "attr") {
+				self::getColumnAttrsDef($merge, $def);
 			} else if (in_array($name, $skip)) {
 				continue;
 			} else if (array_key_exists($name, $merge)) {
@@ -254,6 +263,10 @@ class SchemaImport {
 			$colDef["nullable"] = isset($col["nullable"]) ? $col["nullable"] : false;
 			$colDef["increment"] = false;
 			Schema::addColumn($tblName, $local, $colDef);
+
+			if (isset($col['history'])) {
+				self::getHistoryColumnDef($tblName, $local, $col['history']);
+			}
 		}
 		
 		// Set foreign key constraints.
@@ -267,10 +280,6 @@ class SchemaImport {
 		
 		// Store inbound keys against the referenced table for faster lookup.
 		Schema::addInbound($colName, $tblName);
-		
-		if (isset($col['history'])) {
-			self::getHistoryColumnDef($tblName, $colName, $col['history']);
-		}
 	}
 	
 	private static function getIndexDef($tblName, $idxName, $index) {

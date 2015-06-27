@@ -1,3 +1,3 @@
-<p>Thank you for your order!</p>
+Thank you for your order!
 
-<p>Your order reference is #{order.number}</p>
+Your order reference is #{order.cartId}

@@ -28,7 +28,7 @@ class NestedSet {
 			return false;
 		}
 
-		WoolDb::update($table, array($root=>$obj->$unique), "{$unique} = {$obj->$unique}");
+		WoolDb::update($table, array($root=>$obj->$unique), array($unique=>$obj->$unique));
 
 		$trans->success();
 		return true;

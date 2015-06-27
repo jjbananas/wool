@@ -35,9 +35,9 @@ class RangeValidator extends Validator {
 	// Defaults to accept anything greater than 1 so that it can easily be used
 	// for primary keys. 
 	public static function validate($value, $params=array()) {
-		$min = coal($params['min'], 1);
-		$max = coal($params['max'], null);
-		
+		$min = isset($params['min']) ? $params['min'] : 1;
+		$max = isset($params['max']) ? $params['max'] : null;
+
 		if (!is_null($min) && $value < $min) {
 			return false;
 		}
@@ -49,8 +49,8 @@ class RangeValidator extends Validator {
 	}
 	
 	public static function errorMessage($field, $pretty, $value, $valParams) {
-		$min = coal($valParams['min'], 1);
-		$max = coal($valParams['max'], null);
+		$min = isset($params['min']) ? $params['min'] : 1;
+		$max = isset($params['max']) ? $params['max'] : null;
 		
 		if (!is_null($min) && $value < $min) {
 			return "{$pretty} must be larger than {$min}, you entered {$value}";

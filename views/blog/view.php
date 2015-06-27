@@ -11,9 +11,9 @@
 <?php if (User::hasRole(Session::user()->userId, AccessRole::ADMIN)) { ?>
 <div class="toolbar">
 	<div class="reply">
-		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"edit", "id"=>$article->articleId)) ?>" class="btnLink iconEdit">Edit</a>
-		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"history", "id"=>$article->articleId)) ?>" class="btnLink iconHistory">History</a>
-		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"delete", "id"=>$article->articleId)) ?>" class="btnLink iconThreadDel">Delete</a>
+		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"edit", "id"=>$article->postId)) ?>" class="btnLink iconEdit">Edit</a>
+		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"history", "id"=>$article->postId)) ?>" class="btnLink iconHistory">History</a>
+		<a href="<?php echo routeUri(array("controller"=>"blog", "action"=>"delete", "id"=>$article->postId)) ?>" class="btnLink iconThreadDel">Delete</a>
 	</div>
 </div>
 <?php } ?>

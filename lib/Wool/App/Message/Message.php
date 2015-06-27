@@ -1,5 +1,7 @@
 <?php
 
+require_once("Swift/lib/swift_required.php");
+
 class WoolMessage {
 	public static function existingLayouts() {
 		return Query("select messageLayoutId, name from message_layout");
@@ -38,7 +40,7 @@ SQL
 select mtu.*, u.email
 from message_template_user mtu
 join user u on u.userId = mtu.userId
-where mtu.messageTemplateId in :tids
+where mtu.messageTemplateId in :tids and mtu.unsubscribed = false
 SQL
 		, array("tids"=>$templateIds));
 	}
@@ -148,6 +150,8 @@ SQL
 		}
 	}
 
+	// trigger the sending of a message with a given reference. All required
+	// variables must be provided in $params.
 	public static function sendMessage($ref, $params=array(), $scheduledOn=null, $uri=null) {
 		$messageType = WoolDb::fetchRow("select * from message_type where reference = ?", $ref);
 
@@ -192,6 +196,29 @@ SQL
 		}
 	}
 
+	public static function processQueue() {
+		$queue = new RowSet(<<<SQL
+select mu.*, m.content, m.contentPlain
+from message_user mu
+join message m on m.messageId = mu.messageId
+where mu.scheduledOn <= now() and mu.sentOn is null and m.sendTarget = 'email'
+SQL
+		);
+
+		$transport = Swift_MailTransport::newInstance();
+		$mailer = Swift_Mailer::newInstance($transport);
+
+		foreach ($queue as $message) {
+			$success = self::sendEmail($message, $mailer);
+
+			$message->sentOn = now();
+			$message->failed = !$success;
+		}
+
+		return WoolTable::save($queue);
+	}
+
+
 	private static $params = array();
 
 	private static function saveMessage($template, $content, $contentPlain, $uri) {
@@ -226,7 +253,7 @@ SQL
 
 	private static function renderMessage($layout, $template) {
 		$regex = "/{([\w\.]+)}/";
-		
+
 		self::$params["body"] = preg_replace_callback($regex, array("self", "messageReplaceCallback"), $template->content);
 		$content = preg_replace_callback($regex, array("self", "messageReplaceCallback"), $layout->content);
 
@@ -243,10 +270,10 @@ SQL
 		$lookup = self::$params;
 
 		foreach ($names as $name) {
-			if (isset($lookup[$name])) {
+			if (is_array($lookup) && isset($lookup[$name])) {
 				$lookup = $lookup[$name];
 				continue;
-			} else if (isset($lookup->$name)) {
+			} else if (is_object($lookup) && isset($lookup->$name)) {
 				$lookup = $lookup->$name;
 				continue;
 			}
@@ -255,5 +282,17 @@ SQL
 		}
 
 		return $lookup;
+	}
+
+	private static function sendEmail($message, $mailer) {
+		$email = Swift_Message::newInstance()
+			->setSubject("")
+			->setFrom(array())
+			->setTo(array($message->address))
+			->setBody($message->contentPlain)
+			->addPart($message->content, "text/html")
+		;
+
+		return $mailer->send($email);
 	}
 }

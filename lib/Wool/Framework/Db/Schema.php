@@ -252,6 +252,10 @@ class Schema {
 	public static function getColumnType($table, $column) {
 		return self::$schema[$table]["columns"][$column]["type"];
 	}
+
+	public static function getColumnAttr($table, $column, $attr) {
+		return isset(self::$schema[$table]["columns"][$column]["attrs"][$attr]) ? self::$schema[$table]["columns"][$column]["attrs"][$attr] : null;
+	}
 	
 	public static function columnName($table, $column) {
 		return

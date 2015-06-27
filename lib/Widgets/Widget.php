@@ -90,6 +90,7 @@ class Widget {
 		$params = new RowSet("select * from page_widget_param where widgetId = ?", $pageWidget->widgetId);
 		
 		$widget = new $className($type, $con, $pageWidget, $params);
+		$widget->configure();
 		$widget->adminRender();
 	}
 	

@@ -298,7 +298,7 @@ class LayoutController extends Controller {
 	}
 	
 	function adminIndex() {
-		$this->page = new Page($this, '/layout');
+		$this->page = new Page($this, '/');
 	}
 	
 	function adminSetLayout() {

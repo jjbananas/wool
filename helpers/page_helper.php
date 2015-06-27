@@ -1,6 +1,6 @@
 <?php
 
-function layoutClass($props) {
+function layoutClass($props, $last) {
 	$cls = array();
 	
 	if (isset($props->sizeType)) {
@@ -9,6 +9,10 @@ function layoutClass($props) {
 		} else {
 			$cls[] = "span-" . $props->size;
 		}
+	}
+
+	if ($last) {
+		$cls[] = "last";
 	}
 	
 	return join(" ", $cls);

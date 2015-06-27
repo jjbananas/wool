@@ -245,9 +245,10 @@ SQL
 		return new RowSet("select * from {$table} {$where}", $params);
 	}
 	
-	public static function queryJoined($table, $selectColumns=array(), $where=null) {
+	public static function queryJoined($table, $selectColumns=array(), $where=null, $orderBy=null) {
 		$selects = array();
 		$where = $where ? "where {$where}" : "";
+		$orderBy = $orderBy ? "order by {$orderBy}" : "";
 		
 		if ($selectColumns) {
 			foreach ($selectColumns as $selectColumn) {
@@ -265,7 +266,7 @@ SQL
 		$selects = join(", ", $selects);
 		$joins = join("\n", $joins);
 		
-		return "select {$selects} from {$table} t {$joins} {$where}";
+		return "select {$selects} from {$table} t {$joins} {$where} {$orderBy}";
 	}
 	
 	public static function fetchRow($sql, $params=array()) {
@@ -455,7 +456,7 @@ SQL
 					}
 				}
 				
-				// Send off to Zend_Db to do the save.
+				// Send off to database layer to do the save.
 				try {
 					if ($s['insert']) {
 						self::triggerEvent("preInsert", $s['obj'], $table);

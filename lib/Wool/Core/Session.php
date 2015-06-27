@@ -30,7 +30,7 @@ class Session {
 		if (!$user || !$pass) {
 			return false;
 		}
-		
+
 		$user = WoolTable::fetchRow(<<<SQL
 select u.*
 from user u
@@ -38,7 +38,7 @@ where u.email = ? and u.password = ?
 limit 1
 SQL
 		, array($user, Cipher::blowfishEnc($pass)));
-		
+
 		if ($user->userId) {
 			self::loginUser($user->userId);
 			return true;

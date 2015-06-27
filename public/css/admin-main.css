@@ -53,7 +53,10 @@ input[type=password],
 input[type=date],
 textarea {
 	padding: 4px;
-	border: 1px solid #808080;
+	border: 1px solid #d8d8d8;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	width: 90%;
 }
 
 textarea {
@@ -700,16 +703,19 @@ input.icon {
 	margin-bottom: 10px;
 }
 
-.editPanel label {
+.editPanel .labelLine {
 	display: block;
 	padding: 2px 1px 6px 1px;
 }
 
-.editPanel label.required {
+.editPanel label {
 	font-variant: small-caps;
 }
 
 .editPanel label.required:after {
+	font-size: 80%;
+	font-variant: normal;
+	content: " *";
 }
 
 .editPanel .foreign {

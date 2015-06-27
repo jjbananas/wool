@@ -378,7 +378,7 @@ jQuery(function($) {
 			url: "/shaded/admin/page/setLayout",
 			type: "post",
 			data: {
-				page: 1,
+				page: $(this).attr("data-page"),
 				layout: JSON.stringify(def),
 				widgets: JSON.stringify(currentWidgets)
 			},

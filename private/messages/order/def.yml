@@ -5,9 +5,11 @@ templates:
         reference: customer
         sendTarget: email
         personalised: true
+        layout: email
 
     -
         name: Sales Team Email
         reference: sales
         sendTarget: email
         personalised: false
+        layout: email

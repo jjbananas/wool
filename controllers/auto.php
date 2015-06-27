@@ -98,7 +98,8 @@ class AutoController extends Controller {
 			WoolTable::queryJoined(
 				$this->historyTable,
 				$this->columns,
-				Schema::primaryCondition($this->historyTable, $this->table, $this->item, "t")
+				Schema::primaryCondition($this->historyTable, $this->table, $this->item, "t"),
+				"changedOn desc"
 			)
 		);
 	}
@@ -109,7 +110,7 @@ class AutoController extends Controller {
 		$this->columns = Schema::editableColumns($this->table);
 		$this->derivedColumns = Schema::derivedColumns($this->table);
 
-		$this->historyItem = WoolTable::fetch("history_{$this->table}", 1);
+		$this->historyItem = WoolTable::fetch("history_{$this->table}", id_param("revertId"));
 
 		foreach ($this->item as $field=>&$value) {
 			$newField = "new_{$field}";
@@ -145,12 +146,21 @@ SQL
 			$success = true;
 
 			if (Request::isPost()) {
-				$success = $GLOBALS['DirectoryNestedSet']->insertLastChild($this->item, id_param("parentId"));
+				if (!$this->item->pageId) {
+					$this->item->pageId = null;
+				}
+
+				if (id_param("parentId")) {
+					$success = $GLOBALS['DirectoryNestedSet']->insertLastChild($this->item, id_param("parentId"));
+				} else {
+					$success = $GLOBALS['DirectoryNestedSet']->insertRoot($this->item);
+				}
 			}
 
 			$this->renderJson(array(
 				"success" => $success,
-				"item" => $this->item
+				"item" => $this->item,
+				"errors" => formatErrors()
 			));
 		}
 	}
@@ -284,7 +294,7 @@ SQL
 		$json = array();
 		
 		if (WoolTable::validateColumn($table, $column, $value, $this)) {
-			$json['success'] = WoolDb::update($table, array($column=>$value), array("{$unique} = ?"=>$uniqueVal));
+			$json['success'] = WoolDb::update($table, array($column=>$value), array($unique=>$uniqueVal));
 			$json['value'] = $value;
 		} else {
 			$json['msg'] = "Update failed.";

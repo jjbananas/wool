@@ -1,0 +1,46 @@
+# Columns
+column money:
+    type: decimal(10,2)
+    default: 0.00
+
+column identity:
+    type: int(10)
+    increment: true
+    unsigned: true
+
+column primary:
+    type: int(10)
+    increment: true
+    unsigned: true
+    primary: true
+
+column email:
+    type: varchar(50)
+
+column password:
+    type: varchar(50)
+
+column uri:
+    type: varchar(256)
+
+column path:
+    type: varchar(256)
+
+
+mixin nestedset:
+    columns:
+        parentId:
+            type: int
+            system: true
+
+        lft:
+            type: int
+            system: true
+
+        rgt:
+            type: int
+            system: true
+
+        rootId:
+            type: int
+            system: true

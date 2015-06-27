@@ -1,3 +1,3 @@
-<p>An order has been made in your shop!</p>
+An order has been made in your shop!
 
-<p>Order number #{order.number}</p>
+Order number #{order.cartId}

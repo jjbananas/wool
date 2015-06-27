@@ -19,4 +19,10 @@ class ContentWidget extends Widget {
 	public function action() {
 		$this->content = WoolTable::fetch("page_content", $this->param('content', 0));
 	}
+
+	public function configure() {
+		if (Request::isPost()) {
+			
+		}
+	}
 }

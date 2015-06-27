@@ -12,7 +12,7 @@ class Route {
 	public static $portals = array("default");
 	public static $portalLoc = self::PORTAL_LEADING_PATH;
 	public static $controllers = array();
-	public static $defaultController = "article";
+	public static $defaultController = "page";
 	public static $defaultAction = "index";
 	
 	public static $revPortals;
